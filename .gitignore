@@ -47,6 +47,25 @@ target/
 .DS_Store
 Thumbs.db
 
+
+# Backend credentials
+backend/src/main/resources/application.properties
+
+# Maven
+backend/target/
+*.class
+
+# Node
+web/node_modules/
+web/dist/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
 # Spring Boot
 *.jar
 *.war

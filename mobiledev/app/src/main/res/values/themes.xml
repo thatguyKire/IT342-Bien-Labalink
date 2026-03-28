@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.LabaLink"
+        parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">#9333EA</item>
+        <item name="colorPrimaryDark">#7E22CE</item>
+        <item name="colorAccent">#9333EA</item>
+    </style>
+</resources>

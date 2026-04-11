@@ -24,20 +24,19 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public SecurityFilterChain filterChain(
-            HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(
-                    SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/api/auth/**").permitAll()
-                .anyRequest().authenticated()
-            );
-
-        return http.build();
-    }
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(csrf -> csrf.disable()) // Disable CSRF for REST APIs
+        .authorizeHttpRequests(auth -> auth
+            // ALLOW your auth endpoints (adjust the prefix if your controllers don't use /api/v1)
+            .requestMatchers("/api/v1/auth/**").permitAll() 
+            .requestMatchers("/auth/**").permitAll() // Just in case you didn't add the /api/v1 prefix
+            .requestMatchers("/error").permitAll()   // IMPORTANT: Allows Spring to show actual error messages instead of Access Denied
+            .anyRequest().authenticated()            // Secure everything else
+        )
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        
+    return http.build();
+}
 }

@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/machines")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:5173")
 public class MachineController {
 
     private final MachineService machineService;

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   getAllMachines,
   createMachine,
@@ -20,6 +21,7 @@ const defaultForm: MachineRequest = {
 };
 
 export default function MachinePage() {
+  const navigate = useNavigate();
   const [machines, setMachines] = useState<Machine[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -144,6 +146,12 @@ export default function MachinePage() {
           </p>
         </div>
         <div className={s.headerRight}>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="border border-gray-200 text-gray-600 px-4 py-2 rounded-xl font-semibold hover:bg-gray-50 transition-all mr-3"
+          >
+            ← Back to Dashboard
+          </button>
           <button
             onClick={handleOpenAdd}
             className={s.addButton}

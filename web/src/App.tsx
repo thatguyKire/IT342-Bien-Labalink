@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import MachinePage from './pages/MachinePage';
+import BookingPage from './pages/BookingPage';
 import OAuth2CallbackPage from
   './pages/OAuth2CallbackPage';
 
@@ -26,6 +27,11 @@ function App() {
         <Route path="/" element={
           <Navigate to="/login" replace />
         } />
+            <Route path="/bookings" element={
+         <ProtectedRoute>
+          <BookingPage />
+         </ProtectedRoute>
+          } />
         <Route path="/login"
                element={<LoginPage />} />
         <Route path="/register"

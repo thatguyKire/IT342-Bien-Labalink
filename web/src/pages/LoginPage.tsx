@@ -1,15 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { login } from '../services/authService';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { loginStyles as s } from '../styles/LoginPage.styles';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Check if redirected back from cancelled
+  // or failed Google login
+  useEffect(() => {
+    const params = new URLSearchParams(
+      location.search);
+    const errorParam = params.get('error');
+
+    if (errorParam === 'google_cancelled') {
+      setError(
+        'Google sign in was cancelled. ' +
+        'Please try again.');
+    } else if (errorParam === 'no_email') {
+      setError(
+        'Could not get email from Google. ' +
+        'Please try again.');
+    }
+  }, [location]);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -19,10 +38,14 @@ export default function LoginPage() {
     try {
       setLoading(true);
       setError('');
-      const response = await login({ email, password });
-      localStorage.setItem('token', response.accessToken);
-      localStorage.setItem('role', response.role);
-      localStorage.setItem('username', response.username);
+      const response = await login(
+        { email, password });
+      localStorage.setItem(
+        'token', response.accessToken);
+      localStorage.setItem(
+        'role', response.role);
+      localStorage.setItem(
+        'username', response.username);
       navigate('/dashboard');
     } catch {
       setError('Invalid email or password');
@@ -47,26 +70,36 @@ export default function LoginPage() {
 
       {/* Card */}
       <div className={s.card}>
-        <h2 className={s.cardTitle}>Welcome Back</h2>
+        <h2 className={s.cardTitle}>
+          Welcome Back
+        </h2>
         <p className={s.cardSubtitle}>
-          Sign in to your account to manage your laundry
+          Sign in to your account to manage 
+          your laundry
         </p>
 
         {/* Error */}
         {error && (
-          <div className={s.errorBox}>{error}</div>
+          <div className={s.errorBox}>
+            {error}
+          </div>
         )}
 
         {/* Email */}
         <div className="mb-4">
-          <label className={s.inputLabel}>Email</label>
+          <label className={s.inputLabel}>
+            Email
+          </label>
           <div className={s.inputWrapper}>
-            <span className={s.inputIcon}>✉️</span>
+            <span className={s.inputIcon}>
+              ✉️
+            </span>
             <input
               type="email"
               placeholder="Enter your email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => 
+                setEmail(e.target.value)}
               className={s.input}
             />
           </div>
@@ -83,17 +116,23 @@ export default function LoginPage() {
             </span>
           </div>
           <div className={s.inputWrapper}>
-            <span className={s.inputIcon}>🔒</span>
+            <span className={s.inputIcon}>
+              🔒
+            </span>
             <input
-              type={showPassword ? 'text' : 'password'}
+              type={
+                showPassword ? 'text' : 'password'
+              }
               placeholder="Enter your password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) =>
+                setPassword(e.target.value)}
               className={s.input}
             />
             <span
               className={s.eyeIcon}
-              onClick={() => setShowPassword(!showPassword)}
+              onClick={() =>
+                setShowPassword(!showPassword)}
             >
               {showPassword ? '🙈' : '👁️'}
             </span>
@@ -119,7 +158,14 @@ export default function LoginPage() {
         </div>
 
         {/* Google Button */}
-        <button className={s.googleButton}>
+        <button
+          onClick={() => {
+            window.location.href =
+              'http://localhost:8080' +
+              '/api/oauth2/authorize/attendant';
+          }}
+          className={s.googleButton}
+        >
           <img
             src="https://www.google.com/favicon.ico"
             alt="Google"
@@ -128,13 +174,6 @@ export default function LoginPage() {
           Continue with Google
         </button>
 
-        {/* Register Link */}
-        <p className={s.registerText}>
-          Don't have an account?{' '}
-          <Link to="/register" className={s.registerLink}>
-            Register here
-          </Link>
-        </p>
       </div>
 
       {/* Footer */}

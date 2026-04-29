@@ -70,4 +70,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
 // Activity KTX
     implementation("androidx.activity:activity-ktx:1.8.2")
+    //Google
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
 }

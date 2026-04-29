@@ -14,18 +14,20 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = 
             new CorsConfiguration();
-        
+
         config.setAllowedOrigins(List.of(
             "http://localhost:5173"
         ));
         config.setAllowedMethods(List.of(
-            "GET", "POST", "PUT", 
+            "GET", "POST", "PUT",
             "DELETE", "OPTIONS"
         ));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
+        config.setAllowedOriginPatterns(
+            List.of("*"));
 
-        UrlBasedCorsConfigurationSource source = 
+        UrlBasedCorsConfigurationSource source =
             new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration(
             "/**", config);

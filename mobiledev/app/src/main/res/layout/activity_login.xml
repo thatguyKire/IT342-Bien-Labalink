@@ -136,6 +136,18 @@
                     android:backgroundTint="#9333EA"
                     android:layout_marginBottom="16dp"/>
 
+                <!-- Google Login Button -->
+                <Button
+                    android:id="@+id/btnGoogleLogin"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:text="Continue with Google"
+                    android:textColor="#374151"
+                    android:textSize="14sp"
+                    android:backgroundTint="#FFFFFF"
+                    android:strokeColor="#E5E7EB"
+                    android:layout_marginTop="8dp"/>
+
                 <!-- Register link -->
                 <TextView
                     android:id="@+id/tvRegisterLink"

@@ -21,4 +21,9 @@ interface AuthApi {
     suspend fun login(
         @Body request: LoginRequest
     ): Response<LoginResponse>
+
+    @POST("api/auth/google-login")
+    suspend fun googleLogin(
+        @Body request: Map<String, String>
+    ): Response<LoginResponse>
 }

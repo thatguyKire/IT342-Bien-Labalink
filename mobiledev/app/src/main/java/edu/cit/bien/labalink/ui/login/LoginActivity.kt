@@ -1,6 +1,5 @@
 package edu.cit.bien.labalink.ui.login
 
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -10,6 +9,10 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import edu.cit.bien.labalink.R
 import edu.cit.bien.labalink.api.RetrofitClient
 import edu.cit.bien.labalink.model.LoginRequest
@@ -22,44 +25,151 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
     private lateinit var btnLogin: Button
+    private lateinit var btnGoogleLogin: Button
     private lateinit var tvError: TextView
     private lateinit var tvRegisterLink: TextView
     private lateinit var prefs: SharedPreferences
+    private lateinit var googleSignInClient:
+            GoogleSignInClient
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    companion object {
+        private const val RC_SIGN_IN = 9001
+    }
+
+    override fun onCreate(
+        savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
         prefs = getSharedPreferences(
-            "labalink_prefs",
-            MODE_PRIVATE
-        )
+            "labalink_prefs", MODE_PRIVATE)
 
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
         btnLogin = findViewById(R.id.btnLogin)
+        btnGoogleLogin = findViewById(
+            R.id.btnGoogleLogin)
         tvError = findViewById(R.id.tvError)
-        tvRegisterLink = findViewById(R.id.tvRegisterLink)
+        tvRegisterLink = findViewById(
+            R.id.tvRegisterLink)
+
+        // Configure Google Sign In
+        val gso = GoogleSignInOptions.Builder(
+            GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .requestProfile()
+            .build()
+
+        googleSignInClient = GoogleSignIn
+            .getClient(this, gso)
 
         btnLogin.setOnClickListener {
             handleLogin()
         }
 
+        btnGoogleLogin.setOnClickListener {
+            handleGoogleLogin()
+        }
+
         tvRegisterLink.setOnClickListener {
-            startActivity(
-                Intent(
-                    this,
-                    RegisterActivity::class.java
-                )
-            )
+            startActivity(Intent(
+                this,
+                RegisterActivity::class.java))
+        }
+    }
+
+    private fun handleGoogleLogin() {
+        val signInIntent = googleSignInClient
+            .signInIntent
+        startActivityForResult(
+            signInIntent, RC_SIGN_IN)
+    }
+
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?) {
+        super.onActivityResult(
+            requestCode, resultCode, data)
+
+        if (requestCode == RC_SIGN_IN) {
+            val task = GoogleSignIn
+                .getSignedInAccountFromIntent(data)
+            try {
+                val account = task
+                    .getResult(ApiException::class.java)
+
+                val email = account.email ?: ""
+                val name = account.displayName ?: ""
+
+                // Send to our backend
+                sendGoogleUserToBackend(email, name)
+
+            } catch (e: ApiException) {
+                showError(
+                    "Google sign in failed. " +
+                            "Try again.")
+            }
+        }
+    }
+
+    private fun sendGoogleUserToBackend(
+        email: String,
+        name: String) {
+
+        btnGoogleLogin.isEnabled = false
+        btnGoogleLogin.text = "Signing in..."
+
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient
+                    .authApi
+                    .googleLogin(
+                        mapOf(
+                            "email" to email,
+                            "name" to name,
+                            "role" to "CUSTOMER"
+                        )
+                    )
+
+                if (response.isSuccessful) {
+                    val body = response.body()!!
+                    prefs.edit()
+                        .putString("token",
+                            body.accessToken)
+                        .putString("username",
+                            body.username)
+                        .putString("role", body.role)
+                        .putString("email", body.email)
+                        .apply()
+
+                    startActivity(Intent(
+                        this@LoginActivity,
+                        DashboardActivity::class.java))
+                    finish()
+                } else {
+                    showError(
+                        "Google login failed.")
+                }
+            } catch (e: Exception) {
+                showError(
+                    "Cannot connect to server.")
+            } finally {
+                btnGoogleLogin.isEnabled = true
+                btnGoogleLogin.text =
+                    "Continue with Google"
+            }
         }
     }
 
     private fun handleLogin() {
-        val email = etEmail.text.toString().trim()
-        val password = etPassword.text.toString().trim()
+        val email = etEmail.text
+            .toString().trim()
+        val password = etPassword.text
+            .toString().trim()
 
-        if (email.isEmpty() || password.isEmpty()) {
+        if (email.isEmpty() ||
+            password.isEmpty()) {
             showError("Please fill in all fields")
             return
         }
@@ -70,33 +180,33 @@ class LoginActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                val response = RetrofitClient.authApi
-                    .login(LoginRequest(email, password))
+                val response = RetrofitClient
+                    .authApi
+                    .login(LoginRequest(
+                        email, password))
 
                 if (response.isSuccessful) {
                     val body = response.body()!!
-
-                    // Save token and user info
                     prefs.edit()
-                        .putString("token", body.accessToken)
-                        .putString("username", body.username)
+                        .putString("token",
+                            body.accessToken)
+                        .putString("username",
+                            body.username)
                         .putString("role", body.role)
                         .putString("email", body.email)
                         .apply()
 
-                    startActivity(
-                        Intent(
-                            this@LoginActivity,
-                            DashboardActivity::class.java
-                        )
-                    )
+                    startActivity(Intent(
+                        this@LoginActivity,
+                        DashboardActivity::class.java))
                     finish()
                 } else {
-                    showError("Invalid email or password")
+                    showError(
+                        "Invalid email or password")
                 }
             } catch (e: Exception) {
-                showError("Cannot connect to server. " +
-                        "Make sure backend is running.")
+                showError(
+                    "Cannot connect to server.")
             } finally {
                 btnLogin.isEnabled = true
                 btnLogin.text = "Login"

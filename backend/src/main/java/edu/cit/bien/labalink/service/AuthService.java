@@ -19,23 +19,30 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    public void register(RegisterRequest request) {
-        if (userRepository
-                .existsByEmail(request.getEmail())) {
-            throw new RuntimeException(
-                "Email already exists");
-        }
-
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPasswordHash(
-            passwordEncoder.encode(
-                request.getPassword()));
-        user.setRole(User.Role.CUSTOMER);
-
-        userRepository.save(user);
+public void register(RegisterRequest request) {
+    if (userRepository.existsByEmail(
+            request.getEmail())) {
+        throw new RuntimeException(
+            "Email already exists");
     }
+
+    User user = new User();
+    user.setUsername(request.getUsername());
+    user.setEmail(request.getEmail());
+    user.setPasswordHash(
+        passwordEncoder.encode(
+            request.getPassword()));
+
+    // Role comes from request
+    // Mobile sends CUSTOMER (default)
+    // If no role specified default to CUSTOMER
+    user.setRole(
+        request.getRole() != null
+            ? request.getRole()
+            : User.Role.CUSTOMER);
+
+    userRepository.save(user);
+}
 
     public LoginResponse login(LoginRequest request) {
         User user = userRepository

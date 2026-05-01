@@ -50,6 +50,17 @@ export default function DashboardPage() {
 </button>
 
 
+<button
+  onClick={() => navigate('/wallet')}
+  className="w-full border border-[#9333EA]
+             text-[#9333EA] px-6 py-3
+             rounded-xl font-semibold mb-3
+             hover:bg-purple-50 transition-all"
+>
+  💰 Go to Wallet
+</button>
+
+
         <button
           onClick={handleLogout}
           className="w-full border border-gray-200 

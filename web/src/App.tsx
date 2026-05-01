@@ -5,6 +5,7 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import MachinePage from './pages/MachinePage';
 import BookingPage from './pages/BookingPage';
+import WalletPage from './pages/WalletPage';
 import OAuth2CallbackPage from
   './pages/OAuth2CallbackPage';
 
@@ -31,7 +32,12 @@ function App() {
          <ProtectedRoute>
           <BookingPage />
          </ProtectedRoute>
-          } />
+              } />
+            <Route path="/wallet" element={
+              <ProtectedRoute>
+                <WalletPage />
+              </ProtectedRoute>
+              } />
         <Route path="/login"
                element={<LoginPage />} />
         <Route path="/register"
@@ -43,6 +49,13 @@ function App() {
             <DashboardPage />
           </ProtectedRoute>
         } />
+
+          <Route path="/wallet" element={
+          <ProtectedRoute>
+             <WalletPage />
+          </ProtectedRoute>
+            } />
+
         <Route path="/machines" element={
           <ProtectedRoute>
             <MachinePage />

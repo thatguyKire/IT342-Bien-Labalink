@@ -38,6 +38,8 @@ public class SecurityConfig {
                     "/api/machines/**").permitAll()
                     .requestMatchers(
                     "/api/bookings/**").permitAll()
+                    .requestMatchers(
+                    "/api/payments/**").permitAll()
                 .requestMatchers(
                     "/api/oauth2/**").permitAll()
                 .requestMatchers(

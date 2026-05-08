@@ -23,6 +23,9 @@ public class BookingService {
     private final UserRepository userRepository;
     private final MachineRepository 
         machineRepository;
+    private final EmailService emailService;
+    private final WebSocketService 
+        webSocketService;
 
     public List<BookingResponse> getAllBookings() {
         return bookingRepository.findAll()
@@ -31,8 +34,9 @@ public class BookingService {
             .collect(Collectors.toList());
     }
 
-    public List<BookingResponse> getBookingsByStatus(
-            Booking.BookingStatus status) {
+    public List<BookingResponse> 
+            getBookingsByStatus(
+                Booking.BookingStatus status) {
         return bookingRepository
             .findByStatus(status)
             .stream()
@@ -40,7 +44,8 @@ public class BookingService {
             .collect(Collectors.toList());
     }
 
-    public BookingResponse getBookingById(Long id) {
+    public BookingResponse getBookingById(
+            Long id) {
         Booking booking = bookingRepository
             .findById(id)
             .orElseThrow(() ->
@@ -64,7 +69,7 @@ public class BookingService {
                 new RuntimeException(
                     "Machine not found"));
 
-        if (machine.getStatus() != 
+        if (machine.getStatus() !=
                 Machine.MachineStatus.AVAILABLE) {
             throw new RuntimeException(
                 "Machine is not available");
@@ -76,19 +81,32 @@ public class BookingService {
         booking.setStartTime(request.getStartTime());
         booking.setEndTime(request.getEndTime());
         booking.setTotalPrice(request.getTotalPrice());
-        booking.setStatus(Booking.BookingStatus.PENDING);
+        booking.setStatus(
+            Booking.BookingStatus.PENDING);
 
-        // Update machine status to RUNNING
         machine.setStatus(
             Machine.MachineStatus.RUNNING);
         machineRepository.save(machine);
 
-        return BookingResponse.fromEntity(
-            bookingRepository.save(booking));
+        BookingResponse response =
+            BookingResponse.fromEntity(
+                bookingRepository.save(booking));
+
+        // ✅ Broadcast booking created
+        webSocketService
+            .broadcastBookingCreated(response);
+
+        // ✅ Broadcast machine status change
+        webSocketService.broadcastMachineUpdate(
+            java.util.Map.of(
+                "id", machine.getId(),
+                "status", "RUNNING"));
+
+        return response;
     }
 
     public BookingResponse updateBookingStatus(
-            Long id, 
+            Long id,
             Booking.BookingStatus status) {
 
         Booking booking = bookingRepository
@@ -99,8 +117,6 @@ public class BookingService {
 
         booking.setStatus(status);
 
-        // If completed or cancelled
-        // set machine back to AVAILABLE
         if (status == 
                 Booking.BookingStatus.COMPLETED ||
             status == 
@@ -112,13 +128,48 @@ public class BookingService {
             machine.setStatus(
                 Machine.MachineStatus.AVAILABLE);
             machineRepository.save(machine);
+
+            // ✅ Broadcast machine back to AVAILABLE
+            webSocketService.broadcastMachineUpdate(
+                java.util.Map.of(
+                    "id", machine.getId(),
+                    "status", "AVAILABLE"));
+
+            if (status ==
+                    Booking.BookingStatus.COMPLETED) {
+                emailService
+                    .sendBookingCompletedEmail(
+                        booking.getUser().getEmail(),
+                        booking.getUser().getUsername(),
+                        machine.getMachineName(),
+                        booking.getTotalPrice());
+            }
         }
 
-        return BookingResponse.fromEntity(
-            bookingRepository.save(booking));
+        if (status == Booking.BookingStatus.ACTIVE) {
+            emailService
+                .sendBookingConfirmationEmail(
+                    booking.getUser().getEmail(),
+                    booking.getUser().getUsername(),
+                    booking.getMachine()
+                        .getMachineName(),
+                    booking.getMachine()
+                        .getMachineType().name(),
+                    booking.getStartTime().toString(),
+                    booking.getTotalPrice());
+        }
+
+        BookingResponse response =
+            BookingResponse.fromEntity(
+                bookingRepository.save(booking));
+
+        // ✅ Broadcast booking status updated
+        webSocketService
+            .broadcastBookingUpdate(response);
+
+        return response;
     }
 
-    // Stats for dashboard cards
     public long getTotalBookings() {
         return bookingRepository.count();
     }

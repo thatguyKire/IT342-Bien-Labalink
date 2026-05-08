@@ -2,7 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission
-        android:name="android.permission.INTERNET" />
+        android:name="android.permission.CAMERA"/>
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false"/>
 
     <application
         android:allowBackup="true"
@@ -13,6 +17,7 @@
         android:theme="@style/Theme.LabaLink"
         android:usesCleartextTraffic="true">
 
+        <!-- Login is the LAUNCHER -->
         <activity
             android:name=".ui.login.LoginActivity"
             android:exported="true">
@@ -26,9 +31,28 @@
             android:name=".ui.register.RegisterActivity"
             android:exported="false"/>
 
+        <!-- Home replaces Dashboard -->
         <activity
-            android:name=".ui.dashboard.DashboardActivity"
+            android:name=".ui.home.HomeActivity"
             android:exported="false"/>
+
+        <activity
+            android:name=".ui.bookings.BookingsActivity"
+            android:exported="false"/>
+
+        <!-- Machine Detail (Registered here to prevent crashes) -->
+        <activity
+            android:name=".ui.home.MachineDetailActivity"
+            android:exported="false"/>
+
+        <activity
+            android:name=".ui.home.WalletActivity"
+            android:exported="false"/>
+
+        <activity
+            android:name=".ui.home.QrScannerActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
 
     </application>
 

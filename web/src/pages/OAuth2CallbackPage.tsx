@@ -26,11 +26,11 @@ export default function OAuth2CallbackPage() {
 
       // Redirect based on role
       if (role === 'ATTENDANT') {
-        navigate('/dashboard', { replace: true });
+        navigate('/machines', { replace: true });
       } else {
         // CUSTOMER on web — still go to dashboard
         // but in real app mobile handles customers
-        navigate('/dashboard', { replace: true });
+        navigate('/machines', { replace: true });
       }
     } else {
       navigate('/login', { replace: true });

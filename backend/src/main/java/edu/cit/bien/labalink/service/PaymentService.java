@@ -24,6 +24,8 @@ public class PaymentService {
     private final PaymentRepository 
         paymentRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
+    private final WebSocketService webSocketService;
 
     @Value("${stripe.secret.key}")
     private String stripeSecretKey;
@@ -43,9 +45,6 @@ public class PaymentService {
                     "User not found"));
 
         try {
-            // Create Stripe PaymentIntent
-            // Amount in centavos (PHP)
-            // multiply by 100
             long amountInCentavos = 
                 (long)(request.getAmount() * 100);
 
@@ -61,7 +60,6 @@ public class PaymentService {
             PaymentIntent paymentIntent =
                 PaymentIntent.create(params);
 
-            // Save payment record
             Payment payment = new Payment();
             payment.setUser(user);
             payment.setAmount(request.getAmount());
@@ -76,7 +74,6 @@ public class PaymentService {
 
             paymentRepository.save(payment);
 
-            // Build response with client secret
             PaymentResponse response = 
                 PaymentResponse.fromEntity(payment);
             response.setClientSecret(
@@ -121,6 +118,18 @@ public class PaymentService {
                     user.getWalletBalance() +
                     payment.getAmount());
                 userRepository.save(user);
+
+                // ✅ Send wallet top-up email
+                emailService.sendWalletTopUpEmail(
+                    user.getEmail(),
+                    user.getUsername(),
+                    payment.getAmount(),
+                    user.getWalletBalance());
+
+                // ✅ Broadcast wallet update
+                webSocketService.broadcastWalletUpdate(
+                    user.getEmail(),
+                    user.getWalletBalance());
 
             } else {
                 payment.setStatus(

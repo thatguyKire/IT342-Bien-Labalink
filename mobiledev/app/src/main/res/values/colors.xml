@@ -7,4 +7,19 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="primary">#9333EA</color>
+    <color name="primaryLight">#EDE9FE</color>
+    <color name="primaryDark">#7C3AED</color>
+    <color name="backgroundApp">#F5F3FF</color>
+    <color name="textDark">#1F2937</color>
+    <color name="textGray">#6B7280</color>
+    <color name="textLight">#9CA3AF</color>
+    <color name="borderColor">#E5E7EB</color>
+    <color name="successGreen">#10B981</color>
+    <color name="errorRed">#EF4444</color>
+    <color name="statusRunningBg">#DBEAFE</color>
+    <color name="statusRunningText">#1D4ED8</color>
+    <color name="statusOutOrderBg">#FEE2E2</color>
+    <color name="statusOutOrderText">#B91C1C</color>
+    <color name="dividerColor">#F3F4F6</color>
 </resources>

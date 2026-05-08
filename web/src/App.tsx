@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate }
   from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
 import MachinePage from './pages/MachinePage';
 import BookingPage from './pages/BookingPage';
 import WalletPage from './pages/WalletPage';
@@ -28,37 +27,33 @@ function App() {
         <Route path="/" element={
           <Navigate to="/login" replace />
         } />
-            <Route path="/bookings" element={
-         <ProtectedRoute>
-          <BookingPage />
-         </ProtectedRoute>
-              } />
-            <Route path="/wallet" element={
-              <ProtectedRoute>
-                <WalletPage />
-              </ProtectedRoute>
-              } />
         <Route path="/login"
                element={<LoginPage />} />
         <Route path="/register"
                element={<RegisterPage />} />
         <Route path="/oauth2/callback"
                element={<OAuth2CallbackPage />} />
+
+        {/* Dashboard redirects to machines */}
         <Route path="/dashboard" element={
           <ProtectedRoute>
-            <DashboardPage />
+            <Navigate to="/machines" replace />
           </ProtectedRoute>
         } />
-
-          <Route path="/wallet" element={
-          <ProtectedRoute>
-             <WalletPage />
-          </ProtectedRoute>
-            } />
 
         <Route path="/machines" element={
           <ProtectedRoute>
             <MachinePage />
+          </ProtectedRoute>
+        } />
+        <Route path="/bookings" element={
+          <ProtectedRoute>
+            <BookingPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/wallet" element={
+          <ProtectedRoute>
+            <WalletPage />
           </ProtectedRoute>
         } />
       </Routes>

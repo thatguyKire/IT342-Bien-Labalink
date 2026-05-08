@@ -46,7 +46,7 @@ export default function LoginPage() {
         'role', response.role);
       localStorage.setItem(
         'username', response.username);
-      navigate('/dashboard');
+      navigate('/machines');
     } catch {
       setError('Invalid email or password');
     } finally {

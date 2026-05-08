@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   getAllBookings,
   getBookingStats,
@@ -12,12 +11,15 @@ import type {
 import { bookingStyles as s } from
   '../styles/BookingPage.styles';
 
+  import SidebarLayout from '../components/SidebarLayout';
+
+  import { useWebSocket } from '../hooks/useWebSocket';
+
 type FilterStatus = 
   'ALL' | 'PENDING' | 'ACTIVE' | 
   'COMPLETED' | 'CANCELLED';
 
 export default function BookingPage() {
-  const navigate = useNavigate();
   const [bookings, setBookings] = 
     useState<Booking[]>([]);
   const [stats, setStats] = 
@@ -29,6 +31,16 @@ export default function BookingPage() {
   const [filter, setFilter] = 
     useState<FilterStatus>('ALL');
   const [loading, setLoading] = useState(true);
+
+  // WebSocket — auto refresh on booking updates
+useWebSocket({
+  onBookingUpdate: () => {
+    fetchData();
+  },
+  onMachineUpdate: () => {
+    fetchData();
+  },
+});
 
   const fetchData = useCallback(async () => {
     try {
@@ -104,6 +116,7 @@ export default function BookingPage() {
   ];
 
   return (
+  <SidebarLayout>
     <div className={s.page}>
 
       {/* Header */}
@@ -116,12 +129,6 @@ export default function BookingPage() {
             Monitor and manage all laundry sessions
           </p>
         </div>
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="border border-gray-200 text-gray-600 px-4 py-2 rounded-xl font-semibold hover:bg-gray-50 transition-all"
-        >
-          ← Back to Dashboard
-        </button>
       </div>
 
       {/* Stats */}
@@ -343,6 +350,8 @@ export default function BookingPage() {
         )}
       </div>
 
-    </div>
-  );
-}
+  </div>
+  </SidebarLayout>
+);
+}    
+

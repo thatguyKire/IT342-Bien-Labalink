@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
+
+    <!-- Arrow Icon -->
+    <TextView
+        android:id="@+id/tvArrow"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:text="↗"
+        android:textSize="16sp"
+        android:textColor="#9333EA"
+        android:gravity="center"
+        android:background="@drawable/icon_bg_purple"
+        android:layout_marginEnd="12dp"/>
+
+    <!-- Amount and Reference -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₱ 100.00"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="#1F2937"/>
+
+        <TextView
+            android:id="@+id/tvReference"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PAY-REF-001"
+            android:textSize="11sp"
+            android:textColor="#9CA3AF"/>
+
+    </LinearLayout>
+
+    <!-- Status and Date -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="end">
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SUCCESS"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:background="@drawable/badge_completed"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Feb 28, 2026"
+            android:textSize="11sp"
+            android:textColor="#9CA3AF"/>
+
+    </LinearLayout>
+
+</LinearLayout>

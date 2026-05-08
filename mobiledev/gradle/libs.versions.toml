@@ -1,11 +1,13 @@
 [versions]
 agp = "9.1.0"
-coreKtx = "1.18.0"
+# CHANGED: Downgraded from 1.18.0 to the stable 1.13.1
+coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.10.0"
-activityCompose = "1.13.0"
+# CHANGED: Downgraded from 1.13.0 to the stable 1.9.0
+activityCompose = "1.9.0"
 kotlin = "2.2.10"
 composeBom = "2024.09.00"
 appcompat = "1.7.1"
@@ -32,4 +34,5 @@ androidx-cardview = { group = "androidx.cardview", name = "cardview", version.re
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
+# ADDED THIS LINE to fix the "alias(libs.plugins.kotlin.android) apply false" error:
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

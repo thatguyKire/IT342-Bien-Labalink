@@ -5,5 +5,6 @@ data class LoginResponse(
     val tokenType: String,
     val role: String,
     val email: String,
-    val username: String
+    val username: String,
+    val userId: Long = 1L
 )

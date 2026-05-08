@@ -14,19 +14,23 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MachineService {
 
-    private final MachineRepository machineRepository;
+    private final MachineRepository 
+        machineRepository;
+    private final WebSocketService 
+        webSocketService;
 
     public List<MachineResponse> getAllMachines() {
         return machineRepository.findAll()
-                .stream()
-                .map(MachineResponse::fromEntity)
-                .collect(Collectors.toList());
+            .stream()
+            .map(MachineResponse::fromEntity)
+            .collect(Collectors.toList());
     }
 
-    public MachineResponse getMachineById(Long id) {
+    public MachineResponse getMachineById(
+            Long id) {
         Machine machine = machineRepository
             .findById(id)
-            .orElseThrow(() -> 
+            .orElseThrow(() ->
                 new RuntimeException(
                     "Machine not found"));
         return MachineResponse.fromEntity(machine);
@@ -36,14 +40,17 @@ public class MachineService {
             MachineRequest request) {
 
         Machine machine = new Machine();
-        machine.setMachineName(request.getMachineName());
-        machine.setMachineType(request.getMachineType());
-        machine.setHourlyRate(request.getHourlyRate());
-        machine.setStatus(request.getStatus() != null 
-            ? request.getStatus() 
-            : Machine.MachineStatus.AVAILABLE);
+        machine.setMachineName(
+            request.getMachineName());
+        machine.setMachineType(
+            request.getMachineType());
+        machine.setHourlyRate(
+            request.getHourlyRate());
+        machine.setStatus(
+            request.getStatus() != null
+                ? request.getStatus()
+                : Machine.MachineStatus.AVAILABLE);
 
-        // Generate unique QR token
         String qrToken;
         do {
             qrToken = "QR-" + UUID.randomUUID()
@@ -55,36 +62,60 @@ public class MachineService {
 
         machine.setQrToken(qrToken);
 
-        return MachineResponse.fromEntity(
-            machineRepository.save(machine));
+        MachineResponse response =
+            MachineResponse.fromEntity(
+                machineRepository.save(machine));
+
+        // ✅ Broadcast machine created
+        webSocketService
+            .broadcastMachineUpdate(response);
+
+        return response;
     }
 
     public MachineResponse updateMachine(
-            Long id, MachineRequest request) {
+            Long id,
+            MachineRequest request) {
 
         Machine machine = machineRepository
             .findById(id)
-            .orElseThrow(() -> 
+            .orElseThrow(() ->
                 new RuntimeException(
                     "Machine not found"));
 
-        machine.setMachineName(request.getMachineName());
-        machine.setMachineType(request.getMachineType());
-        machine.setHourlyRate(request.getHourlyRate());
+        machine.setMachineName(
+            request.getMachineName());
+        machine.setMachineType(
+            request.getMachineType());
+        machine.setHourlyRate(
+            request.getHourlyRate());
         if (request.getStatus() != null) {
             machine.setStatus(request.getStatus());
         }
 
-        return MachineResponse.fromEntity(
-            machineRepository.save(machine));
+        MachineResponse response =
+            MachineResponse.fromEntity(
+                machineRepository.save(machine));
+
+        // ✅ Broadcast machine updated
+        webSocketService
+            .broadcastMachineUpdate(response);
+
+        return response;
     }
 
     public void deleteMachine(Long id) {
         Machine machine = machineRepository
             .findById(id)
-            .orElseThrow(() -> 
+            .orElseThrow(() ->
                 new RuntimeException(
                     "Machine not found"));
         machineRepository.delete(machine);
+
+        // ✅ Broadcast machine deleted
+        webSocketService.broadcastMachineUpdate(
+            java.util.Map.of(
+                "id", id,
+                "deleted", true));
     }
 }

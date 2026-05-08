@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import {
   Elements,
@@ -18,6 +17,8 @@ import type {
 } from '../services/paymentService';
 import { walletStyles as s } from
   '../styles/WalletPage.styles';
+import SidebarLayout from '../components/SidebarLayout';
+
 
 // Replace with your Stripe publishable key
 const stripePromise = loadStripe(
@@ -128,7 +129,6 @@ function CheckoutForm({
 }
 
 export default function WalletPage() {
-  const navigate = useNavigate();
   const [amount, setAmount] = useState(100);
   const [customAmount, setCustomAmount] = 
     useState('');
@@ -206,6 +206,7 @@ export default function WalletPage() {
   };
 
   return (
+      <SidebarLayout>
     <div className={s.page}>
 
       {/* Header */}
@@ -218,12 +219,6 @@ export default function WalletPage() {
             Add funds to your LabaLink wallet
           </p>
         </div>
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="border border-gray-200 text-gray-600 px-4 py-2 rounded-xl font-semibold hover:bg-gray-50 transition-all"
-        >
-          ← Back to Dashboard
-        </button>
       </div>
 
       <div className={s.content}>
@@ -349,5 +344,6 @@ export default function WalletPage() {
 
       </div>
     </div>
+    </SidebarLayout>
   );
 }

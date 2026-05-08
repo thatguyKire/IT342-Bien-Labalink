@@ -36,9 +36,9 @@ public class SecurityConfig {
                     "/api/auth/**").permitAll()
                 .requestMatchers(
                     "/api/machines/**").permitAll()
-                    .requestMatchers(
+                .requestMatchers(
                     "/api/bookings/**").permitAll()
-                    .requestMatchers(
+                .requestMatchers(
                     "/api/payments/**").permitAll()
                 .requestMatchers(
                     "/api/oauth2/**").permitAll()
@@ -46,6 +46,8 @@ public class SecurityConfig {
                     "/login/oauth2/**").permitAll()
                 .requestMatchers(
                     "/oauth2/**").permitAll()
+                .requestMatchers(
+                    "/ws/**").permitAll()
                 .requestMatchers(
                     "/error").permitAll()
                 .anyRequest().authenticated()

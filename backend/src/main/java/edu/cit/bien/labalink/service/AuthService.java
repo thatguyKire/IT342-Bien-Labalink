@@ -18,6 +18,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final EmailService emailService;
 
 public void register(RegisterRequest request) {
     if (userRepository.existsByEmail(
@@ -42,6 +43,11 @@ public void register(RegisterRequest request) {
             : User.Role.CUSTOMER);
 
     userRepository.save(user);
+
+
+    emailService.sendWelcomeEmail(
+            user.getEmail(),
+            user.getUsername());
 }
 
     public LoginResponse login(LoginRequest request) {
@@ -66,7 +72,8 @@ public void register(RegisterRequest request) {
                 "Bearer",
                 user.getRole().name(),
                 user.getEmail(),
-                user.getUsername()
+                user.getUsername(),
+                user.getId()
         );
     }
 }

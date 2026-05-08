@@ -88,7 +88,8 @@ public ResponseEntity<?> googleLogin(
                 "Bearer",
                 user.getRole().name(),
                 user.getEmail(),
-                user.getUsername()
+                user.getUsername(),
+                user.getId()
             ));
     } catch (Exception e) {
         return ResponseEntity

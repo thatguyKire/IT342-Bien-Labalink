@@ -85,13 +85,12 @@ public class BookingService {
         return response;
     }
 
-    // 🟢 THIS IS THE NEW QR ACTIVATION METHOD
+    // 🟢 FINALIZED QR ACTIVATION METHOD
     @Transactional
     public BookingResponse activateByQr(Long userId, String qrToken) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // NOTE: Make sure your MachineRepository has: Optional<Machine> findByQrToken(String qrToken);
         Machine machine = machineRepository.findByQrToken(qrToken)
             .orElseThrow(() -> new RuntimeException("Invalid QR Code: No machine found"));
 
@@ -104,7 +103,7 @@ public class BookingService {
         booking.setMachine(machine);
         booking.setStartTime(LocalDateTime.now());
         
-        // Defaults to a 1-hour block for QR scans
+        // 🟢 Robust Pricing Logic: Defaults to 1-hour block for fast QR scans
         booking.setEndTime(LocalDateTime.now().plusHours(1));
         booking.setTotalPrice(machine.getHourlyRate()); 
         booking.setStatus(Booking.BookingStatus.ACTIVE); 

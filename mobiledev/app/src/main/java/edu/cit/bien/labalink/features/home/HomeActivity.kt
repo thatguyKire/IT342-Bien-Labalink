@@ -1,4 +1,4 @@
-package edu.cit.bien.labalink.ui.home
+package edu.cit.bien.labalink.features.home
 
 import android.content.Intent
 import android.content.SharedPreferences
@@ -12,11 +12,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import edu.cit.bien.labalink.R
 import edu.cit.bien.labalink.api.RetrofitClient
-import edu.cit.bien.labalink.ui.bookings.BookingsActivity
-import edu.cit.bien.labalink.ui.login.LoginActivity
 import kotlinx.coroutines.launch
 import android.os.Build
-import edu.cit.bien.labalink.ui.home.MachineDetailActivity
+import edu.cit.bien.labalink.features.wallet.WalletActivity
 
 
 class HomeActivity : AppCompatActivity() {
@@ -101,7 +99,7 @@ class HomeActivity : AppCompatActivity() {
         //}
 
         findViewById<LinearLayout>(R.id.navBookings).setOnClickListener {
-            val intent = Intent(this@HomeActivity, edu.cit.bien.labalink.ui.bookings.BookingsActivity::class.java)
+            val intent = Intent(this@HomeActivity, edu.cit.bien.labalink.features.bookings.BookingsActivity::class.java)
             val options = android.app.ActivityOptions.makeCustomAnimation(this@HomeActivity, 0, 0).toBundle()
             startActivity(intent, options)
             finish()

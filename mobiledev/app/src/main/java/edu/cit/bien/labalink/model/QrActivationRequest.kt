@@ -1,4 +1,6 @@
 package edu.cit.bien.labalink.model
 
-class QrActivationRequest {
-}
+data class QrActivationRequest(
+    val userId: Long,
+    val qrToken: String
+)

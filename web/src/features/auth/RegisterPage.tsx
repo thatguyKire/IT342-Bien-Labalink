@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { register } from '../services/authService';
+import { register } from './authService';
 import { useNavigate, Link } from 'react-router-dom';
-import { registerStyles as s } from '../styles/RegisterPage.styles';
+import { registerStyles as s } from './RegisterPage.styles';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ export default function RegisterPage() {
     try {
       setLoading(true);
       setError('');
-      await register({ username, email, password });
+      await register({ username, email, password, role: 'ATTENDANT' });
       navigate('/login');
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.status === 409) {

@@ -1,4 +1,4 @@
-package edu.cit.bien.labalink.ui.bookings
+package edu.cit.bien.labalink.features.bookings
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import edu.cit.bien.labalink.R
 import edu.cit.bien.labalink.api.RetrofitClient
 import edu.cit.bien.labalink.model.BookingResponse
-import edu.cit.bien.labalink.ui.home.HomeActivity
+import edu.cit.bien.labalink.features.home.HomeActivity
 import kotlinx.coroutines.launch
 import android.os.Build
 

@@ -50,15 +50,9 @@ public class OAuth2SuccessHandler
             name = email.split("@")[0];
         }
 
-        // Read role hint from state parameter
-        String stateParam = request
-            .getParameter("state");
-        User.Role assignedRole = User.Role.CUSTOMER;
-
-        if (stateParam != null &&
-            stateParam.contains("ATTENDANT")) {
-            assignedRole = User.Role.ATTENDANT;
-        }
+        // For the final project demo, Google Sign-In via the web dashboard 
+        // will automatically be assigned as an ATTENDANT.
+        User.Role assignedRole = User.Role.ATTENDANT;
 
         // Find existing user or create new one
         Optional<User> existingUser =

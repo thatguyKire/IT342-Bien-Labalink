@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { oauthStyles as s } from
-  '../styles/OAuth2CallbackPage.styles';
+import { oauthStyles as s } from './OAuth2CallbackPage.styles';
 
 export default function OAuth2CallbackPage() {
   const navigate = useNavigate();

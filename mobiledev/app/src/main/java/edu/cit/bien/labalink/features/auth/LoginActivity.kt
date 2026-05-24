@@ -1,9 +1,10 @@
-package edu.cit.bien.labalink.features.login
+package edu.cit.bien.labalink.features.auth
 
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -19,7 +20,6 @@ import edu.cit.bien.labalink.R
 import edu.cit.bien.labalink.api.RetrofitClient
 import edu.cit.bien.labalink.model.LoginRequest
 import edu.cit.bien.labalink.features.home.HomeActivity
-import edu.cit.bien.labalink.features.register.RegisterActivity
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
@@ -120,7 +120,6 @@ class LoginActivity : AppCompatActivity() {
                         .putString("username", body.username)
                         .putString("role", body.role)
                         .putString("email", body.email)
-                        // ADDED userId HERE
                         .putLong("userId", body.userId)
                         .apply()
 
@@ -130,7 +129,10 @@ class LoginActivity : AppCompatActivity() {
                     showError("Google login failed.")
                 }
             } catch (e: Exception) {
-                showError("Cannot connect to server.")
+                // 🟢 THIS IS THE FIX FOR GOOGLE LOGIN
+                e.printStackTrace()
+                Log.e("LabaLinkNetwork", "Google Login Error: ${e.message}", e)
+                showError("Network Error: ${e.message}")
             } finally {
                 btnGoogleLogin.isEnabled = true
                 btnGoogleLogin.text = "Continue with Google"
@@ -162,7 +164,6 @@ class LoginActivity : AppCompatActivity() {
                         .putString("username", body.username)
                         .putString("role", body.role)
                         .putString("email", body.email)
-                        // ADDED userId HERE
                         .putLong("userId", body.userId)
                         .apply()
 
@@ -172,7 +173,10 @@ class LoginActivity : AppCompatActivity() {
                     showError("Invalid email or password")
                 }
             } catch (e: Exception) {
-                showError("Cannot connect to server.")
+                // 🟢 THIS IS THE FIX FOR STANDARD LOGIN
+                e.printStackTrace()
+                Log.e("LabaLinkNetwork", "Standard Login Error: ${e.message}", e)
+                showError("Network Error: ${e.message}")
             } finally {
                 btnLogin.isEnabled = true
                 btnLogin.text = "Login"

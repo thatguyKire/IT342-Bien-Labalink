@@ -1,6 +1,16 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/api/machines';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_URL = `${API_BASE_URL}/api/machines`;
+
+const getHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+};
 
 export interface Machine {
   id: number;
@@ -21,13 +31,13 @@ export interface MachineRequest {
 
 export const getAllMachines = async (): 
     Promise<Machine[]> => {
-  const response = await axios.get(API_URL);
+  const response = await axios.get(API_URL, getHeaders());
   return response.data;
 };
 
 export const createMachine = async (
     data: MachineRequest): Promise<Machine> => {
-  const response = await axios.post(API_URL, data);
+  const response = await axios.post(API_URL, data, getHeaders());
   return response.data;
 };
 
@@ -35,11 +45,11 @@ export const updateMachine = async (
     id: number, 
     data: MachineRequest): Promise<Machine> => {
   const response = await axios.put(
-    `${API_URL}/${id}`, data);
+    `${API_URL}/${id}`, data, getHeaders());
   return response.data;
 };
 
 export const deleteMachine = async (
     id: number): Promise<void> => {
-  await axios.delete(`${API_URL}/${id}`);
+  await axios.delete(`${API_URL}/${id}`, getHeaders());
 };

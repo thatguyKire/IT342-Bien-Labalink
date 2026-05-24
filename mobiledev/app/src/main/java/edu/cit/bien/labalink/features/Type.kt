@@ -1,4 +1,4 @@
-package edu.cit.bien.labalink.ui
+package edu.cit.bien.labalink.features
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import logo from '../../assets/logo.png';
 
 const navItems = [
   { label: 'Machines', path: '/machines', icon: '🫧' },
@@ -38,7 +39,7 @@ export default function SidebarLayout({
         {/* Logo */}
         <div className="px-6 py-5 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🫧</span>
+            <img src={logo} alt="LabaLink Logo" className="w-8 h-8 object-contain drop-shadow-[0_0_8px_rgba(147,51,234,0.4)] rounded-md" />
             <span className="text-xl font-bold text-[#9333EA]">
               LabaLink
             </span>

@@ -1,4 +1,4 @@
-package edu.cit.bien.labalink.ui
+package edu.cit.bien.labalink.features
 
 import androidx.compose.ui.graphics.Color
 

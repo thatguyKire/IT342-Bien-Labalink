@@ -1,4 +1,4 @@
-package edu.cit.bien.labalink.ui.bookings
+package edu.cit.bien.labalink.features.bookings
 
 import android.view.LayoutInflater
 import android.view.View

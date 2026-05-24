@@ -3,17 +3,16 @@ import {
   getAllBookings,
   getBookingStats,
   updateBookingStatus,
-} from '../services/bookingService';
+} from './bookingService';
 import type {
   Booking,
   BookingStats,
-} from '../services/bookingService';
-import { bookingStyles as s } from
-  '../styles/BookingPage.styles';
+} from './bookingService';
+import { bookingStyles as s } from './BookingPage.styles';
 
-  import SidebarLayout from '../components/SidebarLayout';
+import SidebarLayout from '../../shared/components/SidebarLayout';
 
-  import { useWebSocket } from '../hooks/useWebSocket';
+  import { useWebSocket } from '../../shared/hooks/useWebSocket';
 
 type FilterStatus = 
   'ALL' | 'PENDING' | 'ACTIVE' | 

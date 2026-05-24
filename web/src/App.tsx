@@ -1,12 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate }
   from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import MachinePage from './pages/MachinePage';
-import BookingPage from './pages/BookingPage';
-import WalletPage from './pages/WalletPage';
-import OAuth2CallbackPage from
-  './pages/OAuth2CallbackPage';
+import LoginPage from './features/auth/LoginPage';
+import OAuth2CallbackPage from './features/auth/OAuth2CallbackPage';
+import MachinePage from './features/machine/MachinePage';
+import BookingPage from './features/booking/BookingPage';
+import WalletPage from './features/payment/WalletPage';
 
 function ProtectedRoute({
   children
@@ -29,8 +27,6 @@ function App() {
         } />
         <Route path="/login"
                element={<LoginPage />} />
-        <Route path="/register"
-               element={<RegisterPage />} />
         <Route path="/oauth2/callback"
                element={<OAuth2CallbackPage />} />
 

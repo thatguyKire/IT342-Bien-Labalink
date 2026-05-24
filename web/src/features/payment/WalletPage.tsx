@@ -11,13 +11,12 @@ import {
   confirmPayment,
   getAllPayments,
   getWalletBalance,
-} from '../services/paymentService';
+} from './paymentService';
 import type {
   Payment,
-} from '../services/paymentService';
-import { walletStyles as s } from
-  '../styles/WalletPage.styles';
-import SidebarLayout from '../components/SidebarLayout';
+} from './paymentService';
+import { walletStyles as s } from './WalletPage.styles';
+import SidebarLayout from '../../shared/components/SidebarLayout';
 
 
 // Replace with your Stripe publishable key

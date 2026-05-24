@@ -1,4 +1,4 @@
-package edu.cit.bien.labalink.ui.home
+package edu.cit.bien.labalink.features.home
 
 import android.Manifest
 import android.content.Intent
@@ -21,42 +21,32 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView
 import edu.cit.bien.labalink.R
 import edu.cit.bien.labalink.api.RetrofitClient
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class QrScannerActivity : AppCompatActivity() {
 
-    private lateinit var barcodeScanner:
-            DecoratedBarcodeView
+    private lateinit var barcodeScanner: DecoratedBarcodeView
     private lateinit var tvResult: TextView
     private lateinit var prefs: SharedPreferences
     private var isScanning = true
     private var isProcessing = false
 
     companion object {
-        private const val CAMERA_PERMISSION_CODE
-                = 100
+        private const val CAMERA_PERMISSION_CODE = 100
     }
 
-    override fun onCreate(
-        savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qr_scanner)
 
         hideSystemNavigation()
 
-        prefs = getSharedPreferences(
-            "labalink_prefs", MODE_PRIVATE)
+        prefs = getSharedPreferences("labalink_prefs", MODE_PRIVATE)
 
-        barcodeScanner =
-            findViewById(R.id.barcodeScanner)
+        barcodeScanner = findViewById(R.id.barcodeScanner)
         tvResult = findViewById(R.id.tvResult)
 
-        findViewById<ImageButton>(R.id.btnCancel)
-            .setOnClickListener { finish() }
-
-        findViewById<Button>(R.id.btnCancelBottom)
-            .setOnClickListener { finish() }
+        findViewById<ImageButton>(R.id.btnCancel).setOnClickListener { finish() }
+        findViewById<Button>(R.id.btnCancelBottom).setOnClickListener { finish() }
 
         checkCameraPermission()
     }
@@ -80,22 +70,17 @@ class QrScannerActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray) {
-        super.onRequestPermissionsResult(
-            requestCode, permissions, grantResults)
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        if (requestCode ==
-            CAMERA_PERMISSION_CODE) {
-            if (grantResults.isNotEmpty() &&
-                grantResults[0] ==
-                PackageManager.PERMISSION_GRANTED
-            ) {
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startScanning()
             } else {
                 Toast.makeText(
                     this,
-                    "Camera permission is required " +
-                            "to scan QR codes",
+                    "Camera permission is required to scan QR codes",
                     Toast.LENGTH_LONG
                 ).show()
                 finish()
@@ -106,10 +91,8 @@ class QrScannerActivity : AppCompatActivity() {
     private fun startScanning() {
         barcodeScanner.decodeContinuous(
             object : BarcodeCallback {
-                override fun barcodeResult(
-                    result: BarcodeResult) {
-                    if (!isScanning ||
-                        isProcessing) return
+                override fun barcodeResult(result: BarcodeResult) {
+                    if (!isScanning || isProcessing) return
                     isScanning = false
                     isProcessing = true
                     handleQrResult(result.text)
@@ -119,82 +102,45 @@ class QrScannerActivity : AppCompatActivity() {
     }
 
     private fun handleQrResult(qrToken: String) {
-        showResult("Scanning... $qrToken")
+        showResult("Processing: $qrToken...")
 
-        val machineId = intent
-            .getLongExtra("machineId", -1L)
-        val hourlyRate = intent
-            .getDoubleExtra("hourlyRate", 0.0)
         val userId = prefs.getLong("userId", 1L)
-
-        if (machineId == -1L) {
-            showResult(
-                "Error: No machine selected")
-            isScanning = true
-            isProcessing = false
-            return
-        }
 
         lifecycleScope.launch {
             try {
-                val now = LocalDateTime.now()
-                val formatter = DateTimeFormatter
-                    .ofPattern(
-                        "yyyy-MM-dd'T'HH:mm:ss")
-                val startTime = now.format(formatter)
-                val endTime = now.plusHours(1)
-                    .format(formatter)
-
-                val response = RetrofitClient
-                    .authApi
-                    .createBooking(
-                        edu.cit.bien.labalink
-                            .model.BookingRequest(
-                                userId = userId,
-                                machineId = machineId,
-                                startTime = startTime,
-                                endTime = endTime,
-                                totalPrice = hourlyRate
-                            )
+                // 🟢 FIX: Send the Data Class object instead of a Map!
+                val response = RetrofitClient.authApi.activateMachineByQr(
+                    edu.cit.bien.labalink.model.QrActivationRequest(
+                        userId = userId,
+                        qrToken = qrToken
                     )
+                )
 
                 if (response.isSuccessful) {
                     val booking = response.body()!!
-                    showResult(
-                        "✅ Machine activated! " +
-                                "Booking #${booking.id} created")
+                    showResult("✅ Machine activated! Booking #${booking.id} created")
 
-                    barcodeScanner
-                        .postDelayed({
-                            val resultIntent =
-                                Intent()
-                            resultIntent.putExtra(
-                                "bookingId",
-                                booking.id)
-                            setResult(
-                                RESULT_OK,
-                                resultIntent)
-                            finish()
-                        }, 2000)
+                    barcodeScanner.postDelayed({
+                        val resultIntent = Intent()
+                        resultIntent.putExtra("bookingId", booking.id)
+                        setResult(RESULT_OK, resultIntent)
+                        finish()
+                    }, 2000)
                 } else {
-                    val errorBody = response
-                        .errorBody()
-                        ?.string() ?: ""
-                    showResult(
-                        "❌ Failed: $errorBody")
-                    barcodeScanner
-                        .postDelayed({
-                            isScanning = true
-                            isProcessing = false
-                        }, 2000)
+                    val errorBody = response.errorBody()?.string() ?: ""
+                    showResult("❌ Failed: $errorBody")
+                    barcodeScanner.postDelayed({
+                        isScanning = true
+                        isProcessing = false
+                    }, 2500)
                 }
             } catch (e: Exception) {
-                showResult(
-                    "❌ Cannot connect to server")
+                e.printStackTrace()
+                showResult("❌ Network Error: ${e.message}")
                 barcodeScanner.postDelayed({
                     isScanning = true
                     isProcessing = false
-                }, 2000)
+                }, 2500)
             }
         }
     }
@@ -217,16 +163,11 @@ class QrScannerActivity : AppCompatActivity() {
     }
 
     private fun hideSystemNavigation() {
-        if (Build.VERSION.SDK_INT >=
-            Build.VERSION_CODES.R) {
-            window.insetsController?.let {
-                    controller ->
-                controller.hide(
-                    android.view.WindowInsets
-                        .Type.navigationBars())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.let { controller ->
+                controller.hide(android.view.WindowInsets.Type.navigationBars())
                 controller.systemBarsBehavior =
-                    android.view.WindowInsetsController
-                        .BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
         } else {
             @Suppress("DEPRECATION")

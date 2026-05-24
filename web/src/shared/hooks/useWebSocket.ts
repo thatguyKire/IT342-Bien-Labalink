@@ -2,7 +2,8 @@ import { useEffect, useRef, useCallback } from 'react';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 
-const WS_URL = 'http://localhost:8080/ws';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const WS_URL = `${API_BASE_URL}/ws`;
 
 interface WebSocketMessage {
   type: string;
@@ -104,11 +105,15 @@ export function useWebSocket(
     connect();
 
     return () => {
-      if (clientRef.current && 
-          connectedRef.current) {
-        clientRef.current.disconnect(() => {
-          console.log('WebSocket disconnected');
-        });
+      try {
+        if (clientRef.current && clientRef.current.connected) {
+          clientRef.current.disconnect(() => {
+            console.log('WebSocket disconnected');
+          });
+        }
+      } catch (e) {
+        console.warn('WebSocket disconnect warn:', e);
+      } finally {
         connectedRef.current = false;
       }
     };

@@ -1,4 +1,4 @@
-package edu.cit.bien.labalink.ui.home
+package edu.cit.bien.labalink.features.home
 
 import android.view.LayoutInflater
 import android.view.View

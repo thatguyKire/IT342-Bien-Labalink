@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { login } from '../services/authService';
+import { login } from './authService';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { loginStyles as s } from '../styles/LoginPage.styles';
+import logo from '../../assets/logo.png';
+import { loginStyles as s } from './LoginPage.styles';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -59,9 +60,7 @@ export default function LoginPage() {
 
       {/* Logo */}
       <div className={s.logoWrapper}>
-        <div className={s.logoBox}>
-          <span className={s.logoIcon}>🫧</span>
-        </div>
+        <img src={logo} alt="LabaLink Logo" className="w-24 h-24 mb-4 object-contain shadow-[0_0_15px_rgba(255,255,255,0.7)] rounded-2xl" />
         <h1 className={s.logoTitle}>LabaLink</h1>
         <p className={s.logoSubtitle}>
           Smart Laundry Management System
@@ -160,9 +159,9 @@ export default function LoginPage() {
         {/* Google Button */}
         <button
           onClick={() => {
-            window.location.href =
-              'http://localhost:8080' +
-              '/api/oauth2/authorize/attendant';
+            // 🟢 Pull the dynamic URL from your .env file
+            const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+            window.location.href = `${API_BASE_URL}/api/oauth2/authorize/attendant`;
           }}
           className={s.googleButton}
         >

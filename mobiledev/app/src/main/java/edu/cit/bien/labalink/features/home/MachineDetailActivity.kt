@@ -1,7 +1,6 @@
-package edu.cit.bien.labalink.ui.home
+package edu.cit.bien.labalink.features.home
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import edu.cit.bien.labalink.databinding.ActivityMachineDetailBinding
 import android.content.Intent

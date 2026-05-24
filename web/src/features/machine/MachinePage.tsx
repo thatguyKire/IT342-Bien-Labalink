@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import {
   getAllMachines,
   createMachine,
   updateMachine,
   deleteMachine,
-} from '../services/machineService.ts';
+} from './machineService';
 import type {
   Machine,
   MachineRequest,
-} from '../services/machineService.ts';
+} from './machineService';
 // styles are inline via Tailwind; removed unused import
 
-  import SidebarLayout from '../components/SidebarLayout';
+  import SidebarLayout from '../../shared/components/SidebarLayout';
 
-  import { useWebSocket } from '../hooks/useWebSocket';
+  import { useWebSocket } from '../../shared/hooks/useWebSocket';
 
 const defaultForm: MachineRequest = {
   machineName: '',
@@ -35,6 +36,8 @@ export default function MachinePage() {
   const [deleteConfirmId, setDeleteConfirmId] =
     useState<number | null>(null);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [qrModalMachine, setQrModalMachine] = useState<Machine | null>(null);
 
   useWebSocket({
     onMachineUpdate: () => fetchMachines(),
@@ -111,12 +114,18 @@ export default function MachinePage() {
     }
   };
 
-  const filteredMachines = machines.filter(m =>
-    m.machineName.toLowerCase()
-      .includes(search.toLowerCase()) ||
-    m.qrToken.toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  const filteredMachines = machines.filter(m => {
+    const searchLower = search.toLowerCase();
+    const idMatch = String(m.id).includes(searchLower);
+    const nameMatch = m.machineName ? m.machineName.toLowerCase().includes(searchLower) : false;
+    const tokenMatch = m.qrToken ? m.qrToken.toLowerCase().includes(searchLower) : false;
+    const matchesSearch = idMatch || nameMatch || tokenMatch;
+    
+    if (statusFilter === 'ALL') {
+      return matchesSearch;
+    }
+    return matchesSearch && m.status === statusFilter;
+  });
 
   const total = machines.length;
   const available = machines.filter(
@@ -227,14 +236,21 @@ export default function MachinePage() {
                            focus:ring-purple-100"
               />
             </div>
-            <button className="border border-gray-200 
-                               bg-white text-gray-600 
-                               px-4 py-2.5 rounded-xl 
-                               text-sm font-medium 
-                               hover:bg-gray-50 
-                               transition-all">
-              Filter
-            </button>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="border border-gray-200 
+                         bg-white text-gray-600 
+                         px-4 py-2.5 rounded-xl 
+                         text-sm font-medium 
+                         hover:bg-gray-50 
+                         transition-all outline-none"
+            >
+              <option value="ALL">All Status</option>
+              <option value="AVAILABLE">Available</option>
+              <option value="RUNNING">Running</option>
+              <option value="OUT_OF_ORDER">Out of Order</option>
+            </select>
           </div>
 
           {/* Stat Cards */}
@@ -456,14 +472,25 @@ export default function MachinePage() {
                           machine.status)}
                       </td>
                       <td className="px-6 py-4">
-                        <span className="font-mono 
-                                         text-xs 
-                                         text-gray-500 
-                                         bg-gray-100 
-                                         px-2 py-1 
-                                         rounded-lg">
-                          {machine.qrToken}
-                        </span>
+                        <div className="flex flex-col items-center justify-center">
+                          <button
+                            onClick={() => setQrModalMachine(machine)}
+                            className="hover:scale-105 transition-transform"
+                            title="Click to enlarge"
+                          >
+                            <QRCodeSVG 
+                              value={machine.qrToken || ''} 
+                              size={48} 
+                              level={"H"} 
+                            />
+                          </button>
+                          <span className="font-mono 
+                                           text-[10px] 
+                                           text-gray-500 
+                                           mt-2">
+                            {machine.qrToken}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-6 py-4 
                                      text-sm 
@@ -783,6 +810,47 @@ export default function MachinePage() {
                 Yes Delete
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* QR Code Enlarge Modal */}
+      {qrModalMachine && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4"
+          onClick={() => setQrModalMachine(null)}
+        >
+          <div 
+            className="bg-white rounded-3xl shadow-2xl p-8 flex flex-col items-center max-w-sm w-full"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center text-3xl mb-4">
+              {qrModalMachine.machineType === 'WASHER' ? '🫧' : '💨'}
+            </div>
+            
+            <h2 className="text-2xl font-bold text-gray-800 mb-1">
+              {qrModalMachine.machineName}
+            </h2>
+            <p className="text-gray-500 text-sm mb-8">Scan to activate</p>
+            
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6">
+              <QRCodeSVG 
+                value={qrModalMachine.qrToken || ''} 
+                size={220} 
+                level={"H"} 
+              />
+            </div>
+            
+            <span className="font-mono text-lg text-gray-700 bg-gray-100 px-4 py-2 rounded-xl mb-8">
+              {qrModalMachine.qrToken}
+            </span>
+            
+            <button
+              onClick={() => setQrModalMachine(null)}
+              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold text-sm transition-all"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

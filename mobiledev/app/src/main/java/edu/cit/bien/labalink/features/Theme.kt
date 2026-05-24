@@ -1,4 +1,4 @@
-package edu.cit.bien.labalink.ui
+package edu.cit.bien.labalink.features
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

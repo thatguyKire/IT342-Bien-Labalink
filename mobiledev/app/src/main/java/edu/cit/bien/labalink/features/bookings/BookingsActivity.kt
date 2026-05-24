@@ -15,6 +15,7 @@ import edu.cit.bien.labalink.model.BookingResponse
 import edu.cit.bien.labalink.features.home.HomeActivity
 import kotlinx.coroutines.launch
 import android.os.Build
+import edu.cit.bien.labalink.features.wallet.WalletActivity
 
 class BookingsActivity : AppCompatActivity() {
 
@@ -112,7 +113,17 @@ class BookingsActivity : AppCompatActivity() {
         }
         // Load bookings
         loadBookings()
+
+
+        findViewById<LinearLayout>(R.id.navProfile)
+            .setOnClickListener {
+                startActivity(Intent(
+                    this,
+                    WalletActivity::class.java))
+            }
     }
+
+
 
     private fun loadBookings() {
         lifecycleScope.launch {

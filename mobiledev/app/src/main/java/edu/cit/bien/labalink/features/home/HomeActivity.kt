@@ -47,8 +47,9 @@ class HomeActivity : AppCompatActivity() {
                     )
         }
 
-        prefs = getSharedPreferences(
-            "labalink_prefs", MODE_PRIVATE)
+        prefs = getSharedPreferences("labalink_prefs", MODE_PRIVATE)
+        // 🟢 Inject the saved JWT token into Retrofit so the backend accepts our requests
+        RetrofitClient.authToken = prefs.getString("token", null)
 
         rvMachines = findViewById(R.id.rvMachines)
         emptyState = findViewById(R.id.emptyState)

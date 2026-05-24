@@ -21,7 +21,7 @@ android {
     buildTypes {
         // 🟢 DEBUG: Used when you hit "Run" in Android Studio
         getByName("debug") {
-            buildConfigField("String", "BASE_URL", "\"http://192.168.1.13:8080/api/\"")
+            buildConfigField("String", "BASE_URL", "\"http://192.168.1.15:8080/api/\"")
         }
 
         // 🟢 RELEASE: Used when you generate the final APK

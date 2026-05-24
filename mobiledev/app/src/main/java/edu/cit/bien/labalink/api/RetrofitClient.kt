@@ -10,6 +10,8 @@ object RetrofitClient {
 
     // 🟢 The hardcoded BASE_URL has been removed!
 
+    var authToken: String? = null
+
     private val loggingInterceptor =
         HttpLoggingInterceptor()
             .apply {
@@ -17,8 +19,17 @@ object RetrofitClient {
                     .Level.BODY
             }
 
+    private val authInterceptor = okhttp3.Interceptor { chain ->
+        val requestBuilder = chain.request().newBuilder()
+        authToken?.let {
+            requestBuilder.addHeader("Authorization", "Bearer $it")
+        }
+        chain.proceed(requestBuilder.build())
+    }
+
     private val client = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
+        .addInterceptor(authInterceptor)
         .build()
 
     val authApi: AuthApi by lazy {

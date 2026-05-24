@@ -115,6 +115,7 @@ class LoginActivity : AppCompatActivity() {
 
                 if (response.isSuccessful) {
                     val body = response.body()!!
+                    RetrofitClient.authToken = body.accessToken
                     prefs.edit()
                         .putString("token", body.accessToken)
                         .putString("username", body.username)
@@ -159,6 +160,7 @@ class LoginActivity : AppCompatActivity() {
 
                 if (response.isSuccessful) {
                     val body = response.body()!!
+                    RetrofitClient.authToken = body.accessToken
                     prefs.edit()
                         .putString("token", body.accessToken)
                         .putString("username", body.username)

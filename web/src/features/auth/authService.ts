@@ -21,6 +21,7 @@ export interface LoginResponse {
   role: string;
   email: string;
   username: string;
+  userId: number;
 }
 
 export const register = async (

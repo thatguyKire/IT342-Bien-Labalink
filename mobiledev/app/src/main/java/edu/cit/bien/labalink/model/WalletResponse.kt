@@ -4,6 +4,11 @@ data class WalletResponse(
     val walletBalance: Double
 )
 
+data class PaymentIntentRequest(
+    val userId: Long,
+    val amount: Double
+)
+
 data class PaymentIntentResponse(
     val id: Long,
     val clientSecret: String,

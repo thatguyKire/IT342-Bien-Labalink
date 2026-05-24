@@ -15,6 +15,7 @@ export default function OAuth2CallbackPage() {
     const username = params.get('username');
     const role = params.get('role');
     const email = params.get('email');
+    const userId = params.get('userId');
 
     if (token) {
       localStorage.setItem('token', token);
@@ -22,6 +23,7 @@ export default function OAuth2CallbackPage() {
         'username', username || '');
       localStorage.setItem('role', role || '');
       localStorage.setItem('email', email || '');
+      if (userId) localStorage.setItem('userId', userId);
 
       // Redirect based on role
       if (role === 'ATTENDANT') {

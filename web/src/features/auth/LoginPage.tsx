@@ -47,6 +47,8 @@ export default function LoginPage() {
         'role', response.role);
       localStorage.setItem(
         'username', response.username);
+      localStorage.setItem(
+        'userId', response.userId.toString());
       navigate('/machines');
     } catch {
       setError('Invalid email or password');

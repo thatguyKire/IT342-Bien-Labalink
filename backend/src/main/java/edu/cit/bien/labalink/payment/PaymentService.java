@@ -104,6 +104,17 @@ public class PaymentService {
                     new RuntimeException(
                         "Payment not found"));
 
+            // 🟢 SIMULATE STRIPE CONFIRMATION FOR MOBILE APP (Because mobile doesn't use Stripe SDK)
+            if ("requires_payment_method".equals(
+                    paymentIntent.getStatus())) {
+                com.stripe.param.PaymentIntentConfirmParams confirmParams = 
+                    com.stripe.param.PaymentIntentConfirmParams.builder()
+                        .setPaymentMethod("pm_card_visa") // Magic test card
+                        .setReturnUrl("http://localhost:5173/return")
+                        .build();
+                paymentIntent = paymentIntent.confirm(confirmParams);
+            }
+
             if ("succeeded".equals(
                     paymentIntent.getStatus())) {
 

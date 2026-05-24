@@ -77,15 +77,12 @@ public class OAuth2SuccessHandler
 
         // Build redirect URL with encoded params
         String redirectUrl =
-            "http://localhost:5173/oauth2/callback"
+            "http://localhost:5173/oauth2/callback" 
             + "?token=" + token
-            + "&username=" + URLEncoder.encode(
-                user.getUsername(),
-                StandardCharsets.UTF_8)
+            + "&username=" + URLEncoder.encode(user.getUsername(), StandardCharsets.UTF_8)
             + "&role=" + user.getRole().name()
-            + "&email=" + URLEncoder.encode(
-                user.getEmail(),
-                StandardCharsets.UTF_8);
+            + "&email=" + URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)
+            + "&userId=" + user.getId();
 
         response.sendRedirect(redirectUrl);
     }

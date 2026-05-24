@@ -134,16 +134,17 @@ class WalletActivity : AppCompatActivity() {
             try {
                 // 1. Create the Payment Intent in the backend
                 val intentResponse = RetrofitClient.authApi.createPaymentIntent(
-                    mapOf("userId" to userId, "amount" to selectedAmount)
+                    edu.cit.bien.labalink.model.PaymentIntentRequest(userId = userId, amount = selectedAmount)
                 )
 
                 if (intentResponse.isSuccessful) {
                     val body = intentResponse.body()!!
 
                     // 2. Immediately confirm it (Server-side Stripe Simulation for demo)
-                    // Added safe toString fallback to prevent crashes
+                    // The backend expects the Stripe paymentIntentId (pi_xxxx), which we extract from clientSecret
+                    val stripeIntentId = body.clientSecret.substringBefore("_secret_")
                     val confirmResponse = RetrofitClient.authApi.confirmPayment(
-                        mapOf("paymentIntentId" to (body.id?.toString() ?: ""))
+                        mapOf("paymentIntentId" to stripeIntentId)
                     )
 
                     if (confirmResponse.isSuccessful) {

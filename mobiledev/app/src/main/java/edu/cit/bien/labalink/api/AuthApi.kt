@@ -56,7 +56,7 @@ interface AuthApi {
 
     @POST("payments/create-intent")
     suspend fun createPaymentIntent(
-        @Body request: Map<String, Any>
+        @Body request: edu.cit.bien.labalink.model.PaymentIntentRequest
     ): Response<PaymentIntentResponse>
 
     @POST("payments/confirm")

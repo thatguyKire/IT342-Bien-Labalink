@@ -1,0 +1,186 @@
+import { useState, useEffect } from 'react';
+import { login } from './authService';
+import { useNavigate, useLocation } from 'react-router-dom';
+import logo from '../../assets/logo.png';
+import { loginStyles as s } from './LoginPage.styles';
+
+export default function LoginPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // Check if redirected back from cancelled
+  // or failed Google login
+  useEffect(() => {
+    const params = new URLSearchParams(
+      location.search);
+    const errorParam = params.get('error');
+
+    if (errorParam === 'google_cancelled') {
+      setError(
+        'Google sign in was cancelled. ' +
+        'Please try again.');
+    } else if (errorParam === 'no_email') {
+      setError(
+        'Could not get email from Google. ' +
+        'Please try again.');
+    }
+  }, [location]);
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+    try {
+      setLoading(true);
+      setError('');
+      const response = await login(
+        { email, password });
+      localStorage.setItem(
+        'token', response.accessToken);
+      localStorage.setItem(
+        'role', response.role);
+      localStorage.setItem(
+        'username', response.username);
+      localStorage.setItem(
+        'userId', response.userId.toString());
+      navigate('/machines');
+    } catch {
+      setError('Invalid email or password');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className={s.page}>
+
+      {/* Logo */}
+      <div className={s.logoWrapper}>
+        <img src={logo} alt="LabaLink Logo" className="w-24 h-24 mb-4 object-contain shadow-[0_0_15px_rgba(255,255,255,0.7)] rounded-2xl" />
+        <h1 className={s.logoTitle}>LabaLink</h1>
+        <p className={s.logoSubtitle}>
+          Smart Laundry Management System
+        </p>
+      </div>
+
+      {/* Card */}
+      <div className={s.card}>
+        <h2 className={s.cardTitle}>
+          Welcome Back
+        </h2>
+        <p className={s.cardSubtitle}>
+          Sign in to your account to manage 
+          your laundry
+        </p>
+
+        {/* Error */}
+        {error && (
+          <div className={s.errorBox}>
+            {error}
+          </div>
+        )}
+
+        {/* Email */}
+        <div className="mb-4">
+          <label className={s.inputLabel}>
+            Email
+          </label>
+          <div className={s.inputWrapper}>
+            <span className={s.inputIcon}>
+              ✉️
+            </span>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => 
+                setEmail(e.target.value)}
+              className={s.input}
+            />
+          </div>
+        </div>
+
+        {/* Password */}
+        <div className="mb-2">
+          <div className={s.passwordRow}>
+            <label className={s.inputLabel}>
+              Password
+            </label>
+            <span className={s.forgotPassword}>
+              Forgot Password?
+            </span>
+          </div>
+          <div className={s.inputWrapper}>
+            <span className={s.inputIcon}>
+              🔒
+            </span>
+            <input
+              type={
+                showPassword ? 'text' : 'password'
+              }
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) =>
+                setPassword(e.target.value)}
+              className={s.input}
+            />
+            <span
+              className={s.eyeIcon}
+              onClick={() =>
+                setShowPassword(!showPassword)}
+            >
+              {showPassword ? '🙈' : '👁️'}
+            </span>
+          </div>
+        </div>
+
+        {/* Login Button */}
+        <button
+          onClick={handleLogin}
+          disabled={loading}
+          className={s.loginButton}
+        >
+          {loading ? 'Logging in...' : 'Login →'}
+        </button>
+
+        {/* Divider */}
+        <div className={s.dividerWrapper}>
+          <div className={s.dividerLine} />
+          <span className={s.dividerText}>
+            OR CONTINUE WITH
+          </span>
+          <div className={s.dividerLine} />
+        </div>
+
+        {/* Google Button */}
+        <button
+          onClick={() => {
+            // 🟢 Pull the dynamic URL from your .env file
+            const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+            window.location.href = `${API_BASE_URL}/api/oauth2/authorize/attendant`;
+          }}
+          className={s.googleButton}
+        >
+          <img
+            src="https://www.google.com/favicon.ico"
+            alt="Google"
+            className={s.googleIcon}
+          />
+          Continue with Google
+        </button>
+
+      </div>
+
+      {/* Footer */}
+      <p className={s.footer}>
+        © 2026 LabaLink. All rights reserved.
+      </p>
+    </div>
+  );
+}

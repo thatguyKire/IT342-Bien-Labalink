@@ -14,12 +14,12 @@
         android:padding="24dp">
 
         <!-- Logo -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🫧"
-            android:textSize="48sp"
-            android:layout_marginTop="48dp"/>
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/logo"
+            android:layout_marginTop="48dp"
+            android:contentDescription="LabaLink Logo"/>
 
         <TextView
             android:layout_width="wrap_content"

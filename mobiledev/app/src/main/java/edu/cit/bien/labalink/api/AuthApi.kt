@@ -10,6 +10,7 @@ import edu.cit.bien.labalink.model.PaymentHistoryItem
 import edu.cit.bien.labalink.model.PaymentIntentResponse
 import edu.cit.bien.labalink.model.RegisterRequest
 import edu.cit.bien.labalink.model.WalletResponse
+import edu.cit.bien.labalink.model.QrActivationRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -19,57 +20,58 @@ import retrofit2.http.Query
 
 interface AuthApi {
 
-    @POST("api/auth/register")
+    @POST("auth/register")
     suspend fun register(
         @Body request: RegisterRequest
     ): Response<ApiResponse>
 
-    @POST("api/auth/login")
+    @POST("auth/login")
     suspend fun login(
         @Body request: LoginRequest
     ): Response<LoginResponse>
 
-    @POST("api/auth/google-login")
+    @POST("auth/google-login")
     suspend fun googleLogin(
         @Body request: Map<String, String>
     ): Response<LoginResponse>
 
-    @GET("api/machines")
+    @GET("machines")
     suspend fun getAllMachines(
     ): Response<List<MachineResponse>>
 
-    @GET("api/bookings")
+    @GET("bookings")
     suspend fun getAllBookings(
         @Query("status") status: String? = null
     ): Response<List<BookingResponse>>
 
-    @POST("api/bookings")
+    @POST("bookings")
     suspend fun createBooking(
         @Body request: BookingRequest
     ): Response<BookingResponse>
 
-    @GET("api/payments/wallet/{userId}")
+    @GET("payments/wallet/{userId}")
     suspend fun getWalletBalance(
         @Path("userId") userId: Long
     ): Response<WalletResponse>
 
-    @POST("api/payments/create-intent")
+    @POST("payments/create-intent")
     suspend fun createPaymentIntent(
-        @Body request: Map<String, Any>
+        @Body request: edu.cit.bien.labalink.model.PaymentIntentRequest
     ): Response<PaymentIntentResponse>
 
-    @POST("api/payments/confirm")
+    @POST("payments/confirm")
     suspend fun confirmPayment(
         @Body request: Map<String, String>
     ): Response<PaymentHistoryItem>
 
-    @GET("api/payments/user/{email}")
+    @GET("payments/user/{email}")
     suspend fun getPaymentHistory(
         @Path("email") email: String
     ): Response<List<PaymentHistoryItem>>
 
-    @POST("api/bookings")
+    // 🟢 FIX: Point this to the new "/qr" endpoint!
+    @POST("bookings/qr")
     suspend fun activateMachineByQr(
-        @Body request: Map<String, Any>
+        @Body request: QrActivationRequest
     ): Response<BookingResponse>
 }

@@ -69,3 +69,5 @@ Thumbs.db
 # Spring Boot
 *.jar
 *.war
+
+.env

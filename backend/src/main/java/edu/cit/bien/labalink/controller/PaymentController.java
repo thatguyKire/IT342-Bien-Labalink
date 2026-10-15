@@ -1,99 +1,77 @@
 package edu.cit.bien.labalink.controller;
 
 import edu.cit.bien.labalink.dto.ApiResponse;
-import edu.cit.bien.labalink.dto.PaymentRequest;
 import edu.cit.bien.labalink.dto.PaymentResponse;
+import edu.cit.bien.labalink.dto.TopUpRequest;
+import edu.cit.bien.labalink.dto.WalletResponse;
+import edu.cit.bien.labalink.security.UserPrincipal;
 import edu.cit.bien.labalink.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class PaymentController {
 
     private final PaymentService paymentService;
 
-    // Create payment intent
-    // Frontend calls this first to get clientSecret
-    @PostMapping("/create-intent")
-    public ResponseEntity<?> createPaymentIntent(
-            @Valid @RequestBody
-            PaymentRequest request) {
-        try {
-            PaymentResponse response =
-                paymentService
-                    .createPaymentIntent(request);
-            return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ApiResponse(
-                    false, e.getMessage()));
-        }
+    /** Starts a Stripe Checkout top-up; returns the hosted payment URL. */
+    @PostMapping("/checkout")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public PaymentResponse createCheckout(
+            @Valid @RequestBody TopUpRequest request,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return paymentService.createCheckout(principal, request.getAmount());
     }
 
-    // Confirm payment after Stripe processes it
-    @PostMapping("/confirm")
-    public ResponseEntity<?> confirmPayment(
-            @RequestBody 
-            Map<String, String> body) {
-        try {
-            String paymentIntentId = 
-                body.get("paymentIntentId");
-            PaymentResponse response =
-                paymentService
-                    .confirmPayment(
-                        paymentIntentId);
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ApiResponse(
-                    false, e.getMessage()));
-        }
+    /** Re-checks a payment with Stripe and credits the wallet if paid. */
+    @PostMapping("/{id}/sync")
+    public PaymentResponse sync(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return paymentService.syncPayment(id, principal);
     }
 
-    // Get all payments (for attendant dashboard)
+    @GetMapping("/me")
+    public List<PaymentResponse> myPayments(
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return paymentService.getPaymentsForUser(principal.id());
+    }
+
+    @GetMapping("/wallet")
+    public WalletResponse myWallet(
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return new WalletResponse(
+            paymentService.getWalletBalance(principal.id()));
+    }
+
     @GetMapping
-    public ResponseEntity<List<PaymentResponse>>
-            getAllPayments() {
-        return ResponseEntity.ok(
-            paymentService.getAllPayments());
+    @PreAuthorize("hasRole('ATTENDANT')")
+    public List<PaymentResponse> allPayments() {
+        return paymentService.getAllPayments();
     }
 
-    // Get payments by user email
-    @GetMapping("/user/{email}")
-    public ResponseEntity<List<PaymentResponse>>
-            getPaymentsByUser(
-                @PathVariable String email) {
-        return ResponseEntity.ok(
-            paymentService.getPaymentsByUser(email));
-    }
-
-    // Get wallet balance
-    @GetMapping("/wallet/{userId}")
-    public ResponseEntity<?> getWalletBalance(
-            @PathVariable Long userId) {
-        try {
-            Double balance =
-                paymentService
-                    .getWalletBalance(userId);
-            return ResponseEntity.ok(
-                Map.of("walletBalance", balance));
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new ApiResponse(
-                    false, e.getMessage()));
-        }
+    /** Stripe → server. Authenticated by the Stripe-Signature HMAC. */
+    @PostMapping("/webhook")
+    public ApiResponse webhook(
+            @RequestBody String payload,
+            @RequestHeader(value = "Stripe-Signature", required = false)
+            String signature) {
+        paymentService.handleWebhook(payload, signature);
+        return new ApiResponse(true, "ok");
     }
 }

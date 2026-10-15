@@ -1,14 +1,15 @@
 package edu.cit.bien.labalink.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.Setter;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "payments")
 public class Payment {
@@ -21,23 +22,38 @@ public class Payment {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
-    private Double amount;
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal amount;
 
-    @Column
+    @Column(nullable = false, length = 3)
+    private String currency = "php";
+
+    @Column(unique = true)
     private String stripePaymentIntentId;
 
-    @Column
+    @Column(unique = true)
+    private String stripeCheckoutSessionId;
+
+    @Column(length = 64)
     private String providerReference;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PaymentStatus status = 
-        PaymentStatus.PENDING;
+    @Column(nullable = false, length = 20)
+    private PaymentStatus status = PaymentStatus.PENDING;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = 
-        LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column
+    private LocalDateTime updatedAt;
+
+    @Column
+    private LocalDateTime paidAt;
+
+    @PreUpdate
+    void touch() {
+        updatedAt = LocalDateTime.now();
+    }
 
     public enum PaymentStatus {
         PENDING, SUCCESS, FAILED

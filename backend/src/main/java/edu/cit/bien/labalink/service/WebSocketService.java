@@ -1,84 +1,78 @@
 package edu.cit.bien.labalink.service;
 
+import edu.cit.bien.labalink.dto.BookingResponse;
 import edu.cit.bien.labalink.model.WebSocketMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
+import java.util.Map;
 
+/**
+ * Real-time pushes.
+ *  /topic/machines        machine status, no secrets (all signed-in users)
+ *  /topic/bookings        booking feed (attendants only; see interceptor)
+ *  /user/queue/bookings   a customer's own booking changes
+ *  /user/queue/wallet     a customer's own balance changes
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class WebSocketService {
 
-    private final SimpMessagingTemplate 
-        messagingTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    // Broadcast machine status update
-    public void broadcastMachineUpdate(
-            Object machineData) {
-        WebSocketMessage message = 
-            new WebSocketMessage(
-                WebSocketMessage.MACHINE_UPDATED,
-                "Machine status updated",
-                machineData);
-
-        messagingTemplate.convertAndSend(
-            "/topic/machines", message);
-
-        log.info("WebSocket: Machine update broadcast");
+    public void broadcastMachineUpdate(Object machineData) {
+        send("/topic/machines", new WebSocketMessage(
+            WebSocketMessage.MACHINE_UPDATED,
+            "Machine status updated",
+            machineData));
     }
 
-    // Broadcast new booking created
-    public void broadcastBookingCreated(
-            Object bookingData) {
-        WebSocketMessage message =
-            new WebSocketMessage(
-                WebSocketMessage.BOOKING_CREATED,
-                "New booking created",
-                bookingData);
-
-        messagingTemplate.convertAndSend(
-            "/topic/bookings", message);
-
-        log.info(
-            "WebSocket: Booking created broadcast");
+    public void broadcastBookingCreated(BookingResponse booking) {
+        WebSocketMessage message = new WebSocketMessage(
+            WebSocketMessage.BOOKING_CREATED,
+            "New booking created",
+            booking);
+        send("/topic/bookings", message);
+        sendToUser(booking.getUserId(), "/queue/bookings", message);
     }
 
-    // Broadcast booking status update
-    public void broadcastBookingUpdate(
-            Object bookingData) {
-        WebSocketMessage message =
-            new WebSocketMessage(
-                WebSocketMessage.BOOKING_UPDATED,
-                "Booking status updated",
-                bookingData);
-
-        messagingTemplate.convertAndSend(
-            "/topic/bookings", message);
-
-        log.info(
-            "WebSocket: Booking update broadcast");
+    public void broadcastBookingUpdate(BookingResponse booking) {
+        WebSocketMessage message = new WebSocketMessage(
+            WebSocketMessage.BOOKING_UPDATED,
+            "Booking status updated",
+            booking);
+        send("/topic/bookings", message);
+        sendToUser(booking.getUserId(), "/queue/bookings", message);
     }
 
-    // Broadcast wallet balance update
-    public void broadcastWalletUpdate(
-            String userEmail,
-            Double newBalance) {
-        WebSocketMessage message =
-            new WebSocketMessage(
-                WebSocketMessage.WALLET_UPDATED,
-                "Wallet balance updated",
-                java.util.Map.of(
-                    "email", userEmail,
-                    "newBalance", newBalance));
+    public void sendWalletUpdate(Long userId, BigDecimal newBalance) {
+        sendToUser(userId, "/queue/wallet", new WebSocketMessage(
+            WebSocketMessage.WALLET_UPDATED,
+            "Wallet balance updated",
+            Map.of("newBalance", newBalance)));
+    }
 
-        messagingTemplate.convertAndSend(
-            "/topic/wallet/" + userEmail,
-            message);
+    private void send(String destination, WebSocketMessage message) {
+        try {
+            messagingTemplate.convertAndSend(destination, message);
+        } catch (Exception e) {
+            log.warn("WebSocket push to {} failed: {}",
+                destination, e.getMessage());
+        }
+    }
 
-        log.info(
-            "WebSocket: Wallet update broadcast " +
-            "for {}", userEmail);
+    private void sendToUser(
+            Long userId,
+            String destination,
+            WebSocketMessage message) {
+        try {
+            messagingTemplate.convertAndSendToUser(
+                String.valueOf(userId), destination, message);
+        } catch (Exception e) {
+            log.warn("WebSocket push to user failed: {}", e.getMessage());
+        }
     }
 }

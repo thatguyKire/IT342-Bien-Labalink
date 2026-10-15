@@ -1,42 +1,31 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:8080/api/auth';
-
-export interface RegisterRequest {
-  username: string;
-  email: string;
-  password: string;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  accessToken: string;
-  tokenType: string;
-  role: string;
-  email: string;
-  username: string;
-}
-
-export const register = async (
-  data: RegisterRequest
-) => {
-  const response = await axios.post(
-    `${API_URL}/register`, 
-    data
-  );
-  return response.data;
-};
+import { api } from '../lib/api';
+import { API_BASE_URL } from '../lib/config';
+import type { LoginResponse } from '../lib/session';
 
 export const login = async (
-  data: LoginRequest
+  email: string,
+  password: string,
 ): Promise<LoginResponse> => {
-  const response = await axios.post(
-    `${API_URL}/login`, 
-    data
-  );
+  const response = await api.post<LoginResponse>(
+    '/auth/login', { email, password });
   return response.data;
 };
+
+export const exchangeOAuth2Code = async (
+  code: string,
+): Promise<LoginResponse> => {
+  const response = await api.post<LoginResponse>(
+    '/auth/oauth2/exchange', { code });
+  return response.data;
+};
+
+/** Revokes the token server-side. Failures are ignored: we log out anyway. */
+export const logout = async (): Promise<void> => {
+  try {
+    await api.post('/auth/logout');
+  } catch {
+    // ignore
+  }
+};
+
+export const googleLoginUrl = `${API_BASE_URL}/oauth2/authorization/google`;

@@ -2,11 +2,13 @@ package edu.cit.bien.labalink.dto;
 
 import edu.cit.bien.labalink.model.Booking;
 import lombok.Data;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 public class BookingResponse {
     private Long id;
+    private Long userId;
     private String userEmail;
     private String username;
     private Long machineId;
@@ -15,28 +17,25 @@ public class BookingResponse {
     private Booking.BookingStatus status;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private Double totalPrice;
+    private Integer durationMinutes;
+    private BigDecimal totalPrice;
     private LocalDateTime createdAt;
 
-    public static BookingResponse fromEntity(
-            Booking booking) {
-        BookingResponse response = 
-            new BookingResponse();
+    public static BookingResponse fromEntity(Booking booking) {
+        BookingResponse response = new BookingResponse();
         response.setId(booking.getId());
-        response.setUserEmail(
-            booking.getUser().getEmail());
-        response.setUsername(
-            booking.getUser().getUsername());
-        response.setMachineId(
-            booking.getMachine().getId());
+        response.setUserId(booking.getUser().getId());
+        response.setUserEmail(booking.getUser().getEmail());
+        response.setUsername(booking.getUser().getUsername());
+        response.setMachineId(booking.getMachine().getId());
         response.setMachineName(
             booking.getMachine().getMachineName());
         response.setMachineType(
-            booking.getMachine()
-                .getMachineType().name());
+            booking.getMachine().getMachineType().name());
         response.setStatus(booking.getStatus());
         response.setStartTime(booking.getStartTime());
         response.setEndTime(booking.getEndTime());
+        response.setDurationMinutes(booking.getDurationMinutes());
         response.setTotalPrice(booking.getTotalPrice());
         response.setCreatedAt(booking.getCreatedAt());
         return response;

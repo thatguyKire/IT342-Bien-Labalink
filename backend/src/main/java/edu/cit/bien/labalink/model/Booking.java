@@ -1,14 +1,15 @@
 package edu.cit.bien.labalink.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.Setter;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "bookings")
 public class Booking {
@@ -26,9 +27,8 @@ public class Booking {
     private Machine machine;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private BookingStatus status = 
-        BookingStatus.PENDING;
+    @Column(nullable = false, length = 20)
+    private BookingStatus status = BookingStatus.PENDING;
 
     @Column(nullable = false)
     private LocalDateTime startTime;
@@ -37,13 +37,35 @@ public class Booking {
     private LocalDateTime endTime;
 
     @Column(nullable = false)
-    private Double totalPrice;
+    private Integer durationMinutes;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalPrice;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = 
-        LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column
+    private LocalDateTime updatedAt;
+
+    @PreUpdate
+    void touch() {
+        updatedAt = LocalDateTime.now();
+    }
 
     public enum BookingStatus {
-        PENDING, ACTIVE, COMPLETED, CANCELLED
+        PENDING, ACTIVE, COMPLETED, CANCELLED;
+
+        public boolean isOpen() {
+            return this == PENDING || this == ACTIVE;
+        }
+
+        public boolean canTransitionTo(BookingStatus next) {
+            return switch (this) {
+                case PENDING -> next == ACTIVE || next == CANCELLED;
+                case ACTIVE -> next == COMPLETED || next == CANCELLED;
+                case COMPLETED, CANCELLED -> false;
+            };
+        }
     }
 }

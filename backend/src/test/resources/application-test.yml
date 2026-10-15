@@ -1,0 +1,19 @@
+app:
+  jwt:
+    secret: test-secret-that-is-definitely-longer-than-32-bytes
+  google:
+    client-ids: test-client-id
+  stripe:
+    secret-key: sk_test_fake
+    webhook-secret: whsec_fake
+  rate-limit:
+    auth-requests-per-minute: 10000
+    api-requests-per-minute: 10000
+  bootstrap:
+    attendant-email: ""
+    attendant-password: ""
+
+spring:
+  mail:
+    host: localhost
+    port: 2525

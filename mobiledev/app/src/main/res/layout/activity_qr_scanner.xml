@@ -36,7 +36,7 @@
             android:src="@android:drawable/ic_media_previous"
             android:background="@android:color/transparent"
             android:contentDescription="Cancel"
-            android:tint="#FFFFFF"/>
+            app:tint="#FFFFFF"/>
 
         <TextView
             android:layout_width="0dp"

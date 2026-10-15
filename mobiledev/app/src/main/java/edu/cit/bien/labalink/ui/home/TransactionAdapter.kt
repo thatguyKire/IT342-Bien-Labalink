@@ -1,89 +1,49 @@
 package edu.cit.bien.labalink.ui.home
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import edu.cit.bien.labalink.R
-import edu.cit.bien.labalink.model.PaymentHistoryItem
+import edu.cit.bien.labalink.model.PaymentResponse
+import edu.cit.bien.labalink.ui.peso
 
 class TransactionAdapter(
-    private var transactions: List<PaymentHistoryItem>
-) : RecyclerView.Adapter<TransactionAdapter.ViewHolder>() { // <-- FIXED HERE
+    private var transactions: List<PaymentResponse>
+) : RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
 
-    class ViewHolder(view: View) :
-        RecyclerView.ViewHolder(view) {
-        val tvAmount: TextView =
-            view.findViewById(R.id.tvAmount)
-        val tvReference: TextView =
-            view.findViewById(R.id.tvReference)
-        val tvStatus: TextView =
-            view.findViewById(R.id.tvStatus)
-        val tvDate: TextView =
-            view.findViewById(R.id.tvDate)
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val tvAmount: TextView = view.findViewById(R.id.tvAmount)
+        val tvReference: TextView = view.findViewById(R.id.tvReference)
+        val tvStatus: TextView = view.findViewById(R.id.tvStatus)
+        val tvDate: TextView = view.findViewById(R.id.tvDate)
     }
 
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): ViewHolder {
-        val view = LayoutInflater
-            .from(parent.context)
-            .inflate(
-                R.layout.item_transaction,
-                parent,
-                false)
-        return ViewHolder(view)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
+        ViewHolder(
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_transaction, parent, false))
 
-    override fun onBindViewHolder(
-        holder: ViewHolder,
-        position: Int
-    ) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val tx = transactions[position]
 
-        holder.tvAmount.text =
-            "₱ %.2f".format(tx.amount)
-        holder.tvReference.text =
-            tx.providerReference
+        holder.tvAmount.text = peso(tx.amount)
+        holder.tvReference.text = tx.providerReference ?: "—"
+        holder.tvDate.text = (tx.paidAt ?: tx.createdAt).orEmpty().take(10)
 
-        when (tx.status) {
-            "SUCCESS" -> {
-                holder.tvStatus.text = "SUCCESS"
-                holder.tvStatus.setTextColor(
-                    android.graphics.Color
-                        .parseColor("#065F46"))
-                holder.tvStatus
-                    .setBackgroundResource(
-                        R.drawable.badge_completed)
-            }
-            "FAILED" -> {
-                holder.tvStatus.text = "FAILED"
-                holder.tvStatus.setTextColor(
-                    android.graphics.Color
-                        .parseColor("#B91C1C"))
-                holder.tvStatus
-                    .setBackgroundResource(
-                        R.drawable.badge_cancelled)
-            }
-            else -> {
-                holder.tvStatus.text = "PENDING"
-                holder.tvStatus.setTextColor(
-                    android.graphics.Color
-                        .parseColor("#6B7280"))
-                holder.tvStatus
-                    .setBackgroundResource(
-                        R.drawable.badge_pending)
-            }
+        val (label, color, background) = when (tx.status) {
+            "SUCCESS" -> Triple("SUCCESS", "#065F46", R.drawable.badge_completed)
+            "FAILED" -> Triple("FAILED", "#B91C1C", R.drawable.badge_cancelled)
+            else -> Triple("PENDING", "#6B7280", R.drawable.badge_pending)
         }
-
-        holder.tvDate.text =
-            tx.createdAt.take(10)
+        holder.tvStatus.text = label
+        holder.tvStatus.setTextColor(Color.parseColor(color))
+        holder.tvStatus.setBackgroundResource(background)
     }
 
-    fun updateData(
-        newTransactions: List<PaymentHistoryItem>) {
+    fun updateData(newTransactions: List<PaymentResponse>) {
         transactions = newTransactions
         notifyDataSetChanged()
     }

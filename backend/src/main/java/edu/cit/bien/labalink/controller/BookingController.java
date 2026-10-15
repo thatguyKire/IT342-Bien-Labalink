@@ -1,109 +1,86 @@
 package edu.cit.bien.labalink.controller;
 
-import edu.cit.bien.labalink.dto.ApiResponse;
 import edu.cit.bien.labalink.dto.BookingRequest;
 import edu.cit.bien.labalink.dto.BookingResponse;
+import edu.cit.bien.labalink.dto.BookingStats;
+import edu.cit.bien.labalink.dto.BookingStatusRequest;
 import edu.cit.bien.labalink.model.Booking;
+import edu.cit.bien.labalink.security.UserPrincipal;
 import edu.cit.bien.labalink.service.BookingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/bookings")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class BookingController {
 
     private final BookingService bookingService;
 
+    /** Attendant view of every booking, optionally filtered by status. */
     @GetMapping
-    public ResponseEntity<List<BookingResponse>>
-            getAllBookings(
-                @RequestParam(required = false)
-                String status) {
-        if (status != null && !status.isEmpty()) {
-            try {
-                Booking.BookingStatus bookingStatus =
-                    Booking.BookingStatus
-                        .valueOf(status.toUpperCase());
-                return ResponseEntity.ok(
-                    bookingService
-                        .getBookingsByStatus(
-                            bookingStatus));
-            } catch (IllegalArgumentException e) {
-                return ResponseEntity.ok(
-                    bookingService.getAllBookings());
-            }
-        }
-        return ResponseEntity.ok(
-            bookingService.getAllBookings());
+    @PreAuthorize("hasRole('ATTENDANT')")
+    public List<BookingResponse> getAllBookings(
+            @RequestParam(required = false) Booking.BookingStatus status) {
+        return bookingService.getAllBookings(status);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getBookingById(
-            @PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(
-                bookingService.getBookingById(id));
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new ApiResponse(
-                    false, e.getMessage()));
-        }
-    }
-
-    @PostMapping
-    public ResponseEntity<?> createBooking(
-            @Valid @RequestBody
-            BookingRequest request) {
-        try {
-            return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(bookingService
-                    .createBooking(request));
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ApiResponse(
-                    false, e.getMessage()));
-        }
-    }
-
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<?> updateStatus(
-            @PathVariable Long id,
-            @RequestBody Map<String, String> body) {
-        try {
-            Booking.BookingStatus status =
-                Booking.BookingStatus
-                    .valueOf(body.get("status")
-                        .toUpperCase());
-            return ResponseEntity.ok(
-                bookingService
-                    .updateBookingStatus(id, status));
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ApiResponse(
-                    false, e.getMessage()));
-        }
+    /** The caller's own bookings. */
+    @GetMapping("/me")
+    public List<BookingResponse> getMyBookings(
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return bookingService.getBookingsForUser(principal.id());
     }
 
     @GetMapping("/stats")
-    public ResponseEntity<?> getStats() {
-        return ResponseEntity.ok(Map.of(
-            "totalBookings",
-                bookingService.getTotalBookings(),
-            "activeBookings",
-                bookingService.getActiveBookings(),
-            "totalRevenue",
-                bookingService.getTotalRevenue()
-        ));
+    @PreAuthorize("hasRole('ATTENDANT')")
+    public BookingStats getStats() {
+        return bookingService.getStats();
+    }
+
+    @GetMapping("/{id}")
+    public BookingResponse getBooking(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return bookingService.getBooking(id, principal);
+    }
+
+    /** Customer scans a machine's QR code to start (and pay for) a session. */
+    @PostMapping
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public BookingResponse createBooking(
+            @Valid @RequestBody BookingRequest request,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return bookingService.createBooking(principal, request);
+    }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ATTENDANT')")
+    public BookingResponse updateStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody BookingStatusRequest request) {
+        return bookingService.updateBookingStatus(id, request.getStatus());
+    }
+
+    /** Customer cancels their own PENDING booking (wallet is refunded). */
+    @PostMapping("/{id}/cancel")
+    public BookingResponse cancel(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return bookingService.cancelOwnBooking(id, principal);
     }
 }

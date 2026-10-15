@@ -1,18 +1,19 @@
-import axios from 'axios';
+import { api } from '../lib/api';
 
-const API_URL = 'http://localhost:8080/api/bookings';
+export type BookingStatus = 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
 
 export interface Booking {
   id: number;
+  userId: number;
   userEmail: string;
   username: string;
   machineId: number;
   machineName: string;
   machineType: string;
-  status: 'PENDING' | 'ACTIVE' | 
-          'COMPLETED' | 'CANCELLED';
+  status: BookingStatus;
   startTime: string;
   endTime: string | null;
+  durationMinutes: number;
   totalPrice: number;
   createdAt: string;
 }
@@ -20,30 +21,22 @@ export interface Booking {
 export interface BookingStats {
   totalBookings: number;
   activeBookings: number;
+  pendingBookings: number;
   totalRevenue: number;
 }
 
 export const getAllBookings = async (
-    status?: string): Promise<Booking[]> => {
-  const url = status
-    ? `${API_URL}?status=${status}`
-    : API_URL;
-  const response = await axios.get(url);
-  return response.data;
-};
+  status?: BookingStatus,
+): Promise<Booking[]> =>
+  (await api.get<Booking[]>('/bookings', {
+    params: status ? { status } : undefined,
+  })).data;
 
 export const updateBookingStatus = async (
-    id: number,
-    status: string): Promise<Booking> => {
-  const response = await axios.patch(
-    `${API_URL}/${id}/status`,
-    { status });
-  return response.data;
-};
+  id: number,
+  status: BookingStatus,
+): Promise<Booking> =>
+  (await api.patch<Booking>(`/bookings/${id}/status`, { status })).data;
 
-export const getBookingStats = async ():
-    Promise<BookingStats> => {
-  const response = await axios.get(
-    `${API_URL}/stats`);
-  return response.data;
-};
+export const getBookingStats = async (): Promise<BookingStats> =>
+  (await api.get<BookingStats>('/bookings/stats')).data;

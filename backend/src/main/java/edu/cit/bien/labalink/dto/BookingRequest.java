@@ -1,23 +1,26 @@
 package edu.cit.bien.labalink.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
-import java.time.LocalDateTime;
 
+/**
+ * Customer booking request. The user comes from the JWT and the price is
+ * computed by the server, so neither can be supplied (or forged) here.
+ */
 @Data
 public class BookingRequest {
 
-    @NotNull(message = "User ID is required")
-    private Long userId;
-
     @NotNull(message = "Machine ID is required")
+    @Positive(message = "Machine ID is invalid")
     private Long machineId;
 
-    @NotNull(message = "Start time is required")
-    private LocalDateTime startTime;
+    @NotBlank(message = "Scan the machine QR code to start")
+    @Size(max = 64, message = "QR code is invalid")
+    private String qrToken;
 
-    private LocalDateTime endTime;
-
-    @NotNull(message = "Total price is required")
-    private Double totalPrice;
+    // Optional; the server default applies when null.
+    private Integer durationMinutes;
 }

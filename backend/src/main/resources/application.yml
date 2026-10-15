@@ -1,0 +1,130 @@
+# LabaLink API configuration.
+# Secrets are NEVER committed. Provide them as environment variables or in
+# backend/.env (git-ignored). See backend/.env.example for the full list.
+spring:
+  application:
+    name: labalink
+  config:
+    import: optional:file:.env[.properties]
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/labalink}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    # Lets Flyway adopt a database that was previously created by Hibernate's
+    # ddl-auto=update (pre-1.0 versions of LabaLink). V1 is idempotent.
+    baseline-on-migrate: true
+    baseline-version: 0
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:not-configured}
+            client-secret: ${GOOGLE_CLIENT_SECRET:not-configured}
+            scope: openid, email, profile
+
+server:
+  port: ${PORT:8080}
+  # Honour X-Forwarded-* only when running behind a trusted reverse proxy.
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:none}
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+    include-exception: false
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        same-site: lax
+        secure: ${SESSION_COOKIE_SECURE:false}
+      timeout: 10m
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+  health:
+    # An SMTP hiccup should not mark the whole API as down.
+    mail:
+      enabled: false
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  jwt:
+    # Must be at least 32 bytes. Generate with: openssl rand -base64 48
+    secret: ${JWT_SECRET}
+    issuer: ${JWT_ISSUER:labalink-api}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
+  google:
+    # Comma-separated OAuth client IDs whose Google ID tokens are accepted
+    # (the Web client ID used by the Android app's requestIdToken()).
+    client-ids: ${GOOGLE_CLIENT_IDS:${GOOGLE_CLIENT_ID:not-configured}}
+  stripe:
+    secret-key: ${STRIPE_SECRET_KEY:}
+    webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
+    currency: php
+    success-url: ${STRIPE_SUCCESS_URL:${FRONTEND_URL:http://localhost:5173}/payment/success}
+    cancel-url: ${STRIPE_CANCEL_URL:${FRONTEND_URL:http://localhost:5173}/payment/cancel}
+  wallet:
+    min-top-up: 50
+    max-top-up: 10000
+    max-balance: 50000
+  booking:
+    min-duration-minutes: 15
+    max-duration-minutes: 240
+    default-duration-minutes: 60
+  rate-limit:
+    auth-requests-per-minute: 20
+    api-requests-per-minute: 300
+  login:
+    max-failed-attempts: 5
+    lockout-minutes: 15
+  email:
+    from: ${MAIL_FROM:${MAIL_USERNAME:no-reply@labalink.local}}
+    name: LabaLink
+  bootstrap:
+    # Creates the first attendant account on startup if no attendant exists.
+    attendant-email: ${BOOTSTRAP_ATTENDANT_EMAIL:}
+    attendant-password: ${BOOTSTRAP_ATTENDANT_PASSWORD:}
+    attendant-username: ${BOOTSTRAP_ATTENDANT_USERNAME:Admin}
+
+logging:
+  level:
+    org.springframework.security: WARN

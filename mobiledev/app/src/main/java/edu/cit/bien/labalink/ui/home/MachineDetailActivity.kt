@@ -1,124 +1,91 @@
 package edu.cit.bien.labalink.ui.home
 
+import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import edu.cit.bien.labalink.databinding.ActivityMachineDetailBinding
-import android.content.Intent
-import androidx.activity.result.contract.ActivityResultContracts
+import edu.cit.bien.labalink.ui.hideNavigationBar
 
 class MachineDetailActivity : AppCompatActivity() {
 
-    private lateinit var binding:
-            ActivityMachineDetailBinding
+    companion object {
+        const val EXTRA_MACHINE_ID = "machineId"
+        const val EXTRA_NAME = "machineName"
+        const val EXTRA_TYPE = "machineType"
+        const val EXTRA_STATUS = "machineStatus"
+        const val EXTRA_RATE = "hourlyRate"
+        const val DEFAULT_DURATION_MINUTES = 60
+    }
+
+    private lateinit var binding: ActivityMachineDetailBinding
 
     private val qrScannerLauncher =
         registerForActivityResult(
-            ActivityResultContracts
-                .StartActivityForResult()
+            ActivityResultContracts.StartActivityForResult()
         ) { result ->
             if (result.resultCode == RESULT_OK) {
                 val bookingId = result.data
-                    ?.getLongExtra("bookingId", -1L)
-                android.widget.Toast.makeText(
+                    ?.getLongExtra(QrScannerActivity.EXTRA_BOOKING_ID, -1L)
+                Toast.makeText(
                     this,
-                    "Booking #$bookingId created! " +
-                            "Machine is now RUNNING",
-                    android.widget.Toast.LENGTH_LONG
+                    "Booking #$bookingId started! Machine is now running.",
+                    Toast.LENGTH_LONG
                 ).show()
                 finish()
             }
         }
 
-    override fun onCreate(
-        savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMachineDetailBinding
-            .inflate(layoutInflater)
+        binding = ActivityMachineDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        hideNavigationBar()
 
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            window.insetsController?.let { controller ->
-                controller.hide(android.view.WindowInsets.Type.navigationBars())
-                controller.systemBarsBehavior =
-                    android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = (
-                    android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            or android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    )
-        }
-
-        val machineName = intent
-            .getStringExtra("machineName")
-            ?: "Machine"
-        val machineType = intent
-            .getStringExtra("machineType")
-            ?: "WASHER"
-        val machineStatus = intent
-            .getStringExtra("machineStatus")
-            ?: "AVAILABLE"
-        val hourlyRate = intent
-            .getDoubleExtra("hourlyRate", 0.0)
-        val qrToken = intent
-            .getStringExtra("qrToken")
-            ?: ""
+        val machineId = intent.getLongExtra(EXTRA_MACHINE_ID, -1L)
+        val machineName = intent.getStringExtra(EXTRA_NAME) ?: "Machine"
+        val machineType = intent.getStringExtra(EXTRA_TYPE) ?: "WASHER"
+        val status = intent.getStringExtra(EXTRA_STATUS) ?: "AVAILABLE"
+        val hourlyRate = intent.getDoubleExtra(EXTRA_RATE, 0.0)
 
         binding.tvMachineName.text = machineName
         binding.tvMachineType.text = machineType
-        binding.tvQrToken.text = qrToken
-        binding.tvHourlyRate.text =
-            "₱ %.2f / hr".format(hourlyRate)
-        binding.tvStatus.text = machineStatus
+        binding.tvHourlyRate.text = "₱ %.2f / hr".format(hourlyRate)
+        binding.tvImageLabel.text =
+            if (machineType == "WASHER") "Washing Machine" else "Dryer Machine"
+        // The QR secret is no longer sent to customers; they must scan the
+        // sticker on the machine itself.
+        binding.tvQrToken.text = "Scan the sticker on the machine"
 
-        when (machineType) {
-            "WASHER" -> {
-                binding.tvImageLabel.text =
-                    "Washing Machine"
-            }
-            else -> {
-                binding.tvImageLabel.text =
-                    "Dryer Machine"
-            }
-        }
+        binding.tvStatus.text = status.replace('_', ' ')
+        binding.tvStatus.setTextColor(Color.parseColor(when (status) {
+            "AVAILABLE" -> "#10B981"
+            "RUNNING" -> "#1D4ED8"
+            else -> "#B91C1C"
+        }))
 
-        when (machineStatus) {
-            "AVAILABLE" -> {
-                binding.tvStatus.setTextColor(
-                    android.graphics.Color
-                        .parseColor("#10B981"))
-            }
-            "RUNNING" -> {
-                binding.tvStatus.setTextColor(
-                    android.graphics.Color
-                        .parseColor("#1D4ED8"))
-            }
-            "OUT_OF_ORDER" -> {
-                binding.tvStatus.setTextColor(
-                    android.graphics.Color
-                        .parseColor("#B91C1C"))
-            }
-        }
+        binding.btnBack.setOnClickListener { finish() }
 
-        binding.btnBack.setOnClickListener {
-            finish()
+        val available = status == "AVAILABLE" && machineId > 0
+        binding.btnStartNewWash.isEnabled = available
+        binding.btnStartNewWash.alpha = if (available) 1f else 0.5f
+        binding.btnStartNewWash.text = if (available) {
+            "Scan & Start · ₱ %.2f / %d min".format(
+                hourlyRate * DEFAULT_DURATION_MINUTES / 60.0,
+                DEFAULT_DURATION_MINUTES)
+        } else {
+            "Not available"
         }
 
         binding.btnStartNewWash.setOnClickListener {
-            val machineId = intent
-                .getLongExtra("machineId", -1L)
-            val hourlyRate = intent
-                .getDoubleExtra("hourlyRate", 0.0)
-
-            val scanIntent = Intent(
-                this,
-                QrScannerActivity::class.java)
-            scanIntent.putExtra("machineId", machineId)
-            scanIntent.putExtra("hourlyRate", hourlyRate)
-            qrScannerLauncher.launch(scanIntent)
+            qrScannerLauncher.launch(
+                Intent(this, QrScannerActivity::class.java)
+                    .putExtra(QrScannerActivity.EXTRA_MACHINE_ID, machineId)
+                    .putExtra(
+                        QrScannerActivity.EXTRA_DURATION,
+                        DEFAULT_DURATION_MINUTES))
         }
     }
 }

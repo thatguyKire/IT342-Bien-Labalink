@@ -1,14 +1,14 @@
 package edu.cit.bien.labalink.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "email_logs")
 public class EmailLog {
@@ -17,27 +17,25 @@ public class EmailLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 254)
     private String toEmail;
 
     @Column(nullable = false)
     private String subject;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 40)
     private EmailType emailType;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private EmailStatus status = 
-        EmailStatus.SENT;
+    @Column(nullable = false, length = 20)
+    private EmailStatus status = EmailStatus.SENT;
 
-    @Column
+    @Column(length = 1000)
     private String errorMessage;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime sentAt = 
-        LocalDateTime.now();
+    private LocalDateTime sentAt = LocalDateTime.now();
 
     public enum EmailType {
         WELCOME,

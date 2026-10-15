@@ -69,3 +69,18 @@ Thumbs.db
 # Spring Boot
 *.jar
 *.war
+# ---- Secrets: never commit these ----
+.env
+.env.*
+!.env.example
+**/.env
+**/local.properties
+*.keystore
+*.jks
+*.p12
+*.pem
+google-services.json
+backend/src/main/resources/application-local.yml
+
+# Build-tool wrappers must be committed so ./gradlew works after cloning
+!mobiledev/gradle/wrapper/gradle-wrapper.jar

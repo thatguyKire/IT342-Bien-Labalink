@@ -1,31 +1,33 @@
 package edu.cit.bien.labalink.ui.bookings
 
+import android.app.ActivityOptions
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import edu.cit.bien.labalink.R
 import edu.cit.bien.labalink.api.RetrofitClient
+import edu.cit.bien.labalink.api.errorMessage
 import edu.cit.bien.labalink.model.BookingResponse
+import edu.cit.bien.labalink.ui.hideNavigationBar
 import edu.cit.bien.labalink.ui.home.HomeActivity
+import edu.cit.bien.labalink.ui.peso
 import kotlinx.coroutines.launch
-import android.os.Build
 
 class BookingsActivity : AppCompatActivity() {
 
     private lateinit var rvBookings: RecyclerView
     private lateinit var emptyState: LinearLayout
     private lateinit var adapter: BookingAdapter
-
-    private lateinit var filterAll: TextView
-    private lateinit var filterPending: TextView
-    private lateinit var filterActive: TextView
-    private lateinit var filterCompleted: TextView
+    private lateinit var filters: List<Pair<TextView, String?>>
 
     private var currentFilter: String? = null
     private var allBookings: List<BookingResponse> = emptyList()
@@ -33,147 +35,117 @@ class BookingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bookings)
+        hideNavigationBar()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.let { controller ->
-                controller.hide(android.view.WindowInsets.Type.navigationBars())
-                controller.systemBarsBehavior =
-                    android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = (
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    )
-        }
-
-        // Views
         rvBookings = findViewById(R.id.rvBookings)
         emptyState = findViewById(R.id.emptyState)
-        filterAll = findViewById(R.id.filterAll)
-        filterPending = findViewById(R.id.filterPending)
-        filterActive = findViewById(R.id.filterActive)
-        filterCompleted = findViewById(R.id.filterCompleted)
 
-        // Setup RecyclerView
-        adapter = BookingAdapter(emptyList())
+        adapter = BookingAdapter(emptyList()) { booking -> confirmCancel(booking) }
         rvBookings.layoutManager = LinearLayoutManager(this)
         rvBookings.adapter = adapter
 
-        // Back button
-        findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
+        findViewById<View>(R.id.btnBack).setOnClickListener { goHome() }
 
-        // Filter buttons
-        filterAll.setOnClickListener {
-            currentFilter = null
-            updateFilterUI(filterAll)
-            applyFilter()
-        }
-        filterPending.setOnClickListener {
-            currentFilter = "PENDING"
-            updateFilterUI(filterPending)
-            applyFilter()
-        }
-        filterActive.setOnClickListener {
-            currentFilter = "ACTIVE"
-            updateFilterUI(filterActive)
-            applyFilter()
-        }
-        filterCompleted.setOnClickListener {
-            currentFilter = "COMPLETED"
-            updateFilterUI(filterCompleted)
-            applyFilter()
+        filters = listOf(
+            findViewById<TextView>(R.id.filterAll) to null,
+            findViewById<TextView>(R.id.filterPending) to "PENDING",
+            findViewById<TextView>(R.id.filterActive) to "ACTIVE",
+            findViewById<TextView>(R.id.filterCompleted) to "COMPLETED")
+        filters.forEach { (view, status) ->
+            view.setOnClickListener {
+                currentFilter = status
+                updateFilterUI(view)
+                applyFilter()
+            }
         }
 
-        // --- BOTTOM NAV SETUP ---
-
-        // 1. Home Button -> Go to HomeActivity instantly
-        findViewById<LinearLayout>(R.id.navHome).setOnClickListener {
-            val intent = Intent(this@BookingsActivity, HomeActivity::class.java)
-            val options = android.app.ActivityOptions.makeCustomAnimation(this@BookingsActivity, 0, 0).toBundle()
-            startActivity(intent, options)
-            finish()
-        }
-
-        // 2. Machines Button -> Go to HomeActivity instantly
-      //  findViewById<LinearLayout>(R.id.navMachines).setOnClickListener {
-          //  val intent = Intent(this@BookingsActivity, HomeActivity::class.java)
-          //  val options = android.app.ActivityOptions.makeCustomAnimation(this@BookingsActivity, 0, 0).toBundle()
-          //  startActivity(intent, options)
-          //  finish()
-        //}
-
-        // 3. Bookings Button -> We are already here! Just scroll to top.
+        findViewById<LinearLayout>(R.id.navHome).setOnClickListener { goHome() }
         findViewById<LinearLayout>(R.id.navBookings).setOnClickListener {
-            if (adapter.itemCount > 0) {
-                rvBookings.smoothScrollToPosition(0)
-            }
-        }
-        // Load bookings
-        loadBookings()
-    }
-
-    private fun loadBookings() {
-        lifecycleScope.launch {
-            try {
-                val email = getSharedPreferences("labalink_prefs", MODE_PRIVATE)
-                    .getString("email", "") ?: ""
-
-                val response = RetrofitClient.authApi.getAllBookings()
-
-                if (response.isSuccessful) {
-                    allBookings = response.body() ?: emptyList()
-
-                    // Filter by current user email
-                    allBookings = allBookings.filter {
-                        it.userEmail == email
-                    }
-
-                    applyFilter()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    private fun applyFilter() {
-        val filtered = if (currentFilter == null) {
-            allBookings
-        } else {
-            allBookings.filter {
-                it.status == currentFilter
-            }
-        }
-
-        adapter.updateData(filtered)
-
-        if (filtered.isEmpty()) {
-            rvBookings.visibility = View.GONE
-            emptyState.visibility = View.VISIBLE
-        } else {
-            rvBookings.visibility = View.VISIBLE
-            emptyState.visibility = View.GONE
-        }
-    }
-
-    private fun updateFilterUI(activeFilter: TextView) {
-        val filters = listOf(filterAll, filterPending, filterActive, filterCompleted)
-
-        filters.forEach { filter ->
-            if (filter == activeFilter) {
-                filter.setBackgroundResource(R.drawable.filter_active_bg)
-                filter.setTextColor(android.graphics.Color.WHITE)
-            } else {
-                filter.setBackgroundResource(R.drawable.filter_inactive_bg)
-                filter.setTextColor(android.graphics.Color.parseColor("#6B7280"))
-            }
+            if (adapter.itemCount > 0) rvBookings.smoothScrollToPosition(0)
         }
     }
 
     override fun onResume() {
         super.onResume()
         loadBookings()
+    }
+
+    /** Only this customer's bookings; the server filters by the token. */
+    private fun loadBookings() {
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.api.getMyBookings()
+                if (response.isSuccessful) {
+                    allBookings = response.body().orEmpty()
+                    applyFilter()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@BookingsActivity,
+                    "Cannot connect to server",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun confirmCancel(booking: BookingResponse) {
+        AlertDialog.Builder(this)
+            .setTitle("Cancel booking?")
+            .setMessage(
+                "${booking.machineName} will be released and " +
+                    "${peso(booking.totalPrice)} returned to your wallet.")
+            .setPositiveButton("Cancel booking") { _, _ -> cancel(booking) }
+            .setNegativeButton("Keep", null)
+            .show()
+    }
+
+    private fun cancel(booking: BookingResponse) {
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.api.cancelBooking(booking.id)
+                val message = if (response.isSuccessful) {
+                    "Booking cancelled and refunded"
+                } else {
+                    response.errorMessage("Could not cancel booking")
+                }
+                Toast.makeText(this@BookingsActivity, message, Toast.LENGTH_LONG)
+                    .show()
+                loadBookings()
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@BookingsActivity,
+                    "Cannot connect to server",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun applyFilter() {
+        val filtered = currentFilter
+            ?.let { status -> allBookings.filter { it.status == status } }
+            ?: allBookings
+        adapter.updateData(filtered)
+        rvBookings.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
+        emptyState.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+    }
+
+    private fun updateFilterUI(active: TextView) {
+        filters.forEach { (view, _) ->
+            val selected = view == active
+            view.setBackgroundResource(
+                if (selected) R.drawable.filter_active_bg
+                else R.drawable.filter_inactive_bg)
+            view.setTextColor(
+                if (selected) Color.WHITE else Color.parseColor("#6B7280"))
+        }
+    }
+
+    private fun goHome() {
+        startActivity(
+            Intent(this, HomeActivity::class.java),
+            ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle())
+        finish()
     }
 }

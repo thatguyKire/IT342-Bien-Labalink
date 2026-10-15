@@ -16,3 +16,20 @@
 body {
   background-color: #F5F3FF;
 }
+/* "Print" on the QR sticker modal prints only the sticker. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #qr-print-area,
+  #qr-print-area * {
+    visibility: visible;
+  }
+  #qr-print-area {
+    position: fixed;
+    top: 2rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+  }
+}

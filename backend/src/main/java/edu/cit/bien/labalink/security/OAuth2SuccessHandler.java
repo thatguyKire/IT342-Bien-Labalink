@@ -1,98 +1,70 @@
 package edu.cit.bien.labalink.security;
 
+import edu.cit.bien.labalink.config.AppProperties;
+import edu.cit.bien.labalink.exception.ApiException;
 import edu.cit.bien.labalink.model.User;
-import edu.cit.bien.labalink.repository.UserRepository;
+import edu.cit.bien.labalink.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
+/**
+ * Completes the web (attendant dashboard) Google login.
+ * The role is never taken from the request: new Google accounts are always
+ * CUSTOMER, and only existing ATTENDANT accounts can use the dashboard.
+ */
 @Component
 @RequiredArgsConstructor
-public class OAuth2SuccessHandler
-    extends SimpleUrlAuthenticationSuccessHandler {
+public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    private final UserRepository userRepository;
-    private final JwtProvider jwtProvider;
+    private final AuthService authService;
+    private final OAuth2CodeStore codeStore;
+    private final AppProperties properties;
 
     @Override
     public void onAuthenticationSuccess(
             HttpServletRequest request,
             HttpServletResponse response,
-            Authentication authentication)
-            throws IOException {
+            Authentication authentication) throws IOException {
 
-        OAuth2User oAuth2User =
-            (OAuth2User) authentication.getPrincipal();
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        String email = oAuth2User.getAttribute("email");
+        String name = oAuth2User.getAttribute("name");
+        Object emailVerified = oAuth2User.getAttribute("email_verified");
 
-        String email = oAuth2User
-            .getAttribute("email");
-        String name = oAuth2User
-            .getAttribute("name");
+        // The HTTP session only existed to hold OAuth2 state; drop it so it
+        // can never be used as an ambient (CSRF-able) credential.
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        SecurityContextHolder.clearContext();
 
-        // Null check for email
-        if (email == null || email.isEmpty()) {
-            response.sendRedirect(
-                "http://localhost:5173/login"
-                + "?error=no_email");
+        String loginUrl = properties.frontendUrl() + "/login";
+        if (email == null || email.isBlank()
+                || !Boolean.parseBoolean(String.valueOf(emailVerified))) {
+            response.sendRedirect(loginUrl + "?error=google_unverified");
             return;
         }
 
-        // Null check for name
-        if (name == null) {
-            name = email.split("@")[0];
-        }
-
-        // Read role hint from state parameter
-        String stateParam = request
-            .getParameter("state");
-        User.Role assignedRole = User.Role.CUSTOMER;
-
-        if (stateParam != null &&
-            stateParam.contains("ATTENDANT")) {
-            assignedRole = User.Role.ATTENDANT;
-        }
-
-        // Find existing user or create new one
-        Optional<User> existingUser =
-            userRepository.findByEmail(email);
-
         User user;
-        if (existingUser.isPresent()) {
-            user = existingUser.get();
-        } else {
-            user = new User();
-            user.setEmail(email);
-            user.setUsername(name);
-            user.setPasswordHash(
-                "GOOGLE_AUTH_NO_PASSWORD");
-            user.setRole(assignedRole);
-            userRepository.save(user);
+        try {
+            user = authService.findOrCreateGoogleUser(email, name);
+        } catch (ApiException e) {
+            response.sendRedirect(loginUrl + "?error=account_disabled");
+            return;
         }
 
-        // Generate JWT
-        String token = jwtProvider
-            .generateToken(user.getEmail());
-
-        // Build redirect URL with encoded params
-        String redirectUrl =
-            "http://localhost:5173/oauth2/callback"
-            + "?token=" + token
-            + "&username=" + URLEncoder.encode(
-                user.getUsername(),
-                StandardCharsets.UTF_8)
-            + "&role=" + user.getRole().name()
-            + "&email=" + URLEncoder.encode(
-                user.getEmail(),
-                StandardCharsets.UTF_8);
-
-        response.sendRedirect(redirectUrl);
+        String code = codeStore.issue(user.getId());
+        // Fragment (#) is never sent to servers or leaked via Referer.
+        response.sendRedirect(
+            properties.frontendUrl() + "/oauth2/callback#code=" + code);
     }
 }

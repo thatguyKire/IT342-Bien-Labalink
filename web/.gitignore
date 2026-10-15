@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files (secrets never belong in VITE_* vars anyway)
+.env
+.env.*
+!.env.example

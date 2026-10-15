@@ -1,52 +1,52 @@
-import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { oauthStyles as s } from
-  '../styles/OAuth2CallbackPage.styles';
+import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { exchangeOAuth2Code } from '../services/authService';
+import { saveSession } from '../lib/session';
+import { oauthStyles as s } from '../styles/OAuth2CallbackPage.styles';
 
+/**
+ * Receives a one-time code in the URL fragment after Google sign-in and
+ * swaps it for a JWT. The fragment is never sent to any server, and it is
+ * wiped from the address bar immediately.
+ */
 export default function OAuth2CallbackPage() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const started = useRef(false);
 
   useEffect(() => {
-    const params = new URLSearchParams(
-      location.search
-    );
+    if (started.current) return; // StrictMode runs effects twice in dev
+    started.current = true;
 
-    const token = params.get('token');
-    const username = params.get('username');
-    const role = params.get('role');
-    const email = params.get('email');
+    const code = new URLSearchParams(window.location.hash.slice(1))
+      .get('code');
+    window.history.replaceState(null, '', window.location.pathname);
 
-    if (token) {
-      localStorage.setItem('token', token);
-      localStorage.setItem(
-        'username', username || '');
-      localStorage.setItem('role', role || '');
-      localStorage.setItem('email', email || '');
-
-      // Redirect based on role
-      if (role === 'ATTENDANT') {
-        navigate('/machines', { replace: true });
-      } else {
-        // CUSTOMER on web — still go to dashboard
-        // but in real app mobile handles customers
-        navigate('/machines', { replace: true });
-      }
-    } else {
-      navigate('/login', { replace: true });
+    if (!code) {
+      navigate('/login?error=google_cancelled', { replace: true });
+      return;
     }
-  }, [navigate, location.search]);
+
+    exchangeOAuth2Code(code)
+      .then((response) => {
+        if (response.role !== 'ATTENDANT') {
+          navigate('/login?error=not_attendant', { replace: true });
+          return;
+        }
+        saveSession(response);
+        navigate('/machines', { replace: true });
+      })
+      .catch(() => navigate('/login?error=google_cancelled', {
+        replace: true,
+      }));
+  }, [navigate]);
 
   return (
     <div className={s.page}>
       <div className={s.card}>
         <div className={s.icon}>🫧</div>
-        <h1 className={s.title}>
-          Signing you in...
-        </h1>
+        <h1 className={s.title}>Signing you in...</h1>
         <p className={s.subtitle}>
-          Please wait while we verify
-          your Google account
+          Please wait while we verify your Google account
         </p>
       </div>
     </div>

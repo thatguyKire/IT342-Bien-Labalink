@@ -26,6 +26,9 @@ milestone.
 - 🔒 **Refresh tokens**: short access tokens (15 min) plus rotating
   refresh tokens with reuse detection; per-device logout
 - 🔒 **Change password** in both apps (bumps the token version)
+- 🔒 **Account deletion**: customer-requested delete that anonymises
+  booking and payment records kept for tax law (required by the Privacy
+  Policy and Google Play)
 - ✨ Edit profile (display name)
 - ✨ Attendants can deactivate or reactivate customer and staff accounts
 - 🛠️ **CI pipeline** (GitHub Actions): `mvn test`, `npm run lint && build`,

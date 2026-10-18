@@ -6,7 +6,27 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-Nothing yet. See [ROADMAP.md](ROADMAP.md).
+### Added
+
+- [Terms of Service](docs/legal/Terms-of-Service.md) and
+  [Privacy Policy](docs/legal/Privacy-Policy.md) for the student demo
+  (Data Privacy Act of 2012), plus a
+  [checklist](docs/legal/Launch-Checklist.md) for a future real launch.
+- The backend refuses to start with a live Stripe key (`sk_live_` /
+  `rk_live_`), so the demo can never charge real money.
+- Android: registration requires agreeing to the Terms and Privacy Policy
+  (age confirmation included). The login screen links to both.
+- Web: Terms and Privacy links in the login footer. URLs are configurable
+  with `VITE_TERMS_URL` / `VITE_PRIVACY_URL` (web) and
+  `labalink.termsUrl` / `labalink.privacyUrl` (Android).
+
+### Fixed
+
+- Tests no longer load the developer's `backend/.env`. A blank
+  `GOOGLE_CLIENT_ID=` there made every Spring test fail to start.
+- `.env.example` keeps optional settings commented out. Blank `KEY=`
+  lines override built-in defaults, which stopped the app from starting
+  without Google credentials.
 
 ## [1.0.0] - 2026-10-15
 

@@ -167,7 +167,7 @@ list. Key settings:
 ## Testing
 
 ```bash
-cd backend && ./mvnw test       # 32 tests on a real embedded PostgreSQL
+cd backend && ./mvnw test       # 34 tests on a real embedded PostgreSQL
 cd web && npm run lint && npm run build
 cd mobiledev && ./gradlew :app:assembleDebug :app:lintDebug
 ```
@@ -217,6 +217,13 @@ vulnerability, see the same file.
 | [Changelog](CHANGELOG.md) | Release history |
 | [Roadmap](ROADMAP.md) | What's next |
 | [Security](SECURITY.md) | Threat model, controls, disclosure policy |
+| [Terms of Service](docs/legal/Terms-of-Service.md) | Terms for using the demo, including test-only payments |
+| [Privacy Policy](docs/legal/Privacy-Policy.md) | What data is collected and why, under the Data Privacy Act |
+| [If LabaLink goes live](docs/legal/Launch-Checklist.md) | What a real launch would need (not required for the course) |
+
+> **Student project:** LabaLink is a demo for IT342. Payments run in
+> Stripe test mode, and the server refuses to start with a live Stripe
+> key, so it cannot charge real money.
 
 ## Roadmap
 

@@ -117,4 +117,7 @@ export const loginStyles = {
   footer: `
     text-xs text-gray-400 mt-6
   `,
+  footerLink: `
+    hover:text-[#9333EA] underline-offset-2 hover:underline
+  `,
 };

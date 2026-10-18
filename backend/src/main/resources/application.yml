@@ -5,7 +5,9 @@ spring:
   application:
     name: labalink
   config:
-    import: optional:file:.env[.properties]
+    # Tests set LABALINK_ENV_FILE to a missing file so a developer's real
+    # .env never leaks into the test run (see pom.xml, surefire).
+    import: optional:file:${LABALINK_ENV_FILE:.env}[.properties]
 
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/labalink}

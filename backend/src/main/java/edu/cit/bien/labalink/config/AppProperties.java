@@ -31,6 +31,20 @@ public record AppProperties(
             String successUrl,
             String cancelUrl) {
 
+        /**
+         * LabaLink is a class project: refuse live keys so it can never
+         * charge real money. See docs/legal/Launch-Checklist.md before
+         * removing this.
+         */
+        public Stripe {
+            if (secretKey != null && (secretKey.startsWith("sk_live_")
+                    || secretKey.startsWith("rk_live_"))) {
+                throw new IllegalArgumentException(
+                    "STRIPE_SECRET_KEY is a live key. LabaLink only accepts "
+                    + "Stripe test keys (sk_test_...).");
+            }
+        }
+
         public boolean isConfigured() {
             return secretKey != null && !secretKey.isBlank();
         }

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Patterns
 import android.view.View
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -16,6 +17,7 @@ import edu.cit.bien.labalink.api.errorMessage
 import edu.cit.bien.labalink.model.RegisterRequest
 import edu.cit.bien.labalink.ui.hideNavigationBar
 import edu.cit.bien.labalink.ui.login.LoginActivity
+import edu.cit.bien.labalink.ui.showLegalLinks
 import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
@@ -24,6 +26,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
     private lateinit var btnRegister: Button
+    private lateinit var cbAgreeTerms: CheckBox
     private lateinit var tvError: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +39,10 @@ class RegisterActivity : AppCompatActivity() {
         etPassword = findViewById(R.id.etPassword)
         btnRegister = findViewById(R.id.btnRegister)
         tvError = findViewById(R.id.tvError)
+
+        cbAgreeTerms = findViewById(R.id.cbAgreeTerms)
+        findViewById<TextView>(R.id.tvAgreeTerms)
+            .showLegalLinks("I am 18 or older (or have a guardian's consent) and agree to the")
 
         btnRegister.setOnClickListener { handleRegister() }
         findViewById<TextView>(R.id.tvLoginLink).setOnClickListener {
@@ -61,6 +68,8 @@ class RegisterActivity : AppCompatActivity() {
                 "Password must be 8-72 characters"
             password.none { it.isLetter() } || password.none { it.isDigit() } ->
                 "Password must contain a letter and a number"
+            !cbAgreeTerms.isChecked ->
+                "Please agree to the Terms of Service and Privacy Policy"
             else -> null
         }
         if (problem != null) {

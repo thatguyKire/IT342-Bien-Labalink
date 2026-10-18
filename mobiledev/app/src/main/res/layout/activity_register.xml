@@ -143,7 +143,33 @@
                     android:background="@drawable/input_background"
                     android:padding="14dp"
                     android:inputType="textPassword"
-                    android:layout_marginBottom="24dp"/>
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- Terms consent: the links are tappable, the box is separate
+                     so tapping a link doesn't tick it. -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="20dp">
+
+                    <CheckBox
+                        android:id="@+id/cbAgreeTerms"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="#9333EA"
+                        android:contentDescription="Agree to the Terms of Service and Privacy Policy"/>
+
+                    <TextView
+                        android:id="@+id/tvAgreeTerms"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="13sp"
+                        android:textColor="#374151"
+                        android:textColorLink="#9333EA"/>
+                </LinearLayout>
 
                 <!-- Register Button -->
                 <Button

@@ -24,6 +24,7 @@ import edu.cit.bien.labalink.session
 import edu.cit.bien.labalink.ui.hideNavigationBar
 import edu.cit.bien.labalink.ui.home.HomeActivity
 import edu.cit.bien.labalink.ui.register.RegisterActivity
+import edu.cit.bien.labalink.ui.showLegalLinks
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
@@ -82,6 +83,8 @@ class LoginActivity : AppCompatActivity() {
         }
 
         setupGoogleSignIn()
+        findViewById<TextView>(R.id.tvLegalNotice)
+            .showLegalLinks("By continuing, you agree to our")
 
         btnLogin.setOnClickListener { handleLogin() }
         findViewById<TextView>(R.id.tvRegisterLink).setOnClickListener {

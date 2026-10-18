@@ -148,6 +148,17 @@
                     android:strokeColor="#E5E7EB"
                     android:layout_marginTop="8dp"/>
 
+                <!-- Google sign-in can create an account, so state the terms -->
+                <TextView
+                    android:id="@+id/tvLegalNotice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"
+                    android:textColorLink="#9333EA"
+                    android:gravity="center"
+                    android:layout_marginTop="12dp"/>
+
                 <!-- Register link -->
                 <TextView
                     android:id="@+id/tvRegisterLink"

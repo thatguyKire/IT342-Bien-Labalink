@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { googleLoginUrl, login } from '../services/authService';
 import { errorMessage } from '../lib/api';
+import { PRIVACY_URL, TERMS_URL } from '../lib/config';
 import { saveSession } from '../lib/session';
 import { loginStyles as s } from '../styles/LoginPage.styles';
 
@@ -156,7 +157,16 @@ export default function LoginPage() {
         </p>
       </form>
 
-      <p className={s.footer}>© 2026 LabaLink. All rights reserved.</p>
+      <p className={s.footer}>
+        © 2026 LabaLink ·{' '}
+        <a href={TERMS_URL} target="_blank" rel="noopener noreferrer" className={s.footerLink}>
+          Terms of Service
+        </a>{' '}
+        ·{' '}
+        <a href={PRIVACY_URL} target="_blank" rel="noopener noreferrer" className={s.footerLink}>
+          Privacy Policy
+        </a>
+      </p>
     </div>
   );
 }

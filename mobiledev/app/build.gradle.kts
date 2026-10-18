@@ -10,6 +10,10 @@ plugins {
 //   labalink.apiBaseUrl=http://10.0.2.2:8080/          (debug builds)
 //   labalink.apiBaseUrlRelease=https://api.example.com/ (release builds)
 //   labalink.googleWebClientId=xxxx.apps.googleusercontent.com
+//   labalink.termsUrl=https://.../terms   labalink.privacyUrl=https://.../privacy
+val legalDocsUrl =
+    "https://github.com/thatguyKire/IT342-Bien-Labalink/blob/main/docs/legal"
+
 val localProps = Properties().apply {
     val file = rootProject.file("local.properties")
     if (file.exists()) file.inputStream().use { load(it) }
@@ -39,6 +43,12 @@ android {
         buildConfigField(
             "String", "GOOGLE_WEB_CLIENT_ID",
             quoted(setting("labalink.googleWebClientId", "")))
+        buildConfigField(
+            "String", "TERMS_URL",
+            quoted(setting("labalink.termsUrl", "$legalDocsUrl/Terms-of-Service.md")))
+        buildConfigField(
+            "String", "PRIVACY_URL",
+            quoted(setting("labalink.privacyUrl", "$legalDocsUrl/Privacy-Policy.md")))
     }
 
     buildTypes {

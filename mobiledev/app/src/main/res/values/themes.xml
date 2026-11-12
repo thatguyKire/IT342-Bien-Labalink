@@ -1,9 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.LabaLink"
-        parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">#9333EA</item>
-        <item name="colorPrimaryDark">#7E22CE</item>
-        <item name="colorAccent">#9333EA</item>
+
+    <style name="Theme.LabaLink" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Colour roles (palette in colors.xml) -->
+        <item name="colorPrimary">@color/brand</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/brand_tint</item>
+        <item name="colorOnPrimaryContainer">@color/brand_deep</item>
+        <item name="colorSecondary">@color/brand_aqua_deep</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/aqua_tint</item>
+        <item name="colorOnSecondaryContainer">@color/brand_deep</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/ink</item>
+        <item name="colorSurfaceVariant">@color/surface_muted</item>
+        <item name="colorOnSurfaceVariant">@color/ink_secondary</item>
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorOutlineVariant">@color/divider</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorControlNormal">@color/ink_secondary</item>
+        <item name="android:colorBackground">@color/background</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:textColorPrimary">@color/ink</item>
+        <item name="android:textColorSecondary">@color/ink_secondary</item>
+        <item name="android:textColorHint">@color/ink_tertiary</item>
+        <item name="android:textColorLink">@color/brand</item>
+
+        <!-- Type: Plus Jakarta Sans everywhere. Set through text appearances,
+             not android:fontFamily on the theme: a theme-level fontFamily
+             overrides every style's weight. -->
+        <item name="android:textViewStyle">@style/Widget.LabaLink.TextView</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.LabaLink.Display</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.LabaLink.Display</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.LabaLink.Headline</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.LabaLink.Headline</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.LabaLink.Headline</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.LabaLink.Title</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.LabaLink.TitleSmall</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.LabaLink.Body</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.LabaLink.BodySmall</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.LabaLink.Caption</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.LabaLink.Label</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.LabaLink.NavLabel</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.LabaLink.Badge</item>
+
+        <!-- Shapes -->
+        <item name="shapeAppearanceCornerSmall">@style/ShapeAppearance.LabaLink.Small</item>
+        <item name="shapeAppearanceCornerMedium">@style/ShapeAppearance.LabaLink.Medium</item>
+        <item name="shapeAppearanceCornerLarge">@style/ShapeAppearance.LabaLink.Large</item>
+
+        <!-- Components -->
+        <item name="materialButtonStyle">@style/Widget.LabaLink.Button</item>
+        <item name="materialButtonOutlinedStyle">@style/Widget.LabaLink.Button.Outlined</item>
+        <item name="materialCardViewStyle">@style/Widget.LabaLink.Card</item>
+        <item name="textInputStyle">@style/Widget.LabaLink.TextInput</item>
+        <item name="chipStyle">@style/Widget.LabaLink.Chip</item>
+        <item name="bottomNavigationStyle">@style/Widget.LabaLink.BottomNav</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.LabaLink.Dialog</item>
+
+        <!-- Motion: every screen slides and fades in -->
+        <item name="android:windowAnimationStyle">@style/Animation.LabaLink.Screen</item>
+    </style>
+
+    <style name="ThemeOverlay.LabaLink.Dialog"
+        parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearanceCornerExtraLarge">@style/ShapeAppearance.LabaLink.Large</item>
+        <item name="colorSurfaceContainerHigh">@color/surface</item>
+    </style>
+
+    <style name="Animation.LabaLink.Screen" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/screen_open_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/screen_open_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/screen_close_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/screen_close_exit</item>
+    </style>
+
+    <style name="ShapeAppearance.LabaLink.Small" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">12dp</item>
+    </style>
+
+    <style name="ShapeAppearance.LabaLink.Medium" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="ShapeAppearance.LabaLink.Large" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerSize">24dp</item>
     </style>
 </resources>

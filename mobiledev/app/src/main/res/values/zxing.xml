@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Restyles the zxing-android-embedded viewfinder: brand mask, no red
+     laser (our own scan line in activity_qr_scanner.xml replaces it). -->
+<resources>
+    <color name="zxing_custom_viewfinder_mask">#99072B45</color>
+    <color name="zxing_viewfinder_mask">#99072B45</color>
+    <color name="zxing_custom_viewfinder_laser">#00000000</color>
+    <color name="zxing_viewfinder_laser">#00000000</color>
+    <color name="zxing_custom_possible_result_points">#9922C3C9</color>
+    <color name="zxing_possible_result_points">#9922C3C9</color>
+</resources>

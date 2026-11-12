@@ -1,4 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  CircleAlert, CircleDollarSign, Hourglass, ReceiptText, Timer, WashingMachine, Wind,
+} from 'lucide-react';
 import {
   getAllBookings,
   getBookingStats,
@@ -9,11 +12,15 @@ import type {
   BookingStats,
   BookingStatus,
 } from '../services/bookingService';
-import { bookingStyles as s } from '../styles/BookingPage.styles';
 import SidebarLayout from '../components/SidebarLayout';
+import {
+  EmptyState, FilterChips, LiveIndicator, PageHeader, StatCard, StatusBadge, TableHead,
+  alertClass, dialogClass, overlayClass,
+} from '../components/ui';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { errorMessage } from '../lib/api';
 import { formatDateTime, peso } from '../lib/format';
+import { statusLabel } from '../lib/status';
 
 type FilterStatus = 'ALL' | BookingStatus;
 
@@ -21,12 +28,8 @@ const FILTERS: FilterStatus[] = [
   'ALL', 'PENDING', 'ACTIVE', 'COMPLETED', 'CANCELLED',
 ];
 
-const BADGES: Record<BookingStatus, string> = {
-  PENDING: s.badgePending,
-  ACTIVE: s.badgeActive,
-  COMPLETED: s.badgeCompleted,
-  CANCELLED: s.badgeCancelled,
-};
+const actionButton = 'text-xs px-3 py-1.5 rounded-lg font-semibold border '
+  + 'transition-colors duration-150 disabled:opacity-50';
 
 export default function BookingPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -41,6 +44,9 @@ export default function BookingPage() {
   const [error, setError] = useState('');
   const [busyId, setBusyId] = useState<number | null>(null);
   const [confirmCancel, setConfirmCancel] = useState<Booking | null>(null);
+  // Rows that changed since the last fetch get a short highlight.
+  const [changed, setChanged] = useState<Set<number>>(new Set());
+  const lastStatus = useRef<Map<number, BookingStatus> | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -48,6 +54,13 @@ export default function BookingPage() {
         getAllBookings(filter === 'ALL' ? undefined : filter),
         getBookingStats(),
       ]);
+      const previous = lastStatus.current;
+      if (previous) {
+        setChanged(new Set(bookingData
+          .filter((b) => previous.get(b.id) !== b.status)
+          .map((b) => b.id)));
+      }
+      lastStatus.current = new Map(bookingData.map((b) => [b.id, b.status]));
       setBookings(bookingData);
       setStats(statsData);
       setError('');
@@ -67,6 +80,13 @@ export default function BookingPage() {
     onMachineUpdate: () => fetchData(),
   });
 
+  const changeFilter = (next: FilterStatus) => {
+    setLoading(true);
+    lastStatus.current = null; // a new list isn't a live change
+    setChanged(new Set());
+    setFilter(next);
+  };
+
   const handleStatusUpdate = async (id: number, next: BookingStatus) => {
     try {
       setBusyId(id);
@@ -83,154 +103,110 @@ export default function BookingPage() {
 
   return (
     <SidebarLayout>
-      <div className={s.page}>
+      <PageHeader
+        title="Bookings"
+        description="Activate sessions when customers load their machine, then complete them."
+      >
+        <LiveIndicator live={live} />
+      </PageHeader>
 
-        {/* Header */}
-        <div className={s.header}>
-          <div>
-            <h1 className={s.headerTitle}>Bookings &amp; Sessions</h1>
-            <p className={s.headerSubtitle}>
-              Monitor and manage all laundry sessions
-            </p>
-          </div>
-          <span className="flex items-center gap-2 text-xs text-gray-400">
-            <span className={`w-2 h-2 rounded-full ${live
-              ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`} />
-            {live ? 'Live' : 'Connecting...'}
-          </span>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 px-8 py-6">
-          <div className={s.statCard}>
-            <div className={s.statLabel}>Total Bookings</div>
-            <div className={s.statValue}>{stats.totalBookings}</div>
-          </div>
-          <div className={s.statCard}>
-            <div className={s.statLabel}>Awaiting Activation</div>
-            <div className="text-3xl font-bold text-gray-600 mt-1">
-              {stats.pendingBookings}
-            </div>
-          </div>
-          <div className={s.statCard}>
-            <div className={s.statLabel}>Active Sessions</div>
-            <div className="text-3xl font-bold text-blue-600 mt-1">
-              {stats.activeBookings}
-            </div>
-          </div>
-          <div className={s.statCard}>
-            <div className={s.statLabel}>Completed Revenue</div>
-            <div className="text-3xl font-bold text-[#9333EA] mt-1">
-              {peso(stats.totalRevenue)}
-            </div>
-          </div>
+      <div className="px-8 py-6 space-y-6">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+          <StatCard label="All bookings" value={stats.totalBookings}
+                    icon={ReceiptText} tone="brand" />
+          <StatCard label="Waiting to start" value={stats.pendingBookings}
+                    icon={Hourglass} tone="warning" />
+          <StatCard label="Running now" value={stats.activeBookings}
+                    icon={Timer} tone="info" />
+          <StatCard label="Revenue from completed" value={peso(stats.totalRevenue)}
+                    icon={CircleDollarSign} tone="aqua" />
         </div>
 
         {error && (
-          <div role="alert" className="mx-8 mb-4 bg-red-50 border
-                                       border-red-200 text-red-600 text-sm
-                                       rounded-xl px-4 py-3">
+          <div role="alert" className={alertClass}>
+            <CircleAlert size={18} className="shrink-0 mt-px" aria-hidden="true" />
             {error}
           </div>
         )}
 
-        {/* Filter Buttons */}
-        <div className={s.filterRow}>
-          {FILTERS.map((f) => (
-            <button
-              key={f}
-              onClick={() => {
-                setLoading(true);
-                setFilter(f);
-              }}
-              aria-pressed={filter === f}
-              className={filter === f ? s.filterButtonActive : s.filterButton}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
+        <FilterChips
+          options={FILTERS}
+          value={filter}
+          onChange={changeFilter}
+          labelFor={(f) => (f === 'ALL' ? 'All' : statusLabel(f))}
+        />
 
-        {/* Booking Records Table */}
-        <div className={s.tableContainer}>
-          <div className={s.tableTitle}>
-            Booking Records
-            <span className="text-sm font-normal text-gray-400 ml-2">
-              Updates automatically
-            </span>
-          </div>
-          <table className={s.table}>
-            <thead className={s.tableHead}>
-              <tr>
-                {['Customer', 'Machine', 'Start', 'End', 'Duration', 'Price',
-                  'Status', 'Actions'].map((h) => (
-                  <th key={h} className={s.tableHeadCell}>{h}</th>
-                ))}
-              </tr>
-            </thead>
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+          <table className="w-full">
+            <TableHead columns={[
+              'Customer', 'Machine', 'Start', 'End', 'Duration', 'Price',
+              'Status', 'Actions']} />
             <tbody>
               {loading ? (
                 <tr>
                   <td colSpan={8} className="text-center py-12 text-gray-400">
-                    Loading bookings...
+                    Loading bookings…
                   </td>
                 </tr>
               ) : bookings.length === 0 ? (
                 <tr>
                   <td colSpan={8}>
-                    <div className={s.emptyState}>
-                      <div className={s.emptyIcon}>🫧</div>
-                      <div className={s.emptyText}>No bookings found</div>
-                    </div>
+                    <EmptyState
+                      icon={ReceiptText}
+                      title="No bookings here"
+                      hint="Customers start sessions by scanning a machine's QR sticker."
+                    />
                   </td>
                 </tr>
-              ) : bookings.map((booking) => (
-                <tr key={booking.id} className={s.tableRow}>
-                  <td className={s.tableCell}>
-                    <div className="font-medium text-gray-800">
+              ) : bookings.map((booking, i) => (
+                <tr
+                  key={`${booking.id}-${booking.status}`}
+                  style={{ '--i': i } as React.CSSProperties}
+                  className={`border-b border-gray-50 hover:bg-gray-50
+                              transition-colors text-sm text-gray-700
+                              ${changed.has(booking.id) ? 'animate-flash' : 'stagger'}`}
+                >
+                  <td className="px-6 py-4">
+                    <div className="font-semibold text-gray-900">
                       {booking.username}
                     </div>
-                    <div className="text-xs text-gray-400">
+                    <div className="text-xs text-gray-500">
                       {booking.userEmail}
                     </div>
                   </td>
-                  <td className={s.tableCell}>
-                    <span className="text-[#9333EA] font-semibold">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2 font-semibold text-gray-900">
+                      {booking.machineType === 'WASHER'
+                        ? <WashingMachine size={16} className="text-brand-600 shrink-0" aria-hidden="true" />
+                        : <Wind size={16} className="text-aqua-700 shrink-0" aria-hidden="true" />}
+                      {booking.machineName}
+                    </div>
+                    <div className="text-xs text-gray-500 tabular">
                       MAC-{String(booking.machineId).padStart(3, '0')}
-                    </span>
-                    <div className="text-xs text-gray-400">
-                      {booking.machineName} · {booking.machineType}
                     </div>
                   </td>
-                  <td className={s.tableCell}>
+                  <td className="px-6 py-4 tabular">
                     {formatDateTime(booking.startTime)}
                   </td>
-                  <td className={s.tableCell}>
+                  <td className="px-6 py-4 tabular">
                     {formatDateTime(booking.endTime)}
                   </td>
-                  <td className={s.tableCell}>
+                  <td className="px-6 py-4 tabular">
                     {booking.durationMinutes} min
                   </td>
-                  <td className={s.tableCell}>
-                    <span className="font-semibold text-gray-800">
-                      {peso(booking.totalPrice)}
-                    </span>
+                  <td className="px-6 py-4 font-semibold text-gray-900 tabular">
+                    {peso(booking.totalPrice)}
                   </td>
-                  <td className={s.tableCell}>
-                    <span className={BADGES[booking.status]}>
-                      ● {booking.status}
-                    </span>
+                  <td className="px-6 py-4">
+                    <StatusBadge status={booking.status} />
                   </td>
-                  <td className={s.tableCell}>
+                  <td className="px-6 py-4">
                     <div className="flex gap-2">
                       {booking.status === 'PENDING' && (
                         <button
                           disabled={busyId === booking.id}
-                          onClick={() =>
-                            handleStatusUpdate(booking.id, 'ACTIVE')}
-                          className={`${s.actionButton} border-blue-200
-                            text-blue-600 hover:bg-blue-50
-                            disabled:opacity-50`}
+                          onClick={() => handleStatusUpdate(booking.id, 'ACTIVE')}
+                          className={`${actionButton} border-brand-200 text-brand-600 hover:bg-brand-50`}
                         >
                           Activate
                         </button>
@@ -238,11 +214,8 @@ export default function BookingPage() {
                       {booking.status === 'ACTIVE' && (
                         <button
                           disabled={busyId === booking.id}
-                          onClick={() =>
-                            handleStatusUpdate(booking.id, 'COMPLETED')}
-                          className={`${s.actionButton} border-green-200
-                            text-green-600 hover:bg-green-50
-                            disabled:opacity-50`}
+                          onClick={() => handleStatusUpdate(booking.id, 'COMPLETED')}
+                          className={`${actionButton} border-green-200 text-green-700 hover:bg-green-50`}
                         >
                           Complete
                         </button>
@@ -252,9 +225,7 @@ export default function BookingPage() {
                         <button
                           disabled={busyId === booking.id}
                           onClick={() => setConfirmCancel(booking)}
-                          className={`${s.actionButton} border-red-200
-                            text-red-500 hover:bg-red-50
-                            disabled:opacity-50`}
+                          className={`${actionButton} border-red-200 text-red-600 hover:bg-red-50`}
                         >
                           Cancel
                         </button>
@@ -267,47 +238,42 @@ export default function BookingPage() {
           </table>
 
           {bookings.length > 0 && (
-            <div className="px-6 py-4 border-t border-gray-100">
-              <span className="text-sm text-gray-500">
-                Showing {bookings.length} record
-                {bookings.length !== 1 ? 's' : ''}
-              </span>
+            <div className="px-6 py-4 border-t border-gray-100 text-sm text-gray-500">
+              Showing {bookings.length} booking{bookings.length !== 1 ? 's' : ''}
             </div>
           )}
         </div>
       </div>
 
       {confirmCancel && (
-        <div className="fixed inset-0 bg-black/50 flex items-center
-                        justify-center z-50 px-4" role="dialog"
+        <div className={overlayClass} role="dialog"
              aria-modal="true" aria-labelledby="cancel-title">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
-            <h2 id="cancel-title" className="text-xl font-bold text-gray-800
-                                             mb-2">
-              Cancel booking?
+          <div className={`${dialogClass} max-w-md p-8`}>
+            <h2 id="cancel-title" className="text-xl font-bold text-gray-900 mb-2">
+              Cancel this booking?
             </h2>
-            <p className="text-sm text-gray-500 mb-6">
-              {confirmCancel.username} will be refunded{' '}
-              <strong>{peso(confirmCancel.totalPrice)}</strong> to their
-              wallet and {confirmCancel.machineName} becomes available.
+            <p className="text-sm text-gray-600 mb-6">
+              {confirmCancel.username} gets{' '}
+              <strong className="tabular">{peso(confirmCancel.totalPrice)}</strong>{' '}
+              back in their wallet, and {confirmCancel.machineName} becomes available.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmCancel(null)}
-                className="flex-1 border border-gray-200 text-gray-600 py-3
+                className="flex-1 border border-gray-200 text-gray-700 py-3
                            rounded-xl font-semibold text-sm hover:bg-gray-50"
               >
                 Keep booking
               </button>
               <button
                 disabled={busyId !== null}
-                onClick={() =>
-                  handleStatusUpdate(confirmCancel.id, 'CANCELLED')}
-                className="flex-1 bg-red-500 text-white py-3 rounded-xl
-                           font-semibold text-sm hover:bg-red-600
+                onClick={() => handleStatusUpdate(confirmCancel.id, 'CANCELLED')}
+                className="flex-1 bg-red-600 text-white py-3 rounded-xl
+                           font-semibold text-sm hover:bg-red-700
+                           active:scale-[0.98] transition-[background-color,transform]
                            disabled:opacity-60"
               >
-                Cancel &amp; refund
+                Cancel and refund
               </button>
             </div>
           </div>

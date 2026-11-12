@@ -1,21 +1,108 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+/* Plus Jakarta Sans, self-hosted (no request to Google Fonts). */
+@import "@fontsource-variable/plus-jakarta-sans";
 
 @import "tailwindcss";
 
+/* LabaLink "clean water" palette. Keep in sync with
+   mobiledev/app/src/main/res/values/colors.xml. */
 @theme {
-  --color-primary: #9333EA;
-  --color-lavender: #EDE9FE;
-  --color-lavenderbg: #F5F3FF;
-  --font-jakarta: 'Plus Jakarta Sans', sans-serif;
-}
+  --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
 
-* {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  /* Brand: ocean blue, from tint to deep */
+  --color-brand-50: #E3F1FA;
+  --color-brand-100: #CDE6F6;
+  --color-brand-200: #A3D0EE;
+  --color-brand-300: #6FB3E1;
+  --color-brand-400: #3A92CD;
+  --color-brand-500: #1A7DBD;
+  --color-brand-600: #0E6BA8;
+  --color-brand-700: #0B5689;
+  --color-brand-800: #0B466E;
+  --color-brand-900: #0B3B5C;
+
+  /* Accent: aqua */
+  --color-aqua-50: #DDF7F7;
+  --color-aqua-400: #22C3C9;
+  --color-aqua-700: #0B7C82;
+
+  /* Neutrals: Tailwind's gray scale, cooled to match the brand */
+  --color-gray-50: #F3F7FA;
+  --color-gray-100: #E8EFF4;
+  --color-gray-200: #D6E2EB;
+  --color-gray-300: #B8C7D4;
+  --color-gray-400: #8597A8;
+  --color-gray-500: #6A7D8F;
+  --color-gray-600: #4E6275;
+  --color-gray-700: #36495A;
+  --color-gray-800: #1F3244;
+  --color-gray-900: #0F2233;
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.2, 0, 0, 1);
+  --animate-rise: rise 360ms var(--ease-out-soft) both;
+  --animate-pop: pop 220ms var(--ease-out-soft) both;
+  --animate-fade: fade 200ms ease-out both;
+  --animate-flash: flash 1200ms ease-out;
+  --animate-halo: halo 1600ms var(--ease-out-soft) infinite;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.96) translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  /* A row that just changed over the live feed */
+  @keyframes flash {
+    from { background-color: var(--color-aqua-50); }
+    to { background-color: transparent; }
+  }
+  /* Ring that keeps expanding behind the "Live" dot */
+  @keyframes halo {
+    from { opacity: 0.6; transform: scale(1); }
+    to { opacity: 0; transform: scale(3); }
+  }
 }
 
 body {
-  background-color: #F5F3FF;
+  background-color: var(--color-gray-50);
+  color: var(--color-gray-900);
+  font-feature-settings: "ss01";
+  -webkit-font-smoothing: antialiased;
 }
+
+/* Money and times line up in tables and don't jitter when they change. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Staggered entrance: give each item style={{ '--i': index }}. */
+.stagger {
+  animation: rise 360ms var(--ease-out-soft) both;
+  animation-delay: calc(min(var(--i, 0), 12) * 35ms);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
+}
+
 /* "Print" on the QR sticker modal prints only the sticker. */
 @media print {
   body * {

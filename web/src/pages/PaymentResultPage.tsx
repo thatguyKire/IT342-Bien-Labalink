@@ -1,3 +1,4 @@
+import { CircleCheck, Undo2 } from 'lucide-react';
 import { oauthStyles as s } from '../styles/OAuth2CallbackPage.styles';
 
 /**
@@ -14,7 +15,10 @@ export default function PaymentResultPage({
   return (
     <div className={s.page}>
       <div className={s.card}>
-        <div className={s.icon}>{success ? '💜' : '↩️'}</div>
+        <div className={`${s.icon} ${success ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}`}
+             aria-hidden="true">
+          {success ? <CircleCheck size={32} /> : <Undo2 size={32} />}
+        </div>
         <h1 className={s.title}>
           {success ? 'Payment received' : 'Payment cancelled'}
         </h1>

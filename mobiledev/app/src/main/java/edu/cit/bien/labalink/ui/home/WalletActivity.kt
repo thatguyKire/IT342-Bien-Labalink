@@ -2,26 +2,30 @@ package edu.cit.bien.labalink.ui.home
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.chip.ChipGroup
 import edu.cit.bien.labalink.R
 import edu.cit.bien.labalink.api.RetrofitClient
 import edu.cit.bien.labalink.api.errorMessage
 import edu.cit.bien.labalink.model.TopUpRequest
 import edu.cit.bien.labalink.session
-import edu.cit.bien.labalink.ui.hideNavigationBar
+import edu.cit.bien.labalink.ui.Tab
+import edu.cit.bien.labalink.ui.animatePeso
 import edu.cit.bien.labalink.ui.login.LoginActivity
 import edu.cit.bien.labalink.ui.peso
+import edu.cit.bien.labalink.ui.riseIn
+import edu.cit.bien.labalink.ui.setContentViewEdgeToEdge
+import edu.cit.bien.labalink.ui.setupBottomNav
 import kotlinx.coroutines.launch
 
 /**
@@ -50,11 +54,12 @@ class WalletActivity : AppCompatActivity() {
     private lateinit var adapter: TransactionAdapter
 
     private var selectedAmount = 100.0
+    private var historyShown = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_wallet)
-        hideNavigationBar()
+        setContentViewEdgeToEdge(
+            R.layout.activity_wallet, topInset = R.id.topBar, bottomInset = R.id.bottomNav)
 
         tvBalance = findViewById(R.id.tvBalance)
         tvError = findViewById(R.id.tvError)
@@ -68,10 +73,16 @@ class WalletActivity : AppCompatActivity() {
         rvTransactions.layoutManager = LinearLayoutManager(this)
         rvTransactions.adapter = adapter
 
+        findViewById<View>(R.id.balanceCard).apply {
+            clipToOutline = true
+            riseIn()
+        }
+        findViewById<View>(R.id.addFundsCard).riseIn(delayMs = 80)
+
         setupQuickAmounts()
-        findViewById<ImageButton>(R.id.btnBack).setOnClickListener { finish() }
         btnTopUp.setOnClickListener { startTopUp() }
         findViewById<Button>(R.id.btnLogout).setOnClickListener { logout() }
+        setupBottomNav(Tab.WALLET)
     }
 
     override fun onResume() {
@@ -80,24 +91,22 @@ class WalletActivity : AppCompatActivity() {
         if (pending > 0) confirmPendingPayment(pending) else loadWalletData()
     }
 
+    /** A chip or a typed amount, never both: picking one clears the other. */
     private fun setupQuickAmounts() {
-        val buttons = listOf(
-            findViewById<TextView>(R.id.btn50) to 50.0,
-            findViewById<TextView>(R.id.btn100) to 100.0,
-            findViewById<TextView>(R.id.btn200) to 200.0,
-            findViewById<TextView>(R.id.btn500) to 500.0)
+        val amounts = mapOf(
+            R.id.btn50 to 50.0,
+            R.id.btn100 to 100.0,
+            R.id.btn200 to 200.0,
+            R.id.btn500 to 500.0)
+        val chips = findViewById<ChipGroup>(R.id.amountChips)
 
-        buttons.forEach { (button, amount) ->
-            button.setOnClickListener {
-                selectedAmount = amount
-                etCustomAmount.setText("")
-                buttons.forEach { (b, _) ->
-                    b.setBackgroundResource(R.drawable.filter_inactive_bg)
-                    b.setTextColor(Color.parseColor("#6B7280"))
-                }
-                button.setBackgroundResource(R.drawable.filter_active_bg)
-                button.setTextColor(Color.WHITE)
-            }
+        chips.setOnCheckedStateChangeListener { _, checkedIds ->
+            val amount = checkedIds.firstOrNull()?.let(amounts::get) ?: return@setOnCheckedStateChangeListener
+            selectedAmount = amount
+            etCustomAmount.setText("")
+        }
+        etCustomAmount.doAfterTextChanged { text ->
+            if (!text.isNullOrBlank()) chips.clearCheck()
         }
     }
 
@@ -192,9 +201,13 @@ class WalletActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 RetrofitClient.api.getWallet().body()?.let {
-                    tvBalance.text = peso(it.walletBalance)
+                    tvBalance.animatePeso(it.walletBalance)
                 }
                 val history = RetrofitClient.api.getMyPayments().body().orEmpty()
+                if (!historyShown && history.isNotEmpty()) {
+                    rvTransactions.scheduleLayoutAnimation()
+                    historyShown = true
+                }
                 adapter.updateData(history)
                 tvNoTransactions.visibility =
                     if (history.isEmpty()) View.VISIBLE else View.GONE
@@ -224,19 +237,20 @@ class WalletActivity : AppCompatActivity() {
 
     private fun setBusy(busy: Boolean) {
         btnTopUp.isEnabled = !busy
-        btnTopUp.text = if (busy) "Opening Stripe..." else "Pay securely with Stripe"
+        btnTopUp.text = if (busy) "Opening Stripe…" else "Pay securely with Stripe"
     }
 
-    private fun showError(message: String) {
-        tvError.text = message
-        tvError.visibility = View.VISIBLE
-        tvSuccess.visibility = View.GONE
-    }
+    private fun showError(message: String) = showBanner(tvError, tvSuccess, message)
 
-    private fun showSuccess(message: String) {
-        tvSuccess.text = message
-        tvSuccess.visibility = View.VISIBLE
-        tvError.visibility = View.GONE
+    private fun showSuccess(message: String) = showBanner(tvSuccess, tvError, message)
+
+    private fun showBanner(show: TextView, hide: TextView, message: String) {
+        show.text = message
+        hide.visibility = View.GONE
+        if (show.visibility != View.VISIBLE) {
+            show.visibility = View.VISIBLE
+            show.riseIn()
+        }
     }
 
     private fun hideMessages() {

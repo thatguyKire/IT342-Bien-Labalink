@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Component styles. Layouts use these instead of inline colours/sizes. -->
+<resources>
+
+    <!-- Default for every TextView without its own textAppearance -->
+    <style name="Widget.LabaLink.TextView" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.LabaLink.Body</item>
+    </style>
+
+    <!-- Cards: flat, hairline border -->
+    <style name="Widget.LabaLink.Card" parent="Widget.Material3.CardView.Outlined">
+        <item name="cardBackgroundColor">@color/surface</item>
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/divider</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="Widget.LabaLink.Card.Pressable">
+        <item name="android:stateListAnimator">@animator/press_scale</item>
+    </style>
+
+    <!-- Buttons -->
+    <style name="Widget.LabaLink.Button" parent="Widget.Material3.Button">
+        <item name="android:minHeight">56dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="backgroundTint">@color/button_primary</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textAppearance">@style/TextAppearance.LabaLink.Button</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">8dp</item>
+        <item name="iconSize">20dp</item>
+        <item name="iconTint">@color/white</item>
+        <item name="android:stateListAnimator">@animator/press_scale</item>
+    </style>
+
+    <style name="Widget.LabaLink.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">52dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="strokeColor">@color/outline</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="android:textColor">@color/ink</item>
+        <item name="android:textAppearance">@style/TextAppearance.LabaLink.Button</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">8dp</item>
+        <item name="iconSize">20dp</item>
+        <item name="iconTint">@color/ink</item>
+        <item name="android:stateListAnimator">@animator/press_scale</item>
+    </style>
+
+    <style name="Widget.LabaLink.Button.Danger" parent="Widget.LabaLink.Button.Outlined">
+        <item name="strokeColor">@color/danger_tint</item>
+        <item name="android:textColor">@color/danger</item>
+        <item name="iconTint">@color/danger</item>
+        <item name="rippleColor">@color/danger_tint</item>
+    </style>
+
+    <!-- Light outlined button on dark/gradient surfaces -->
+    <style name="Widget.LabaLink.Button.OnDark" parent="Widget.LabaLink.Button.Outlined">
+        <item name="strokeColor">@color/white_70</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="iconTint">@color/white</item>
+        <item name="rippleColor">@color/white_16</item>
+    </style>
+
+    <style name="Widget.LabaLink.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textAppearance">@style/TextAppearance.LabaLink.Label</item>
+        <item name="android:textColor">@color/brand</item>
+    </style>
+
+    <!-- Round icon button (back, close) -->
+    <style name="Widget.LabaLink.IconButton" parent="">
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="tint">@color/ink</item>
+    </style>
+
+    <!-- Inputs -->
+    <style name="Widget.LabaLink.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">14dp</item>
+        <item name="boxCornerRadiusTopEnd">14dp</item>
+        <item name="boxCornerRadiusBottomStart">14dp</item>
+        <item name="boxCornerRadiusBottomEnd">14dp</item>
+        <item name="boxStrokeColor">@color/input_stroke</item>
+        <item name="boxBackgroundColor">@color/surface</item>
+        <item name="hintTextColor">@color/brand</item>
+        <item name="startIconTint">@color/ink_tertiary</item>
+        <item name="endIconTint">@color/ink_tertiary</item>
+        <item name="prefixTextColor">@color/ink_secondary</item>
+    </style>
+
+    <!-- Choice chips (filters, top-up amounts) -->
+    <style name="Widget.LabaLink.Chip" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/chip_background</item>
+        <item name="chipStrokeColor">@color/chip_stroke</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="android:textColor">@color/chip_text</item>
+        <item name="android:textAppearance">@style/TextAppearance.LabaLink.Label</item>
+        <item name="chipCornerRadius">12dp</item>
+        <item name="chipMinHeight">40dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipIconVisible">false</item>
+        <item name="ensureMinTouchTargetSize">false</item>
+        <item name="android:stateListAnimator">@animator/press_scale</item>
+    </style>
+
+    <!-- Status badge: colours set in code by ui/Status.kt -->
+    <style name="Widget.LabaLink.Badge" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/bg_pill</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.LabaLink.Badge</item>
+    </style>
+
+    <!-- Inline messages -->
+    <style name="Widget.LabaLink.Banner" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/bg_rounded_12</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:drawablePadding">10dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textAppearance">@style/TextAppearance.LabaLink.BodySmall</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="Widget.LabaLink.Banner.Error">
+        <item name="android:backgroundTint">@color/danger_tint</item>
+        <item name="android:textColor">@color/danger</item>
+        <item name="android:drawableStart">@drawable/ic_circle_alert_20</item>
+        <item name="drawableTint">@color/danger</item>
+    </style>
+
+    <style name="Widget.LabaLink.Banner.Success">
+        <item name="android:backgroundTint">@color/success_tint</item>
+        <item name="android:textColor">@color/success</item>
+        <item name="android:drawableStart">@drawable/ic_circle_check_20</item>
+        <item name="drawableTint">@color/success</item>
+    </style>
+
+    <!-- Icon tile: tint the background per use -->
+    <style name="Widget.LabaLink.IconTile" parent="">
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:background">@drawable/bg_icon_tile</item>
+        <item name="android:backgroundTint">@color/brand_tint</item>
+        <item name="tint">@color/brand</item>
+    </style>
+
+    <!-- Bars -->
+    <style name="Widget.LabaLink.TopBar" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">64dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">@drawable/bg_top_bar</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">16dp</item>
+    </style>
+
+    <style name="Widget.LabaLink.BottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@drawable/bg_bottom_bar</item>
+        <item name="itemIconTint">@color/nav_item</item>
+        <item name="itemTextColor">@color/nav_item</item>
+        <item name="itemTextAppearanceActive">@style/TextAppearance.LabaLink.NavLabel</item>
+        <item name="itemTextAppearanceInactive">@style/TextAppearance.LabaLink.NavLabel</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.LabaLink.BottomNav.Indicator</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="Widget.LabaLink.BottomNav.Indicator"
+        parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/brand_tint</item>
+    </style>
+</resources>

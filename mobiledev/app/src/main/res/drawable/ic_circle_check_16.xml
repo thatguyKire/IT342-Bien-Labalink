@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ic_circle_check at 16dp, for compound drawables (which can't be sized in XML). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:width="16dp" android:height="16dp" android:drawable="@drawable/ic_circle_check" />
+</layer-list>

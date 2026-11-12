@@ -1,25 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- LabaLink "clean water" palette. Keep in sync with web/src/index.css. -->
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="primary">#9333EA</color>
-    <color name="primaryLight">#EDE9FE</color>
-    <color name="primaryDark">#7C3AED</color>
-    <color name="backgroundApp">#F5F3FF</color>
-    <color name="textDark">#1F2937</color>
-    <color name="textGray">#6B7280</color>
-    <color name="textLight">#9CA3AF</color>
-    <color name="borderColor">#E5E7EB</color>
-    <color name="successGreen">#10B981</color>
-    <color name="errorRed">#EF4444</color>
-    <color name="statusRunningBg">#DBEAFE</color>
-    <color name="statusRunningText">#1D4ED8</color>
-    <color name="statusOutOrderBg">#FEE2E2</color>
-    <color name="statusOutOrderText">#B91C1C</color>
-    <color name="dividerColor">#F3F4F6</color>
+    <!-- Brand -->
+    <color name="brand_deep">#0B3B5C</color>
+    <color name="brand">#0E6BA8</color>
+    <color name="brand_pressed">#0B5689</color>
+    <color name="brand_aqua">#22C3C9</color>
+    <color name="brand_aqua_deep">#0B7C82</color>
+    <color name="brand_tint">#E3F1FA</color>
+    <color name="aqua_tint">#DDF7F7</color>
+
+    <!-- Neutrals -->
+    <color name="ink">#0F2233</color>
+    <color name="ink_secondary">#4E6275</color>
+    <color name="ink_tertiary">#8597A8</color>
+    <color name="background">#F3F7FA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_muted">#EAF1F6</color>
+    <color name="outline">#D6E2EB</color>
+    <color name="divider">#E8EFF4</color>
+    <color name="white">#FFFFFF</color>
+    <color name="white_70">#B3FFFFFF</color>
+    <color name="white_16">#29FFFFFF</color>
+    <color name="scrim">#B3072B45</color>
+
+    <!-- Status tones: text on tint -->
+    <color name="success">#0A7A55</color>
+    <color name="success_tint">#DCF5EA</color>
+    <color name="info">#1559B3</color>
+    <color name="info_tint">#DFEBFB</color>
+    <color name="warning">#A35A00</color>
+    <color name="warning_tint">#FDF0D5</color>
+    <color name="danger">#B42318</color>
+    <color name="danger_tint">#FDE6E4</color>
+    <color name="neutral">#4E6275</color>
+    <color name="neutral_tint">#EAF1F6</color>
+    <color name="error">#D92D20</color>
 </resources>

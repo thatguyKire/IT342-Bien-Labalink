@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **System** | LabaLink 1.0 (Android app + Attendant dashboard) |
-| **Date** | 2026-10-15 |
+| **Date** | 2026-11-12 (redesign) |
 | **Related** | [App Flow](App-Flow.md) · [PRD](PRD.md) |
 
 ---
@@ -11,98 +11,149 @@
 ## 1. Design principles
 
 1. **One obvious next step.** Every screen has a single primary action
-   (purple, full-width on mobile): *Scan & Start*, *Pay securely with
-   Stripe*, *+ Add New Machine*.
-2. **Status at a glance.** Machine and booking states always use the same
-   colour and label across both apps.
+   (ocean-blue, full-width on mobile): *Scan and pay*, *Pay securely with
+   Stripe*, *Add machine*.
+2. **Status at a glance.** Machine, booking and payment states use the
+   same label and colour in both apps (one mapping each:
+   `ui/Status.kt` on Android, `lib/status.ts` on the web).
 3. **Money is never ambiguous.** Amounts always show the peso sign and
-   2 decimals. The price is shown *before* scanning, and refunds are
-   spelled out in the confirmation dialog.
+   2 decimals in tabular figures. The price is shown *before* scanning, and
+   refunds are spelled out in the confirmation dialog.
 4. **Fail kindly.** Errors use the server's plain-language message
    ("Insufficient wallet balance. Please top up first.") in a red banner
    next to the action, never a stack trace or error code.
 5. **Safe by design.** Destructive or irreversible actions (delete
    machine, cancel and refund, new QR code) need confirmation, and the
-   button names the consequence ("Cancel & refund").
+   button names the consequence ("Cancel and refund").
 
 ## 2. Brand and design tokens
 
+The look is "clean water": deep and ocean blues with an aqua accent on
+cool, near-white surfaces. Android defines the tokens in
+`res/values/colors.xml`, `type.xml`, `styles.xml` and `themes.xml`; the web
+defines the same values as Tailwind theme tokens in `src/index.css`.
+
 ### 2.1 Colour
 
-| Token | Hex | Use |
+| Token (Android / web) | Hex | Use |
 |---|---|---|
-| `primary` | `#9333EA` | Primary buttons, links, active nav, brand |
-| `primaryDark` | `#7C3AED` | Hover / pressed |
-| `primaryLight` | `#EDE9FE` | Active nav background, icon chips, "Running" badge |
-| `backgroundApp` | `#F5F3FF` | App and page background (lavender) |
-| `surface` | `#FFFFFF` | Cards, tables, modals |
-| `textDark` | `#1F2937` | Headings, primary text |
-| `textGray` | `#6B7280` | Body and secondary text |
-| `textLight` | `#9CA3AF` | Captions, placeholders, footer |
-| `border` | `#E5E7EB` | Inputs, dividers |
-| `success` | `#10B981` | Available, success messages |
-| `error` | `#EF4444` | Errors, destructive buttons |
+| `brand_deep` / `brand-900` | `#0B3B5C` | Web sidebar, start of the brand gradient |
+| `brand` / `brand-600` | `#0E6BA8` | Primary buttons, links, active nav |
+| `brand_pressed` / `brand-700` | `#0B5689` | Hover / pressed |
+| `brand_tint` / `brand-50` | `#E3F1FA` | Icon tiles, nav indicator, wallet pill |
+| `brand_aqua` / `aqua-400` | `#22C3C9` | Accent: live dot, scan frame, gradient end |
+| `brand_aqua_deep` / `aqua-700` | `#0B7C82` | Aqua text on light surfaces |
+| `ink` / `gray-900` | `#0F2233` | Headings, primary text |
+| `ink_secondary` / `gray-600` | `#4E6275` | Body and secondary text |
+| `ink_tertiary` / `gray-400` | `#8597A8` | Captions, placeholders |
+| `background` / `gray-50` | `#F3F7FA` | App and page background |
+| `surface` | `#FFFFFF` | Cards, tables, dialogs |
+| `outline` / `gray-200`, `divider` / `gray-100` | `#D6E2EB`, `#E8EFF4` | Inputs, hairline card borders, dividers |
+
+On the web, Tailwind's `gray` scale is redefined to these cool neutrals, so
+existing `gray-*` classes follow the palette.
+
+The brand gradient (`brand_deep` → `brand` → `aqua`, 135°) is used only for
+hero surfaces: the Android home and wallet cards, the auth headers, the
+machine illustration and the web sign-in panel.
 
 ### 2.2 Status colours (shared by both apps)
 
-| State | Background | Text | Label |
-|---|---|---|---|
-| Machine `AVAILABLE` | green-100 | green-700 | ● Available |
-| Machine `RUNNING` | `#EDE9FE` / `#DBEAFE` | `#9333EA` / `#1D4ED8` | ● Running |
-| Machine `OUT_OF_ORDER` | `#FEE2E2` | `#B91C1C` | ● Out of Order |
-| Booking `PENDING` | gray-100 | gray-600 | ● PENDING |
-| Booking `ACTIVE` | blue-100 | blue-700 | ● ACTIVE |
-| Booking `COMPLETED` | green-100 | green-700 | ● COMPLETED |
-| Booking `CANCELLED` | red-100 | red-700 | ● CANCELLED |
-| Payment `SUCCESS` / `PENDING` / `FAILED` | green / yellow / red 100 | 700 | text |
+| Status | Label | Tone (text on tint) |
+|---|---|---|
+| Machine `AVAILABLE` | Available | success `#0A7A55` on `#DCF5EA` |
+| Machine `RUNNING` | Running | info `#1559B3` on `#DFEBFB` |
+| Machine `OUT_OF_ORDER` | Out of order | danger `#B42318` on `#FDE6E4` |
+| Booking `PENDING` | Pending | warning `#A35A00` on `#FDF0D5` |
+| Booking `ACTIVE` | Active | info |
+| Booking `COMPLETED` | Completed | success |
+| Booking `CANCELLED` | Cancelled | neutral `#4E6275` on `#EAF1F6` |
+| Payment `SUCCESS` / `PENDING` / `FAILED` | Paid / Pending / Failed | success / warning / danger |
 
 Status is never shown by colour alone: there is always a text label
 (WCAG 1.4.1).
 
 ### 2.3 Typography
 
-- **Web:** Plus Jakarta Sans (Google Fonts), 400/500/600/700.
-- **Android:** system font (Roboto).
+**Plus Jakarta Sans** on both platforms (SIL Open Font License). Android
+bundles the static weights in `res/font/`; the web self-hosts the variable
+font through `@fontsource-variable/plus-jakarta-sans`, so no request goes to
+Google Fonts. Money, times and counts use tabular figures.
 
-| Role | Web | Android |
+| Role | Android | Web |
 |---|---|---|
-| Page title | 24 px bold | 20 sp bold |
-| Section / card title | 16–18 px bold | 16 sp bold |
-| Body | 14 px | 14 sp |
-| Label / caption | 12–13 px medium | 11–13 sp |
-| Stat number | 30 px bold | 28 sp bold |
+| Display (hero, brand) | 30 sp ExtraBold | 30–42 px ExtraBold |
+| Headline (screen title) | 22 sp Bold | 24 px Bold |
+| Title (section, card) | 17 sp Bold | 18 px Bold |
+| Body | 15 sp Regular | 14 px Regular |
+| Label / small title | 13–15 sp SemiBold | 14 px SemiBold |
+| Caption | 12 sp Medium | 12 px Medium |
+| Amount | 34 sp ExtraBold, tabular | 30 px ExtraBold, tabular |
+
+Labels are sentence case; there are no all-caps eyebrows. On Android each
+text style points at one weight file, so weights render identically on
+every Android version.
 
 ### 2.4 Shape, spacing and elevation
 
-- Corner radius: inputs and buttons 12 px (`rounded-xl`); cards 16–20 px;
-  modals 24 px; badges full pill.
-- Spacing scale: 4 · 8 · 12 · 16 · 24 · 32 px. Page gutter 32 px (web) /
-  16–20 dp (mobile).
-- Elevation: cards `shadow-sm` + 1 px border; modals `shadow-2xl` on a 50%
-  black scrim.
+- Corner radius: badges full pill; inputs 14 dp / 12 px; buttons 16 dp /
+  12 px; cards 20 dp / 16 px; hero cards and dialogs 24 dp / 24 px.
+- Spacing scale: 4 · 8 · 12 · 16 · 20 · 24 · 32. Page gutter 16 dp
+  (Android) / 32 px (web).
+- Elevation: flat. Cards are white with a 1 px hairline border; only the
+  auth logo tile and dialogs cast a shadow. Dialogs sit on a blurred
+  `brand-900` 50% scrim.
 
 ### 2.5 Iconography
 
-Emoji icons keep the build light and friendly: 🫧 washer / brand, 💨 dryer,
-📋 bookings, 💳 transactions, 👥 staff, ✅ ▶️ ⚠️ status stats. Decorative
-icons are marked `aria-hidden`.
+[Lucide](https://lucide.dev) icons (ISC licence) on both platforms: 24 px
+grid, 2 px round strokes. The web uses `lucide-react`; Android uses vector
+drawables generated from the same SVGs by
+`mobiledev/scripts/lucide-to-vector.mjs`. Washers use `washing-machine`
+(brand blue tile), dryers use `wind` (aqua tile). The LabaLink mark is the
+`droplets` icon on the brand gradient (`logo_mark.xml`, `LogoMark.tsx`, the
+launcher icon and the favicon). Decorative icons are hidden from screen
+readers.
+
+### 2.6 Motion
+
+Motion explains what changed; it is never decoration for its own sake.
+Durations follow 100–150 ms for presses, 200–400 ms for entrances and
+screens, and never more than 600 ms for anything the user waits on. Only
+opacity and transforms are animated.
+
+| Moment | Android | Web |
+|---|---|---|
+| Screen change | Slide + fade (300 ms); tabs cross-fade (200 ms) | — |
+| First load of a list | Cards rise in, 35 ms apart | Table rows rise in, 35 ms apart |
+| Press | Cards, chips and buttons shrink 3% | Buttons shrink 2% |
+| Live feed | "Live" dot with an expanding halo | Same; a booking whose status just changed flashes aqua |
+| Money | Wallet balances count up to the new value | — |
+| Dialogs and messages | Banners rise in | Dialogs pop in over a fading scrim; banners rise in |
+| QR scanner | Aqua line sweeps the scan frame; success draws a check mark | — |
+
+Everything respects the system setting: Android checks the animator
+duration scale ("Remove animations"); the web disables animations under
+`prefers-reduced-motion`.
 
 ## 3. Components
 
 | Component | Spec |
 |---|---|
-| **Primary button** | Purple fill, white 14–15 px semibold, 48–56 px tall on mobile, `active:scale-95`, disabled 60% opacity with a progress label ("Signing in…") |
-| **Secondary button** | White, 1 px gray border, gray text |
-| **Destructive button** | Red fill (confirm dialogs) or red outline (inline) |
-| **Input** | 52 dp / 48 px tall, gray-50 fill, 1 px border, purple focus ring, leading emoji icon, visible label above |
-| **Status badge** | Pill, 12 px medium, coloured per §2.2, leading "●" |
-| **Stat card** | White card, uppercase 12 px caption, 30 px number, round icon chip |
-| **Data table** (web) | Gray-50 header, uppercase 12 px column titles, row hover lavender, empty and loading rows |
-| **Modal** | Centred card, title + explanation + two buttons (cancel left, action right); `role="dialog"`, `aria-modal` |
-| **Banner** | Red (error, `role="alert"`) or green (success, `role="status"`) rounded box above the form |
-| **Live indicator** | 8 px dot: green pulsing "Live" / gray "Connecting…" |
-| **Bottom nav** (Android) | Home · Bookings · Profile (wallet) |
-| **Sidebar** (web) | 240 px, logo, Main Menu (Machines, Bookings, Transactions, Staff), profile footer with logout |
+| **Primary button** | Brand fill, white 15 sp/14 px bold, 56 dp / 44 px tall, optional leading icon, press scale, disabled state shows a progress label ("Signing in…") |
+| **Secondary button** | White, 1 px outline, ink text |
+| **Destructive button** | Red outline (Android "Log out", web inline) or red fill (confirm dialogs) |
+| **Input** | Outlined, 14 dp radius, leading Lucide icon, label as hint (Android) or visible label (web), brand focus ring, password visibility toggle |
+| **Status badge** | Pill, 11–12 bold, tone per §2.2 |
+| **Icon tile** | 40–44 dp rounded square, tinted per machine type or status |
+| **Stat card** (web) | White card, sentence-case label, 30 px tabular number, tinted icon tile |
+| **Data table** (web) | Gray-50 header with sentence-case column titles, hover row, loading and empty rows |
+| **Filter chips** | Single choice; selected chip is brand-filled |
+| **Dialog** | Title, explanation, two buttons (keep left, action right); `role="dialog"`, `aria-modal` |
+| **Banner** | Red (error, `role="alert"`) or green (success, `role="status"`) with a leading icon |
+| **Live indicator** | Aqua dot with halo, "Live" / gray "Connecting…" |
+| **Bottom nav** (Android) | Material 3: Home, Bookings, Wallet; pill indicator in `brand_tint` |
+| **Sidebar** (web) | 256 px, deep-blue `brand-900`, logo, nav with aqua active bar, profile card with log out |
 
 ## 4. Screens
 
@@ -110,60 +161,65 @@ icons are marked `aria-hidden`.
 
 | Screen | Purpose | Key elements |
 |---|---|---|
-| **Login** | Sign in | Logo, email, password (show/hide), *Login*, *Continue with Google* (shown only when configured), link to Register; "session expired" banner |
-| **Register** | Create account | Username, email, password with inline rules; server errors shown verbatim |
-| **Home** | Find a machine | Greeting + wallet pill, machine count, 2-column grid of machine cards (icon, type, name, status badge, ₱/hr), bottom nav |
-| **Machine detail** | Decide and start | Large type illustration, name, rate, status, "Scan the sticker on the machine", primary **Scan & Start · ₱30.00 / 60 min** (disabled + "Not available" when busy) |
-| **QR scanner** | Prove presence | Full-screen camera with frame, instruction text, live result line ("Starting machine…", "❌ This QR code does not belong…"), cancel |
-| **Bookings** | History | Filter chips (All, Pending, Active, Completed), booking cards (machine, type · duration, start/end, price, status); tap a pending one → cancel dialog with refund amount |
-| **Wallet** | Balance and top-up | Balance card, quick amounts ₱50/100/200/500, custom amount, explainer "You'll finish paying on Stripe's secure page", **Pay securely with Stripe**, transaction history, **Log out** |
+| **Login** | Sign in | Gradient header with logo, floating form card (email, password with toggle), *Sign in*, *Continue with Google* (shown only when configured), legal notice, link to Register; "session expired" banner |
+| **Register** | Create account | Same shell; name, email, password with helper text, age/terms checkbox, *Create account* |
+| **Home** | Find a machine | Top bar with logo and wallet pill (opens Wallet), gradient greeting card with live available/running counts, "Machines" header with live dot, 2-column machine cards, bottom nav |
+| **Machine detail** | Decide and start | Gradient illustration, name, rate, type and status badges, "How it works" (scan, pay from wallet with the real price, attendant starts it), **Scan and pay ₱ 60.00** (disabled and relabelled when the machine is busy) |
+| **QR scanner** | Prove presence | Full-bleed camera, aqua scan frame with sweeping line, result card (working / success check / error), bottom panel with instructions and *Cancel* |
+| **Bookings** | History | Filter chips (All, Pending, Active, Completed), booking cards (machine tile, type and duration, start/end, total, status); pending cards show "Tap to cancel and get a refund" |
+| **Wallet** | Balance and top-up | Gradient balance card (counts up), amount chips ₱50/100/200/500 or a custom amount, Stripe explainer, **Pay securely with Stripe**, "Stripe test mode" note, recent activity, **Log out** |
 
 ### 4.2 Web (attendant)
 
 | Screen | Purpose | Key elements |
 |---|---|---|
-| **Sign in** | Attendant access | Card with email/password, Google button, note "Attendant accounts are created by an existing attendant", error banners for cancelled Google, not-attendant, expired session |
-| **Machines** | Manage the floor | Header + *Add New Machine*; search (name or MAC-001) + status filter; 4 stat cards; table (ID, machine, status, **QR Sticker → View/Print**, rate, edit/delete) |
-| **Machine modal** | Add / edit | Name, type, hourly rate (₱, step 0.01), status; inline validation |
-| **QR sticker modal** | Print / rotate | Machine name, QR code (208 px), "MAC-001 · ₱30.00/hr", warning "Treat this code like a key", *Close* · *New code* · *Print*. Print CSS prints only the sticker |
-| **Bookings** | Run sessions | Live indicator, 4 stats (total, awaiting activation, active, completed revenue), status filters, table with Activate / Complete / Cancel; cancel dialog shows the refund |
-| **Transactions** | Audit top-ups | 3 stats (count, collected, awaiting confirmation), search, status filter, table (customer, reference, amount, status, date) |
-| **Staff** | Manage attendants | Staff table (name, email, sign-in method, since) + "Add Attendant" form with password rules |
-| **Payment result** (public) | Stripe return page | 💜 "Payment received — return to the app" / ↩️ "Payment cancelled — no money was taken" |
+| **Sign in** | Attendant access | Brand panel (logo, headline, three facts) beside the form card: email, password with toggle, Google button, note that attendants are created by an existing attendant, error banners |
+| **Machines** | Manage the floor | Header with live indicator and *Add machine*; search + status filter; 4 stat cards; table (ID, machine with type icon, status, **QR sticker → View / Print**, rate, edit/delete) |
+| **Machine dialog** | Add / edit | Name, type, hourly rate (₱, step 0.01), status; inline validation |
+| **QR sticker dialog** | Print / rotate | Machine name, QR code, ID and rate, warning "Treat this code like a key", *Close* · *New code* · *Print*. Print CSS prints only the sticker |
+| **Bookings** | Run sessions | Live indicator, 4 stats (all, waiting to start, running now, revenue), status chips, table with Activate / Complete / Cancel; changed rows flash; cancel dialog shows the refund |
+| **Transactions** | Audit top-ups | 3 stats (top-ups, collected, waiting for Stripe), search, status chips, table (customer, reference, amount, status, date) |
+| **Staff** | Manage attendants | Staff table (name, email, sign-in method, since) + "Add an attendant" form with password rules |
+| **Payment result** (public) | Stripe return page | Check icon "Payment received, return to the app" / undo icon "Payment cancelled, no money was taken" |
 
 ### 4.3 Wireframes
 
 **Android: machine detail**
 ```
 ┌──────────────────────────────┐
-│ ←  Machine Details           │
+│ ←          Machine           │
 ├──────────────────────────────┤
-│        ┌──────────────┐      │
-│        │     🫧        │      │
-│        │Washing Machine│     │
-│        └──────────────┘      │
-│ Washer 01            WASHER  │
-│ ₱ 30.00 / hr                 │
-│ Status        ● AVAILABLE    │
-│ QR    Scan the sticker on    │
-│       the machine            │
+│ ╭──────────────────────────╮ │
+│ │   [washer icon]   ░drops │ │  brand gradient
+│ │   Washing machine        │ │
+│ ╰──────────────────────────╯ │
+│ Washer 1          ₱ 60.00/hr │
+│ (Washer) (Available)         │
+│ How it works                 │
+│ ┌──────────────────────────┐ │
+│ │ [scan]  Scan the sticker │ │
+│ │ [wallet] Pay from wallet │ │
+│ │ [spark] Attendant starts │ │
+│ └──────────────────────────┘ │
 ├──────────────────────────────┤
-│ [ Scan & Start · ₱30.00/60m ]│
+│ [ ⌗  Scan and pay ₱ 60.00  ] │
 └──────────────────────────────┘
 ```
 
 **Web: bookings**
 ```
-┌────────┬──────────────────────────────────────────────────────┐
-│🫧 Laba │ Bookings & Sessions                        ● Live    │
-│        ├──────────────────────────────────────────────────────┤
-│Machines│ [Total 128] [Awaiting 2] [Active 5] [Revenue ₱4,320] │
-│Bookings│ (ALL)(PENDING)(ACTIVE)(COMPLETED)(CANCELLED)          │
-│Transact│ ┌────────────────────────────────────────────────┐   │
-│Staff   │ │Customer │Machine │Start│End│Dur│Price│Status│Act│ │
-│        │ │Ana      │MAC-001 │2:30 │3:30│60 │₱30 │PEND. │[Activate][Cancel]│
-│ Marco ↪│ └────────────────────────────────────────────────┘   │
-└────────┴──────────────────────────────────────────────────────┘
+┌──────────┬────────────────────────────────────────────────────┐
+│ [logo]   │ Bookings                                  ● Live   │
+│ LabaLink │ Activate sessions when customers load…             │
+│          ├────────────────────────────────────────────────────┤
+│▌Machines │ [All 13] [Waiting 1] [Running 2] [Revenue ₱492.50] │
+│ Bookings │ (All)(Pending)(Active)(Completed)(Cancelled)       │
+│ Transact.│ ┌────────────────────────────────────────────────┐ │
+│ Staff    │ │Customer│Machine│Start│End│Dur│Price│Status│Act.│ │
+│          │ │Ana Cruz│Washer 4│…   │…  │60 │₱80 │Pending│[Activate][Cancel]│
+│ [M] Admin│ └────────────────────────────────────────────────┘ │
+└──────────┴────────────────────────────────────────────────────┘
+  deep-blue sidebar
 ```
 
 ## 5. Interaction details
@@ -171,12 +227,13 @@ icons are marked `aria-hidden`.
 | Situation | Behaviour |
 |---|---|
 | Loading | Tables show "Loading…" rows; buttons switch to a progress label and disable to prevent double submits |
-| Empty | Friendly empty state with emoji and next step ("Click + Add New Machine to get started") |
-| Live update | Dashboard tables refetch silently on WebSocket events; no flashing spinner |
+| Empty | Icon tile, a plain statement and the next step ("Use Add machine to create one") |
+| Live update | Dashboard tables refetch silently on WebSocket events; changed booking rows flash aqua instead of a spinner |
 | Session expiry | Any 401 → back to sign-in with "Your session expired" |
-| Wrong role | Customer on web → "This dashboard is for shop attendants…"; attendant on Android → "Attendants use the web dashboard" |
-| Payment return | Wallet screen shows "Confirming your payment…" → success or failure; a still-pending payment shows a gentle "Waiting for Stripe…" |
-| Busy machine | Detail button disabled and relabelled; the server also rejects with 409 |
+| Wrong role | Customer on web → "This dashboard is for shop attendants…"; attendant on Android → "Attendants use the LabaLink web dashboard" |
+| Payment return | Wallet screen shows "Confirming your payment…" → success or failure; a still-pending payment shows "Waiting for Stripe…" |
+| Busy machine | Detail button disabled and relabelled ("Running right now"); the server also rejects with 409 |
+| Edge to edge | Android draws behind the status and navigation bars; bars and forms are padded so nothing sits under them or the keyboard |
 
 ## 6. Accessibility (WCAG 2.1 AA targets)
 

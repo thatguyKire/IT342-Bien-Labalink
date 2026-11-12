@@ -1,25 +1,24 @@
 package edu.cit.bien.labalink.ui.bookings
 
-import android.app.ActivityOptions
-import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.chip.ChipGroup
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import edu.cit.bien.labalink.R
 import edu.cit.bien.labalink.api.RetrofitClient
 import edu.cit.bien.labalink.api.errorMessage
 import edu.cit.bien.labalink.model.BookingResponse
-import edu.cit.bien.labalink.ui.hideNavigationBar
-import edu.cit.bien.labalink.ui.home.HomeActivity
+import edu.cit.bien.labalink.ui.Tab
 import edu.cit.bien.labalink.ui.peso
+import edu.cit.bien.labalink.ui.riseIn
+import edu.cit.bien.labalink.ui.setContentViewEdgeToEdge
+import edu.cit.bien.labalink.ui.setupBottomNav
 import kotlinx.coroutines.launch
 
 class BookingsActivity : AppCompatActivity() {
@@ -27,15 +26,15 @@ class BookingsActivity : AppCompatActivity() {
     private lateinit var rvBookings: RecyclerView
     private lateinit var emptyState: LinearLayout
     private lateinit var adapter: BookingAdapter
-    private lateinit var filters: List<Pair<TextView, String?>>
 
     private var currentFilter: String? = null
     private var allBookings: List<BookingResponse> = emptyList()
+    private var firstLoad = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_bookings)
-        hideNavigationBar()
+        setContentViewEdgeToEdge(
+            R.layout.activity_bookings, topInset = R.id.topBar, bottomInset = R.id.bottomNav)
 
         rvBookings = findViewById(R.id.rvBookings)
         emptyState = findViewById(R.id.emptyState)
@@ -44,23 +43,19 @@ class BookingsActivity : AppCompatActivity() {
         rvBookings.layoutManager = LinearLayoutManager(this)
         rvBookings.adapter = adapter
 
-        findViewById<View>(R.id.btnBack).setOnClickListener { goHome() }
-
-        filters = listOf(
-            findViewById<TextView>(R.id.filterAll) to null,
-            findViewById<TextView>(R.id.filterPending) to "PENDING",
-            findViewById<TextView>(R.id.filterActive) to "ACTIVE",
-            findViewById<TextView>(R.id.filterCompleted) to "COMPLETED")
-        filters.forEach { (view, status) ->
-            view.setOnClickListener {
-                currentFilter = status
-                updateFilterUI(view)
+        val filterByChip = mapOf(
+            R.id.filterAll to null,
+            R.id.filterPending to "PENDING",
+            R.id.filterActive to "ACTIVE",
+            R.id.filterCompleted to "COMPLETED")
+        findViewById<ChipGroup>(R.id.filterRow)
+            .setOnCheckedStateChangeListener { _, checkedIds ->
+                currentFilter = checkedIds.firstOrNull()?.let(filterByChip::get)
+                rvBookings.scheduleLayoutAnimation()
                 applyFilter()
             }
-        }
 
-        findViewById<LinearLayout>(R.id.navHome).setOnClickListener { goHome() }
-        findViewById<LinearLayout>(R.id.navBookings).setOnClickListener {
+        setupBottomNav(Tab.BOOKINGS) {
             if (adapter.itemCount > 0) rvBookings.smoothScrollToPosition(0)
         }
     }
@@ -90,7 +85,7 @@ class BookingsActivity : AppCompatActivity() {
     }
 
     private fun confirmCancel(booking: BookingResponse) {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("Cancel booking?")
             .setMessage(
                 "${booking.machineName} will be released and " +
@@ -126,26 +121,17 @@ class BookingsActivity : AppCompatActivity() {
         val filtered = currentFilter
             ?.let { status -> allBookings.filter { it.status == status } }
             ?: allBookings
+        if (firstLoad && filtered.isNotEmpty()) {
+            rvBookings.scheduleLayoutAnimation()
+            firstLoad = false
+        }
         adapter.updateData(filtered)
         rvBookings.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
-        emptyState.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
-    }
-
-    private fun updateFilterUI(active: TextView) {
-        filters.forEach { (view, _) ->
-            val selected = view == active
-            view.setBackgroundResource(
-                if (selected) R.drawable.filter_active_bg
-                else R.drawable.filter_inactive_bg)
-            view.setTextColor(
-                if (selected) Color.WHITE else Color.parseColor("#6B7280"))
+        if (filtered.isEmpty() && emptyState.visibility != View.VISIBLE) {
+            emptyState.visibility = View.VISIBLE
+            emptyState.riseIn()
+        } else if (filtered.isNotEmpty()) {
+            emptyState.visibility = View.GONE
         }
-    }
-
-    private fun goHome() {
-        startActivity(
-            Intent(this, HomeActivity::class.java),
-            ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle())
-        finish()
     }
 }

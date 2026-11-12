@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { CircleCheck, CirclePlay, Pencil, Plus, QrCode, Search, Trash2, TriangleAlert, WashingMachine, Wind } from 'lucide-react';
 import {
   getAllMachines,
   createMachine,
@@ -13,6 +14,10 @@ import type {
   MachineStatus,
 } from '../services/machineService';
 import SidebarLayout from '../components/SidebarLayout';
+import {
+  EmptyState, LiveIndicator, PageHeader, StatCard, StatusBadge, TableHead,
+  alertClass, dialogClass, overlayClass,
+} from '../components/ui';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { errorMessage } from '../lib/api';
 import { peso } from '../lib/format';
@@ -26,26 +31,10 @@ const defaultForm: MachineRequest = {
 
 type StatusFilter = 'ALL' | MachineStatus;
 
-const STATUS_BADGE: Record<MachineStatus, { label: string; cls: string }> = {
-  AVAILABLE: {
-    label: 'Available',
-    cls: 'bg-green-100 text-green-700 border-green-200',
-  },
-  RUNNING: {
-    label: 'Running',
-    cls: 'bg-[#EDE9FE] text-[#9333EA] border-purple-200',
-  },
-  OUT_OF_ORDER: {
-    label: 'Out of Order',
-    cls: 'bg-red-100 text-red-600 border-red-200',
-  },
-};
-
 const fieldClass = 'w-full border border-gray-200 rounded-xl px-4 py-3 '
-  + 'text-sm text-gray-700 outline-none focus:border-[#9333EA] bg-gray-50';
-const labelClass = 'text-sm font-medium text-gray-700 mb-1 block';
-const overlayClass = 'fixed inset-0 bg-black/50 flex items-center '
-  + 'justify-center z-50 px-4';
+  + 'text-sm text-gray-900 outline-none bg-white transition-colors '
+  + 'focus:border-brand-500 focus:ring-4 focus:ring-brand-50';
+const labelClass = 'text-sm font-semibold text-gray-700 mb-1.5 block';
 
 export default function MachinePage() {
   const [machines, setMachines] = useState<Machine[]>([]);
@@ -77,7 +66,7 @@ export default function MachinePage() {
     fetchMachines();
   }, [fetchMachines]);
 
-  useWebSocket({ onMachineUpdate: () => fetchMachines() });
+  const live = useWebSocket({ onMachineUpdate: () => fetchMachines() });
 
   const handleOpenAdd = () => {
     setEditingMachine(null);
@@ -171,37 +160,29 @@ export default function MachinePage() {
 
   return (
     <SidebarLayout>
-      <div className="min-h-screen bg-[#F5F3FF]">
+      <div className="min-h-screen bg-gray-50">
 
-        {/* Header */}
-        <div className="bg-white border-b border-gray-100 px-8 py-5 flex
-                        items-start justify-between shadow-sm">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">
-              Machine Management
-            </h1>
-            <p className="text-sm text-gray-400 mt-1">
-              Add and manage your laundry machines and their operational
-              status.
-            </p>
-          </div>
+        <PageHeader
+          title="Machines"
+          description="Add washers and dryers, set their rates and print their QR stickers."
+        >
+          <LiveIndicator live={live} />
           <button
             onClick={handleOpenAdd}
-            className="bg-[#9333EA] text-white px-5 py-2.5 rounded-xl
-                       font-semibold text-sm hover:bg-purple-700
-                       transition-all active:scale-95 flex items-center
-                       gap-2 shadow-md shadow-purple-200"
+            className="bg-brand-600 text-white px-5 py-2.5 rounded-xl
+                       font-bold text-sm hover:bg-brand-700
+                       transition-[background-color,transform] active:scale-[0.98]
+                       flex items-center gap-2"
           >
-            + Add New Machine
+            <Plus size={18} aria-hidden="true" />Add machine
           </button>
-        </div>
+        </PageHeader>
 
         <div className="px-8 py-6">
 
           {pageError && (
-            <div role="alert" className="bg-red-50 border border-red-200
-                                         text-red-600 text-sm rounded-xl
-                                         px-4 py-3 mb-4">
+            <div role="alert" className={`${alertClass} mb-4`}>
+              <TriangleAlert size={18} className="shrink-0 mt-px" aria-hidden="true" />
               {pageError}
             </div>
           )}
@@ -211,18 +192,18 @@ export default function MachinePage() {
             <div className="flex-1 relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2
                                text-gray-400 text-sm" aria-hidden="true">
-                🔍
+                <Search size={16} />
               </span>
               <input
                 type="search"
-                placeholder="Search by machine name or ID (MAC-001)..."
+                placeholder="Search by name or ID, like MAC-001"
                 aria-label="Search machines"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-200
                            rounded-xl text-sm text-gray-700 bg-white
-                           outline-none focus:border-[#9333EA] focus:ring-2
-                           focus:ring-purple-100"
+                           outline-none focus:border-brand-500 focus:ring-4
+                           focus:ring-brand-50"
               />
             </div>
             <select
@@ -231,71 +212,58 @@ export default function MachinePage() {
               onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
               className="border border-gray-200 bg-white text-gray-600 px-4
                          py-2.5 rounded-xl text-sm font-medium outline-none
-                         focus:border-[#9333EA]"
+                         focus:border-brand-600"
             >
               <option value="ALL">All statuses</option>
               <option value="AVAILABLE">Available</option>
               <option value="RUNNING">Running</option>
-              <option value="OUT_OF_ORDER">Out of Order</option>
+              <option value="OUT_OF_ORDER">Out of order</option>
             </select>
           </div>
 
           {/* Stat Cards */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
-            <StatCard label="Total Machines" value={machines.length}
-                      icon="🫧" tone="text-gray-800" bg="bg-[#EDE9FE]" />
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+            <StatCard label="Machines" value={machines.length}
+                      icon={WashingMachine} tone="brand" />
             <StatCard label="Available" value={count('AVAILABLE')}
-                      icon="✅" tone="text-green-600" bg="bg-green-100" />
+                      icon={CircleCheck} tone="success" />
             <StatCard label="Running" value={count('RUNNING')}
-                      icon="▶️" tone="text-blue-600" bg="bg-blue-100" />
-            <StatCard label="Out of Order" value={count('OUT_OF_ORDER')}
-                      icon="⚠️" tone="text-red-500" bg="bg-red-100" />
+                      icon={CirclePlay} tone="info" />
+            <StatCard label="Out of order" value={count('OUT_OF_ORDER')}
+                      icon={TriangleAlert} tone="danger" />
           </div>
 
           {/* Table */}
-          <div className="bg-white rounded-2xl shadow-sm border
+          <div className="bg-white rounded-2xl border
                           border-gray-100 overflow-hidden">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-100">
-                <tr>
-                  {['Machine ID', 'Machine', 'Status', 'QR Sticker',
-                    'Hourly Rate', 'Actions'].map((h) => (
-                    <th key={h} className="px-6 py-4 text-left text-xs
-                                           font-semibold text-gray-500
-                                           uppercase tracking-wide">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
+              <TableHead columns={['ID', 'Machine', 'Status', 'QR sticker',
+                'Rate', 'Actions']} />
               <tbody>
                 {loading ? (
                   <tr>
                     <td colSpan={6} className="text-center py-12
                                                text-gray-400">
-                      Loading machines...
+                      Loading machines…
                     </td>
                   </tr>
                 ) : filteredMachines.length === 0 ? (
                   <tr>
                     <td colSpan={6}>
-                      <div className="text-center py-16 text-gray-400">
-                        <div className="text-5xl mb-4">🫧</div>
-                        <div className="text-base font-medium">
-                          No machines found
-                        </div>
-                        <div className="text-sm mt-1">
-                          Click "+ Add New Machine" to get started
-                        </div>
-                      </div>
+                      <EmptyState
+                        icon={WashingMachine}
+                        title="No machines match"
+                        hint="Use Add machine to create one, or clear the search."
+                      />
                     </td>
                   </tr>
-                ) : filteredMachines.map((machine) => (
-                  <tr key={machine.id} className="border-b border-gray-50
-                                                  hover:bg-purple-50
-                                                  transition-colors">
+                ) : filteredMachines.map((machine, i) => (
+                  <tr key={machine.id}
+                      style={{ '--i': i } as React.CSSProperties}
+                      className="stagger border-b border-gray-50
+                                 hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
-                      <span className="text-[#9333EA] font-semibold text-sm">
+                      <span className="text-brand-600 font-semibold text-sm">
                         MAC-{String(machine.id).padStart(3, '0')}
                       </span>
                     </td>
@@ -303,46 +271,38 @@ export default function MachinePage() {
                       <div className="flex items-center gap-2 text-sm
                                       text-gray-700">
                         <span aria-hidden="true">
-                          {machine.machineType === 'WASHER' ? '🫧' : '💨'}
+                          {machine.machineType === 'WASHER' ? <WashingMachine size={16} className="text-brand-600 shrink-0" /> : <Wind size={16} className="text-aqua-700 shrink-0" />}
                         </span>
                         {machine.machineName}
-                        <span className="text-xs text-gray-400">
-                          ({machine.machineType})
-                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-3 py-1
-                                        rounded-full text-xs font-medium
-                                        border
-                                        ${STATUS_BADGE[machine.status].cls}`}>
-                        ● {STATUS_BADGE[machine.status].label}
-                      </span>
+                      <StatusBadge status={machine.status} />
                     </td>
                     <td className="px-6 py-4">
                       <button
                         onClick={() => setQrMachine(machine)}
-                        className="text-xs font-medium text-[#9333EA]
-                                   border border-purple-200 rounded-lg
-                                   px-3 py-1 hover:bg-purple-50"
+                        className="text-xs font-medium text-brand-600
+                                   border border-brand-200 rounded-lg
+                                   px-3 py-1 hover:bg-brand-50"
                       >
-                        ▦ View / Print
+                        <span className="inline-flex items-center gap-1.5"><QrCode size={14} aria-hidden="true" />View / Print</span>
                       </button>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700">
-                      {peso(machine.hourlyRate)}/hr
+                      <span className="tabular">{peso(machine.hourlyRate)} / hr</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => handleOpenEdit(machine)}
-                          className="text-gray-400 hover:text-[#9333EA]
+                          className="text-gray-400 hover:text-brand-600
                                      transition-colors p-1.5 rounded-lg
-                                     hover:bg-purple-50"
+                                     hover:bg-brand-50"
                           title="Edit"
                           aria-label={`Edit ${machine.machineName}`}
                         >
-                          ✏️
+                          <Pencil size={16} aria-hidden="true" />
                         </button>
                         <button
                           onClick={() => {
@@ -355,7 +315,7 @@ export default function MachinePage() {
                           title="Delete"
                           aria-label={`Delete ${machine.machineName}`}
                         >
-                          🗑️
+                          <Trash2 size={16} aria-hidden="true" />
                         </button>
                       </div>
                     </td>
@@ -380,8 +340,7 @@ export default function MachinePage() {
         <div className={overlayClass} role="dialog" aria-modal="true"
              aria-labelledby="machine-modal-title">
           <form onSubmit={handleSave} noValidate
-                className="bg-white rounded-3xl shadow-2xl w-full max-w-md
-                           p-8">
+                className={`${dialogClass} max-w-md p-8`}>
             <h2 id="machine-modal-title"
                 className="text-xl font-bold text-gray-800 mb-1">
               {editingMachine ? 'Edit Machine' : 'Add New Machine'}
@@ -485,8 +444,8 @@ export default function MachinePage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="flex-1 bg-[#9333EA] text-white py-3 rounded-xl
-                           font-semibold text-sm hover:bg-purple-700
+                className="flex-1 bg-brand-600 text-white py-3 rounded-xl
+                           font-semibold text-sm hover:bg-brand-700
                            transition-all active:scale-95
                            disabled:opacity-60"
               >
@@ -503,10 +462,9 @@ export default function MachinePage() {
       {qrMachine?.qrToken && (
         <div className={overlayClass} role="dialog" aria-modal="true"
              aria-labelledby="qr-title">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm
-                          p-8 text-center">
+          <div className={`${dialogClass} max-w-sm p-8 text-center`}>
             <div id="qr-print-area">
-              <p className="text-xs uppercase tracking-wider text-gray-400">
+              <p className="text-xs font-semibold text-gray-500">
                 Scan with the LabaLink app
               </p>
               <h2 id="qr-title" className="text-xl font-bold text-gray-800
@@ -518,7 +476,7 @@ export default function MachinePage() {
                 <QRCodeSVG value={qrMachine.qrToken} size={208} level="M"
                            marginSize={0} />
               </div>
-              <p className="text-sm font-semibold text-[#9333EA] mt-4">
+              <p className="text-sm font-semibold text-brand-600 mt-4">
                 MAC-{String(qrMachine.id).padStart(3, '0')} ·{' '}
                 {peso(qrMachine.hourlyRate)}/hr
               </p>
@@ -544,8 +502,8 @@ export default function MachinePage() {
               </button>
               <button
                 onClick={() => window.print()}
-                className="flex-1 bg-[#9333EA] text-white py-2.5 rounded-xl
-                           font-semibold text-sm hover:bg-purple-700"
+                className="flex-1 bg-brand-600 text-white py-2.5 rounded-xl
+                           font-semibold text-sm hover:bg-brand-700"
               >
                 Print
               </button>
@@ -558,7 +516,7 @@ export default function MachinePage() {
       {deleteTarget && (
         <div className={overlayClass} role="dialog" aria-modal="true"
              aria-labelledby="delete-title">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
+          <div className={`${dialogClass} max-w-md p-8`}>
             <h2 id="delete-title" className="text-xl font-bold text-gray-800
                                              mb-2">
               Delete {deleteTarget.machineName}?
@@ -598,33 +556,3 @@ export default function MachinePage() {
   );
 }
 
-function StatCard({
-  label,
-  value,
-  icon,
-  tone,
-  bg,
-}: {
-  label: string;
-  value: number;
-  icon: string;
-  tone: string;
-  bg: string;
-}) {
-  return (
-    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100
-                    flex items-center justify-between">
-      <div>
-        <p className="text-xs text-gray-400 uppercase tracking-wide
-                      font-medium">
-          {label}
-        </p>
-        <p className={`text-3xl font-bold mt-1 ${tone}`}>{value}</p>
-      </div>
-      <div className={`w-12 h-12 rounded-full ${bg} flex items-center
-                       justify-center text-xl`} aria-hidden="true">
-        {icon}
-      </div>
-    </div>
-  );
-}

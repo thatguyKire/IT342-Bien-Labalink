@@ -1,18 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  CircleAlert, CircleDollarSign, CreditCard, Hourglass, RefreshCw, Search,
+} from 'lucide-react';
 import SidebarLayout from '../components/SidebarLayout';
+import {
+  EmptyState, FilterChips, PageHeader, StatCard, StatusBadge, TableHead, alertClass,
+} from '../components/ui';
 import { errorMessage } from '../lib/api';
 import { formatDateTime, peso } from '../lib/format';
+import { statusLabel } from '../lib/status';
 import { getAllPayments } from '../services/paymentService';
 import type { Payment, PaymentStatus } from '../services/paymentService';
 
 type Filter = 'ALL' | PaymentStatus;
 const FILTERS: Filter[] = ['ALL', 'SUCCESS', 'PENDING', 'FAILED'];
-
-const BADGE: Record<PaymentStatus, string> = {
-  SUCCESS: 'bg-green-100 text-green-700 border-green-200',
-  PENDING: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-  FAILED: 'bg-red-100 text-red-600 border-red-200',
-};
 
 /** Read-only view of every customer wallet top-up (attendants only). */
 export default function TransactionsPage() {
@@ -52,121 +53,104 @@ export default function TransactionsPage() {
 
   return (
     <SidebarLayout>
-      <div className="bg-white border-b border-gray-100 px-8 py-5 shadow-sm
-                      flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Transactions</h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Customer wallet top-ups processed through Stripe.
-          </p>
-        </div>
+      <PageHeader
+        title="Transactions"
+        description="Customer wallet top-ups paid through Stripe (test mode)."
+      >
         <button
           onClick={load}
-          className="border border-gray-200 bg-white text-gray-600 px-4
-                     py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50"
+          disabled={loading}
+          className="flex items-center gap-2 border border-gray-200 bg-white
+                     text-gray-700 px-4 py-2.5 rounded-xl text-sm font-semibold
+                     hover:bg-gray-50 transition-colors disabled:opacity-60"
         >
-          ↻ Refresh
+          <RefreshCw size={16} aria-hidden="true"
+                     className={loading ? 'animate-spin' : ''} />
+          Refresh
         </button>
-      </div>
+      </PageHeader>
 
-      <div className="px-8 py-6">
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <Stat label="Total Top-Ups" value={String(payments.length)} />
-          <Stat label="Collected" value={peso(collected)}
-                tone="text-[#9333EA]" />
-          <Stat label="Awaiting Confirmation" value={String(pending)}
-                tone="text-yellow-600" />
+      <div className="px-8 py-6 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StatCard label="Top-ups" value={payments.length}
+                    icon={CreditCard} tone="brand" />
+          <StatCard label="Collected" value={peso(collected)}
+                    icon={CircleDollarSign} tone="aqua" />
+          <StatCard label="Waiting for Stripe" value={pending}
+                    icon={Hourglass} tone="warning" />
         </div>
 
         {error && (
-          <div role="alert" className="bg-red-50 border border-red-200
-                                       text-red-600 text-sm rounded-xl
-                                       px-4 py-3 mb-4">
+          <div role="alert" className={alertClass}>
+            <CircleAlert size={18} className="shrink-0 mt-px" aria-hidden="true" />
             {error}
           </div>
         )}
 
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          <input
-            type="search"
-            placeholder="Search by customer or reference..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            aria-label="Search transactions"
-            className="flex-1 min-w-60 px-4 py-2.5 border border-gray-200
-                       rounded-xl text-sm text-gray-700 bg-white outline-none
-                       focus:border-[#9333EA] focus:ring-2
-                       focus:ring-purple-100"
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex-1 min-w-60 relative">
+            <Search size={16} aria-hidden="true"
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="search"
+              placeholder="Search by customer or reference"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label="Search transactions"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200
+                         rounded-xl text-sm text-gray-900 bg-white outline-none
+                         focus:border-brand-500 focus:ring-4 focus:ring-brand-50"
+            />
+          </div>
+          <FilterChips
+            options={FILTERS}
+            value={filter}
+            onChange={setFilter}
+            labelFor={(f) => (f === 'ALL' ? 'All' : statusLabel(f))}
           />
-          {FILTERS.map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              aria-pressed={filter === f}
-              className={filter === f
-                ? 'px-4 py-2 rounded-xl text-sm font-semibold bg-[#9333EA] '
-                  + 'text-white'
-                : 'px-4 py-2 rounded-xl text-sm font-medium bg-white '
-                  + 'border border-gray-200 text-gray-500 hover:bg-gray-50'}
-            >
-              {f}
-            </button>
-          ))}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100
-                        overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr>
-                {['Customer', 'Reference', 'Amount', 'Status', 'Date']
-                  .map((h) => (
-                    <th key={h} className="px-6 py-4 text-left text-xs
-                                           font-semibold text-gray-500
-                                           uppercase tracking-wide">
-                      {h}
-                    </th>
-                  ))}
-              </tr>
-            </thead>
+            <TableHead columns={['Customer', 'Reference', 'Amount', 'Status', 'Date']} />
             <tbody>
               {loading ? (
                 <tr>
                   <td colSpan={5} className="text-center py-12 text-gray-400">
-                    Loading transactions...
+                    Loading transactions…
                   </td>
                 </tr>
               ) : visible.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-16 text-gray-400">
-                    <div className="text-5xl mb-4">💳</div>
-                    No transactions found
+                  <td colSpan={5}>
+                    <EmptyState
+                      icon={CreditCard}
+                      title="No transactions match"
+                      hint="Top-ups appear here when customers add funds in the app."
+                    />
                   </td>
                 </tr>
-              ) : visible.map((p) => (
-                <tr key={p.id} className="border-b border-gray-50
-                                          hover:bg-purple-50">
+              ) : visible.map((p, i) => (
+                <tr key={p.id}
+                    style={{ '--i': i } as React.CSSProperties}
+                    className="stagger border-b border-gray-50 hover:bg-gray-50
+                               transition-colors">
                   <td className="px-6 py-4">
-                    <div className="font-medium text-gray-800 text-sm">
+                    <div className="font-semibold text-gray-900 text-sm">
                       {p.username}
                     </div>
-                    <div className="text-xs text-gray-400">{p.userEmail}</div>
+                    <div className="text-xs text-gray-500">{p.userEmail}</div>
                   </td>
-                  <td className="px-6 py-4 font-mono text-xs text-gray-500">
+                  <td className="px-6 py-4 text-xs text-gray-500 tabular">
                     {p.providerReference ?? '—'}
                   </td>
-                  <td className="px-6 py-4 text-sm font-semibold
-                                 text-gray-800">
+                  <td className="px-6 py-4 text-sm font-semibold text-gray-900 tabular">
                     {peso(p.amount)}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex px-3 py-1 rounded-full
-                                      text-xs font-medium border
-                                      ${BADGE[p.status]}`}>
-                      {p.status}
-                    </span>
+                    <StatusBadge status={p.status} />
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
+                  <td className="px-6 py-4 text-sm text-gray-600 tabular">
                     {formatDateTime(p.paidAt ?? p.createdAt)}
                   </td>
                 </tr>
@@ -174,32 +158,12 @@ export default function TransactionsPage() {
             </tbody>
           </table>
           {visible.length > 0 && (
-            <div className="px-6 py-4 border-t border-gray-100 text-sm
-                            text-gray-500">
+            <div className="px-6 py-4 border-t border-gray-100 text-sm text-gray-500">
               Showing {visible.length} of {payments.length} transactions
             </div>
           )}
         </div>
       </div>
     </SidebarLayout>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  tone = 'text-gray-800',
-}: {
-  label: string;
-  value: string;
-  tone?: string;
-}) {
-  return (
-    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-      <p className="text-xs text-gray-400 uppercase tracking-wide font-medium">
-        {label}
-      </p>
-      <p className={`text-3xl font-bold mt-1 ${tone}`}>{value}</p>
-    </div>
   );
 }

@@ -1,6 +1,5 @@
 package edu.cit.bien.labalink.ui.home
 
-import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -12,9 +11,14 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import edu.cit.bien.labalink.R
 import edu.cit.bien.labalink.api.RetrofitClient
-import edu.cit.bien.labalink.ui.bookings.BookingsActivity
-import edu.cit.bien.labalink.ui.hideNavigationBar
-import edu.cit.bien.labalink.ui.peso
+import edu.cit.bien.labalink.session
+import edu.cit.bien.labalink.ui.Tab
+import edu.cit.bien.labalink.ui.animatePeso
+import edu.cit.bien.labalink.ui.openTab
+import edu.cit.bien.labalink.ui.riseIn
+import edu.cit.bien.labalink.ui.setContentViewEdgeToEdge
+import edu.cit.bien.labalink.ui.setupBottomNav
+import edu.cit.bien.labalink.ui.startHalo
 import kotlinx.coroutines.launch
 
 class HomeActivity : AppCompatActivity() {
@@ -22,22 +26,38 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var rvMachines: RecyclerView
     private lateinit var emptyState: LinearLayout
     private lateinit var tvMachineCount: TextView
+    private lateinit var tvAvailableCount: TextView
+    private lateinit var tvRunningCount: TextView
     private lateinit var tvWalletBalance: TextView
     private lateinit var adapter: MachineAdapter
+    private var firstLoad = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
-        hideNavigationBar()
+        setContentViewEdgeToEdge(
+            R.layout.activity_home, topInset = R.id.topBar, bottomInset = R.id.bottomNav)
 
         rvMachines = findViewById(R.id.rvMachines)
         emptyState = findViewById(R.id.emptyState)
         tvMachineCount = findViewById(R.id.tvMachineCount)
+        tvAvailableCount = findViewById(R.id.tvAvailableCount)
+        tvRunningCount = findViewById(R.id.tvRunningCount)
         tvWalletBalance = findViewById(R.id.tvWalletBalance)
 
+        val firstName = session.username.trim().substringBefore(' ')
+        if (firstName.isNotEmpty()) {
+            findViewById<TextView>(R.id.tvGreeting).text = "Hi, $firstName"
+        }
+        findViewById<View>(R.id.heroCard).apply {
+            clipToOutline = true
+            riseIn()
+        }
+        findViewById<View>(R.id.liveHalo).startHalo()
+        findViewById<View>(R.id.walletPill).setOnClickListener {
+            openTab(Tab.HOME, Tab.WALLET)
+        }
+
         adapter = MachineAdapter(emptyList()) { machine ->
-            // machineId was never passed before, so starting a wash from
-            // the detail screen always failed with "No machine selected".
             startActivity(
                 Intent(this, MachineDetailActivity::class.java)
                     .putExtra(MachineDetailActivity.EXTRA_MACHINE_ID, machine.id)
@@ -49,7 +69,9 @@ class HomeActivity : AppCompatActivity() {
         rvMachines.layoutManager = GridLayoutManager(this, 2)
         rvMachines.adapter = adapter
 
-        setupBottomNav()
+        setupBottomNav(Tab.HOME) {
+            if (adapter.itemCount > 0) rvMachines.smoothScrollToPosition(0)
+        }
     }
 
     override fun onResume() {
@@ -58,29 +80,24 @@ class HomeActivity : AppCompatActivity() {
         loadWallet()
     }
 
-    private fun setupBottomNav() {
-        findViewById<LinearLayout>(R.id.navHome).setOnClickListener {
-            if (adapter.itemCount > 0) rvMachines.smoothScrollToPosition(0)
-        }
-        findViewById<LinearLayout>(R.id.navBookings).setOnClickListener {
-            startActivity(
-                Intent(this, BookingsActivity::class.java),
-                ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle())
-            finish()
-        }
-        findViewById<LinearLayout>(R.id.navProfile).setOnClickListener {
-            startActivity(Intent(this, WalletActivity::class.java))
-        }
-    }
-
     private fun loadMachines() {
         lifecycleScope.launch {
             try {
                 val response = RetrofitClient.api.getMachines()
                 if (!response.isSuccessful) return@launch
                 val machines = response.body().orEmpty()
+
+                // Cards rise in one after another on the first load only.
+                if (firstLoad && machines.isNotEmpty()) {
+                    rvMachines.scheduleLayoutAnimation()
+                    firstLoad = false
+                }
                 adapter.updateData(machines)
                 tvMachineCount.text = "${machines.size} total"
+                tvAvailableCount.text =
+                    "${machines.count { it.status == "AVAILABLE" }} available"
+                tvRunningCount.text =
+                    "${machines.count { it.status == "RUNNING" }} running"
                 rvMachines.visibility =
                     if (machines.isEmpty()) View.GONE else View.VISIBLE
                 emptyState.visibility =
@@ -94,9 +111,8 @@ class HomeActivity : AppCompatActivity() {
     private fun loadWallet() {
         lifecycleScope.launch {
             try {
-                val response = RetrofitClient.api.getWallet()
-                response.body()?.let {
-                    tvWalletBalance.text = peso(it.walletBalance)
+                RetrofitClient.api.getWallet().body()?.let {
+                    tvWalletBalance.animatePeso(it.walletBalance)
                 }
             } catch (e: Exception) {
                 // keep last value

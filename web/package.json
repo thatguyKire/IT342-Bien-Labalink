@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource-variable/plus-jakarta-sans": "5.2.8",
     "@tailwindcss/vite": "^4.2.1",
     "axios": "^1.13.6",
+    "lucide-react": "0.460.0",
     "qrcode.react": "4.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

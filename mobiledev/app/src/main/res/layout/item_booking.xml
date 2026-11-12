@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="2dp"
-    app:cardBackgroundColor="#FFFFFF">
+    android:layout_marginBottom="12dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,88 +11,58 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Top Row: Machine name + Status badge -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:orientation="horizontal">
 
-            <!-- Machine icon + name -->
+            <ImageView
+                android:id="@+id/ivMachineIcon"
+                style="@style/Widget.LabaLink.IconTile"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_washing_machine" />
+
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
                 android:layout_weight="1"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tvMachineIcon"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:text="🫧"
-                    android:textSize="18sp"
-                    android:gravity="center"
-                    android:background="@drawable/icon_bg_purple"
-                    android:layout_marginEnd="10dp"/>
-
-                <LinearLayout
+                    android:id="@+id/tvMachineName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:text="Washer 1"
+                    android:textAppearance="@style/TextAppearance.LabaLink.TitleSmall" />
 
-                    <TextView
-                        android:id="@+id/tvMachineName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Washer 01"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:textColor="#1F2937"/>
-
-                    <TextView
-                        android:id="@+id/tvMachineType"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="WASHER"
-                        android:textSize="11sp"
-                        android:textColor="#9CA3AF"/>
-
-                </LinearLayout>
-
+                <TextView
+                    android:id="@+id/tvMachineType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Washer, 60 min"
+                    android:textAppearance="@style/TextAppearance.LabaLink.BodySmall" />
             </LinearLayout>
 
-            <!-- Status Badge -->
             <TextView
                 android:id="@+id/tvStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="PENDING"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
-                android:background="@drawable/badge_pending"/>
-
+                style="@style/Widget.LabaLink.Badge"
+                android:text="Pending" />
         </LinearLayout>
 
-        <!-- Divider -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#F3F4F6"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="14dp"
+            android:background="@color/divider" />
 
-        <!-- Info Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <!-- Start Time -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -106,22 +72,18 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Start Time"
-                    android:textSize="11sp"
-                    android:textColor="#9CA3AF"/>
+                    android:text="Start"
+                    android:textAppearance="@style/TextAppearance.LabaLink.Overline" />
 
                 <TextView
                     android:id="@+id/tvStartTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="09:00 AM"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:textColor="#374151"/>
-
+                    android:layout_marginTop="2dp"
+                    android:text="Nov 12, 9:00 AM"
+                    android:textAppearance="@style/TextAppearance.LabaLink.Label" />
             </LinearLayout>
 
-            <!-- End Time -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -131,48 +93,69 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="End Time"
-                    android:textSize="11sp"
-                    android:textColor="#9CA3AF"/>
+                    android:text="End"
+                    android:textAppearance="@style/TextAppearance.LabaLink.Overline" />
 
                 <TextView
                     android:id="@+id/tvEndTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
                     android:text="—"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:textColor="#374151"/>
-
+                    android:textAppearance="@style/TextAppearance.LabaLink.Label" />
             </LinearLayout>
 
-            <!-- Total Price -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:gravity="end"
                 android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Total Price"
-                    android:textSize="11sp"
-                    android:textColor="#9CA3AF"/>
+                    android:text="Total"
+                    android:textAppearance="@style/TextAppearance.LabaLink.Overline" />
 
                 <TextView
                     android:id="@+id/tvTotalPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="₱25.00"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="#9333EA"/>
-
+                    android:layout_marginTop="2dp"
+                    android:fontFeatureSettings="tnum"
+                    android:text="₱ 60.00"
+                    android:textAppearance="@style/TextAppearance.LabaLink.TitleSmall"
+                    android:textColor="@color/brand" />
             </LinearLayout>
-
         </LinearLayout>
 
-    </LinearLayout>
+        <!-- Only pending bookings can be cancelled by the customer -->
+        <LinearLayout
+            android:id="@+id/cancelHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_rounded_12"
+            android:backgroundTint="@color/warning_tint"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:visibility="gone">
 
-</androidx.cardview.widget.CardView>
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_circle_x"
+                app:tint="@color/warning" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Tap to cancel and get a refund"
+                android:textAppearance="@style/TextAppearance.LabaLink.Caption"
+                android:textColor="@color/warning" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -1,5 +1,8 @@
 package edu.cit.bien.labalink.ui.register
 
+import edu.cit.bien.labalink.ui.riseIn
+import edu.cit.bien.labalink.ui.BarBackground
+import edu.cit.bien.labalink.ui.setContentViewEdgeToEdge
 import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
@@ -15,7 +18,6 @@ import edu.cit.bien.labalink.R
 import edu.cit.bien.labalink.api.RetrofitClient
 import edu.cit.bien.labalink.api.errorMessage
 import edu.cit.bien.labalink.model.RegisterRequest
-import edu.cit.bien.labalink.ui.hideNavigationBar
 import edu.cit.bien.labalink.ui.login.LoginActivity
 import edu.cit.bien.labalink.ui.showLegalLinks
 import kotlinx.coroutines.launch
@@ -31,8 +33,11 @@ class RegisterActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_register)
-        hideNavigationBar()
+        setContentViewEdgeToEdge(
+            R.layout.activity_register,
+            topInset = R.id.header,
+            statusBar = BarBackground.DARK)
+        findViewById<View>(R.id.formCard).riseIn(delayMs = 60)
 
         etUsername = findViewById(R.id.etUsername)
         etEmail = findViewById(R.id.etEmail)
@@ -61,7 +66,7 @@ class RegisterActivity : AppCompatActivity() {
             username.isEmpty() || email.isEmpty() || password.isEmpty() ->
                 "Please fill in all fields"
             username.length !in 3..50 ->
-                "Username must be 3-50 characters"
+                "Name must be 3-50 characters"
             !Patterns.EMAIL_ADDRESS.matcher(email).matches() ->
                 "Enter a valid email address"
             password.length !in 8..72 ->
@@ -78,7 +83,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         btnRegister.isEnabled = false
-        btnRegister.text = "Creating account..."
+        btnRegister.text = "Creating account…"
         tvError.visibility = View.GONE
 
         lifecycleScope.launch {
@@ -102,7 +107,7 @@ class RegisterActivity : AppCompatActivity() {
                 showError("Cannot connect to server.")
             } finally {
                 btnRegister.isEnabled = true
-                btnRegister.text = "Create Account"
+                btnRegister.text = "Create account"
             }
         }
     }

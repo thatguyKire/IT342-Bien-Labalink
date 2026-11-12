@@ -1,5 +1,8 @@
 package edu.cit.bien.labalink.ui.login
 
+import edu.cit.bien.labalink.ui.riseIn
+import edu.cit.bien.labalink.ui.BarBackground
+import edu.cit.bien.labalink.ui.setContentViewEdgeToEdge
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -21,7 +24,6 @@ import edu.cit.bien.labalink.model.GoogleTokenRequest
 import edu.cit.bien.labalink.model.LoginRequest
 import edu.cit.bien.labalink.model.LoginResponse
 import edu.cit.bien.labalink.session
-import edu.cit.bien.labalink.ui.hideNavigationBar
 import edu.cit.bien.labalink.ui.home.HomeActivity
 import edu.cit.bien.labalink.ui.register.RegisterActivity
 import edu.cit.bien.labalink.ui.showLegalLinks
@@ -69,8 +71,11 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
-        setContentView(R.layout.activity_login)
-        hideNavigationBar()
+        setContentViewEdgeToEdge(
+            R.layout.activity_login,
+            topInset = R.id.header,
+            statusBar = BarBackground.DARK)
+        findViewById<View>(R.id.formCard).riseIn(delayMs = 60)
 
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
@@ -119,7 +124,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun sendGoogleTokenToBackend(idToken: String) {
-        setLoading(btnGoogleLogin, true, "Signing in...")
+        setLoading(btnGoogleLogin, true, "Signing in…")
         lifecycleScope.launch {
             try {
                 handleLoginResponse(
@@ -143,7 +148,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         hideError()
-        setLoading(btnLogin, true, "Logging in...")
+        setLoading(btnLogin, true, "Signing in…")
         lifecycleScope.launch {
             try {
                 handleLoginResponse(
@@ -152,7 +157,7 @@ class LoginActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 showError("Cannot connect to server.")
             } finally {
-                setLoading(btnLogin, false, "Login")
+                setLoading(btnLogin, false, "Sign in")
             }
         }
     }

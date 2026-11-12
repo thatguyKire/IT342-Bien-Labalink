@@ -146,6 +146,15 @@ Test card: `4242 4242 4242 4242`, any future date, any CVC. Without the
 Stripe CLI, the app still confirms payments by calling
 `POST /api/payments/{id}/sync` when you return from checkout.
 
+### 6. Demo data (optional)
+
+Set `DEMO_DATA=true` and `DEMO_PASSWORD` in `backend/.env` to fill an
+empty database with sample machines, customers, bookings and top-ups.
+Then sign in to the app as `maria@labalink.test`. The
+[Demo Guide](docs/Demo-Guide.md) covers running everything on one computer
+with the Android emulator, scanning QR codes without a phone, and
+recording screenshots.
+
 ## Configuration
 
 All secrets come from environment variables (or `backend/.env`, which is
@@ -163,11 +172,12 @@ list. Key settings:
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Payments |
 | `MAIL_USERNAME`, `MAIL_PASSWORD` | SMTP (Gmail: use an App Password) |
 | `BOOTSTRAP_ATTENDANT_*` | First attendant account |
+| `DEMO_DATA`, `DEMO_PASSWORD` | Sample data for demos (empty database only) |
 
 ## Testing
 
 ```bash
-cd backend && ./mvnw test       # 34 tests on a real embedded PostgreSQL
+cd backend && ./mvnw test       # 40 tests on a real embedded PostgreSQL
 cd web && npm run lint && npm run build
 cd mobiledev && ./gradlew :app:assembleDebug :app:lintDebug
 ```
@@ -212,11 +222,13 @@ vulnerability, see the same file.
 | [App Flow](docs/App-Flow.md) | Screen-by-screen user journeys |
 | [Backend Schema](docs/Backend-Schema.md) | ERD, tables, constraints, migrations |
 | [Implementation Plan](docs/Implementation-Plan.md) | Phases, tasks, testing and release plan |
+| [Demo Guide](docs/Demo-Guide.md) | Sample data, emulator testing and screenshots, no phone needed |
 | [Architecture](ARCHITECTURE.md) | System architecture overview |
 | [Decisions](DECISIONS.md) | Architecture Decision Records (ADRs) |
 | [Changelog](CHANGELOG.md) | Release history |
 | [Roadmap](ROADMAP.md) | What's next |
 | [Security](SECURITY.md) | Threat model, controls, disclosure policy |
+| [Third-party notices](THIRD_PARTY_NOTICES.md) | Font and icon licences |
 | [Terms of Service](docs/legal/Terms-of-Service.md) | Terms for using the demo, including test-only payments |
 | [Privacy Policy](docs/legal/Privacy-Policy.md) | What data is collected and why, under the Data Privacy Act |
 | [If LabaLink goes live](docs/legal/Launch-Checklist.md) | What a real launch would need (not required for the course) |

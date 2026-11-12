@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { exchangeOAuth2Code } from '../services/authService';
+import LogoMark from '../components/LogoMark';
 import { saveSession } from '../lib/session';
 import { oauthStyles as s } from '../styles/OAuth2CallbackPage.styles';
 
@@ -43,10 +44,12 @@ export default function OAuth2CallbackPage() {
   return (
     <div className={s.page}>
       <div className={s.card}>
-        <div className={s.icon}>🫧</div>
-        <h1 className={s.title}>Signing you in...</h1>
+        <div className={s.icon} aria-hidden="true">
+          <LogoMark size={64} />
+        </div>
+        <h1 className={s.title}>Signing you in…</h1>
         <p className={s.subtitle}>
-          Please wait while we verify your Google account
+          Checking your Google account.
         </p>
       </div>
     </div>

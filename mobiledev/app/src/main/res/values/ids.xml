@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- View tags used by ui/Motion.kt -->
+    <item name="tag_shown_amount" type="id" />
+    <item name="tag_looping_animator" type="id" />
+</resources>

@@ -1,64 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#F5F3FF">
+    android:background="@color/background"
+    android:orientation="vertical">
 
-    <!-- Top App Bar -->
+    <!-- Top bar -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="#FFFFFF"
-        android:padding="16dp"
-        android:gravity="center_vertical"
-        android:elevation="4dp">
+        android:id="@+id/topBar"
+        style="@style/Widget.LabaLink.TopBar"
+        android:paddingStart="16dp">
 
-        <!-- Logo -->
-        <LinearLayout
+        <ImageView
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/logo_mark" />
+
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:layout_weight="1"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:text="LabaLink"
+            android:textAppearance="@style/TextAppearance.LabaLink.Title" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🫧"
-                android:textSize="22sp"
-                android:layout_marginEnd="6dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="LabaLink"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="#9333EA"/>
-
-        </LinearLayout>
-
-        <!-- Wallet Pill -->
-        <TextView
-            android:id="@+id/tvWalletBalance"
+        <!-- Wallet pill: opens the Wallet tab -->
+        <LinearLayout
+            android:id="@+id/walletPill"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="₱ 0.00"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:textColor="#9333EA"
-            android:background="@drawable/wallet_pill_bg"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_pill"
+            android:backgroundTint="@color/brand_tint"
+            android:clickable="true"
+            android:contentDescription="Wallet balance"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
             android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"/>
+            android:paddingEnd="14dp"
+            android:stateListAnimator="@animator/press_scale">
 
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_wallet"
+                app:tint="@color/brand" />
+
+            <TextView
+                android:id="@+id/tvWalletBalance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:fontFeatureSettings="tnum"
+                android:text="₱ 0.00"
+                android:textAppearance="@style/TextAppearance.LabaLink.Label"
+                android:textColor="@color/brand" />
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- Scrollable Content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -71,198 +74,188 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Hero Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ready to"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:textColor="#1F2937"
-                android:layout_marginTop="8dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="wash &amp; dry?"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:textColor="#9333EA"/>
-
-            <TextView
+            <!-- Hero -->
+            <FrameLayout
+                android:id="@+id/heroCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Find an available machine and start your laundry session instantly."
-                android:textSize="13sp"
-                android:textColor="#6B7280"
-                android:layout_marginTop="6dp"
-                android:layout_marginBottom="20dp"/>
+                android:background="@drawable/bg_gradient_card"
+                android:clipChildren="true"
+                android:outlineProvider="background"
+                android:padding="20dp">
 
-            <!-- Section Title -->
+                <ImageView
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_gravity="end|bottom"
+                    android:layout_marginEnd="-36dp"
+                    android:layout_marginBottom="-52dp"
+                    android:alpha="0.14"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_droplets"
+                    app:tint="@color/white" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvGreeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hi there"
+                        android:textAppearance="@style/TextAppearance.LabaLink.Label"
+                        android:textColor="@color/white_70" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Ready to wash\n&amp; dry?"
+                        android:textAppearance="@style/TextAppearance.LabaLink.Display"
+                        android:textColor="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginEnd="48dp"
+                        android:text="Pick a free machine, scan its sticker, and you're running."
+                        android:textAppearance="@style/TextAppearance.LabaLink.BodySmall"
+                        android:textColor="@color/white_70" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvAvailableCount"
+                            style="@style/Widget.LabaLink.Badge"
+                            android:backgroundTint="@color/white_16"
+                            android:drawableStart="@drawable/ic_circle_check_16"
+                            android:drawablePadding="6dp"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="6dp"
+                            android:text="– available"
+                            android:textColor="@color/white"
+                            app:drawableTint="@color/white" />
+
+                        <TextView
+                            android:id="@+id/tvRunningCount"
+                            style="@style/Widget.LabaLink.Badge"
+                            android:layout_marginStart="8dp"
+                            android:backgroundTint="@color/white_16"
+                            android:drawableStart="@drawable/ic_timer_16"
+                            android:drawablePadding="6dp"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="6dp"
+                            android:text="– running"
+                            android:textColor="@color/white"
+                            app:drawableTint="@color/white" />
+                    </LinearLayout>
+                </LinearLayout>
+            </FrameLayout>
+
+            <!-- Section header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Available Machines"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#1F2937"/>
+                    android:text="Machines"
+                    android:textAppearance="@style/TextAppearance.LabaLink.Title" />
+
+                <!-- Live indicator: the halo pulses behind the dot -->
+                <FrameLayout
+                    android:layout_width="24dp"
+                    android:layout_height="24dp">
+
+                    <View
+                        android:id="@+id/liveHalo"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_live_dot" />
+
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_live_dot" />
+                </FrameLayout>
 
                 <TextView
+                    android:id="@+id/tvLive"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="● LIVE"
-                    android:textSize="12sp"
-                    android:textColor="#10B981"
-                    android:textStyle="bold"
-                    android:layout_marginEnd="8dp"/>
+                    android:layout_marginEnd="10dp"
+                    android:text="Live"
+                    android:textAppearance="@style/TextAppearance.LabaLink.Label"
+                    android:textColor="@color/brand_aqua_deep" />
 
                 <TextView
                     android:id="@+id/tvMachineCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0 total"
-                    android:textSize="12sp"
-                    android:textColor="#9CA3AF"/>
-
+                    android:textAppearance="@style/TextAppearance.LabaLink.Caption" />
             </LinearLayout>
 
-            <!-- Machine Grid -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvMachines"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"/>
+                android:layout_marginStart="-6dp"
+                android:layout_marginEnd="-6dp"
+                android:layoutAnimation="@anim/layout_rise"
+                android:nestedScrollingEnabled="false"
+                android:overScrollMode="never" />
 
-            <!-- Empty State -->
+            <!-- Empty state -->
             <LinearLayout
                 android:id="@+id/emptyState"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:gravity="center"
-                android:padding="40dp"
+                android:orientation="vertical"
+                android:paddingTop="40dp"
+                android:paddingBottom="40dp"
                 android:visibility="gone">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🫧"
-                    android:textSize="48sp"
-                    android:gravity="center"
-                    android:layout_marginBottom="12dp"/>
+                <ImageView
+                    style="@style/Widget.LabaLink.IconTile"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:padding="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_washing_machine" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No machines available"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#374151"
-                    android:layout_marginBottom="6dp"/>
+                    android:layout_marginTop="16dp"
+                    android:text="No machines yet"
+                    android:textAppearance="@style/TextAppearance.LabaLink.Title" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Check back later"
-                    android:textSize="13sp"
-                    android:textColor="#9CA3AF"/>
-
+                    android:layout_marginTop="4dp"
+                    android:text="Check back soon."
+                    android:textAppearance="@style/TextAppearance.LabaLink.BodySmall" />
             </LinearLayout>
-
         </LinearLayout>
-
     </ScrollView>
 
-    <!-- Bottom Navigation -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:orientation="horizontal"
-        android:background="#FFFFFF"
-        android:elevation="8dp">
-
-        <LinearLayout
-            android:id="@+id/navHome"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🏠"
-                android:textSize="20sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Home"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#9333EA"/>
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:id="@+id/navBookings"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="📋"
-                android:textSize="20sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Bookings"
-                android:textSize="10sp"
-                android:textColor="#9CA3AF"/>
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:id="@+id/navProfile"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="💰"
-                android:textSize="20sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Wallet"
-                android:textSize="10sp"
-                android:textColor="#9CA3AF"/>
-
-        </LinearLayout>
-
-
-
-    </LinearLayout>
-
+    <include layout="@layout/view_bottom_nav" />
 </LinearLayout>

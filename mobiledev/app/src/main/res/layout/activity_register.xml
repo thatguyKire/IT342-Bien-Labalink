@@ -1,51 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F3FF"
+    android:background="@color/background"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:padding="24dp">
+        android:orientation="vertical">
 
-        <!-- Logo -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🫧"
-            android:textSize="48sp"
-            android:layout_marginTop="48dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="LabaLink"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="#9333EA"
-            android:layout_marginTop="8dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Smart Laundry Management System"
-            android:textSize="13sp"
-            android:textColor="#6B7280"
-            android:layout_marginTop="4dp"/>
-
-        <!-- Card -->
-        <androidx.cardview.widget.CardView
+        <LinearLayout
+            android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="4dp"
-            xmlns:app="http://schemas.android.com/apk/res-auto">
+            android:background="@drawable/bg_gradient_header"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="28dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="76dp">
+
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@drawable/bg_icon_tile"
+                android:backgroundTint="@color/white"
+                android:elevation="6dp"
+                android:importantForAccessibility="no"
+                android:padding="12dp"
+                android:src="@drawable/ic_droplets"
+                app:tint="@color/brand" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="Join LabaLink"
+                android:textAppearance="@style/TextAppearance.LabaLink.Headline"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Book machines and pay in one scan."
+                android:textAppearance="@style/TextAppearance.LabaLink.Body"
+                android:textColor="@color/white_70" />
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/formCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="-48dp"
+            android:layout_marginEnd="20dp"
+            app:cardCornerRadius="24dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -54,157 +68,117 @@
                 android:padding="24dp">
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Create Account"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="#1F2937"
-                    android:gravity="center"/>
+                    android:text="Create your account"
+                    android:textAppearance="@style/TextAppearance.LabaLink.Headline" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Join LabaLink and manage your laundry easily"
-                    android:textSize="13sp"
-                    android:textColor="#9CA3AF"
-                    android:gravity="center"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="20dp"/>
-
-                <!-- Error message -->
                 <TextView
                     android:id="@+id/tvError"
+                    style="@style/Widget.LabaLink.Banner.Error"
+                    android:layout_marginTop="16dp" />
+
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text=""
-                    android:textColor="#DC2626"
-                    android:textSize="13sp"
-                    android:background="#FEE2E2"
-                    android:padding="12dp"
-                    android:visibility="gone"
-                    android:layout_marginBottom="12dp"/>
+                    android:layout_marginTop="20dp"
+                    android:hint="Name"
+                    app:startIconDrawable="@drawable/ic_user">
 
-                <!-- Username -->
-                <TextView
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etUsername"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:autofillHints="name"
+                        android:inputType="textPersonName|textCapWords" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Username"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="#374151"
-                    android:layout_marginBottom="6dp"/>
+                    android:layout_marginTop="12dp"
+                    android:hint="Email"
+                    app:startIconDrawable="@drawable/ic_mail">
 
-                <EditText
-                    android:id="@+id/etUsername"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:hint="Enter your username"
-                    android:background="@drawable/input_background"
-                    android:padding="14dp"
-                    android:inputType="text"
-                    android:layout_marginBottom="16dp"/>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:autofillHints="emailAddress"
+                        android:inputType="textEmailAddress" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Email -->
-                <TextView
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Email"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="#374151"
-                    android:layout_marginBottom="6dp"/>
+                    android:layout_marginTop="12dp"
+                    android:hint="Password"
+                    app:endIconMode="password_toggle"
+                    app:helperText="At least 8 characters, with a letter and a number"
+                    app:startIconDrawable="@drawable/ic_lock">
 
-                <EditText
-                    android:id="@+id/etEmail"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:hint="Enter your email"
-                    android:background="@drawable/input_background"
-                    android:padding="14dp"
-                    android:inputType="textEmailAddress"
-                    android:layout_marginBottom="16dp"/>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:autofillHints="newPassword"
+                        android:inputType="textPassword" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Password -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Password"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="#374151"
-                    android:layout_marginBottom="6dp"/>
-
-                <EditText
-                    android:id="@+id/etPassword"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:hint="Min 8 characters"
-                    android:background="@drawable/input_background"
-                    android:padding="14dp"
-                    android:inputType="textPassword"
-                    android:layout_marginBottom="16dp"/>
-
-                <!-- Terms consent: the links are tappable, the box is separate
-                     so tapping a link doesn't tick it. -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
+                    android:layout_marginTop="12dp"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="20dp">
+                    android:orientation="horizontal">
 
-                    <CheckBox
+                    <com.google.android.material.checkbox.MaterialCheckBox
                         android:id="@+id/cbAgreeTerms"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:buttonTint="#9333EA"
-                        android:contentDescription="Agree to the Terms of Service and Privacy Policy"/>
+                        android:contentDescription="Agree to the Terms of Service and Privacy Policy" />
 
                     <TextView
                         android:id="@+id/tvAgreeTerms"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:textSize="13sp"
-                        android:textColor="#374151"
-                        android:textColorLink="#9333EA"/>
+                        android:textAppearance="@style/TextAppearance.LabaLink.BodySmall"
+                        android:textColorLink="@color/brand" />
                 </LinearLayout>
 
-                <!-- Register Button -->
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRegister"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:text="Create Account"
-                    android:textColor="#FFFFFF"
-                    android:textSize="16sp"
-                    android:backgroundTint="#9333EA"
-                    android:layout_marginBottom="16dp"/>
-
-                <!-- Login link -->
-                <TextView
-                    android:id="@+id/tvLoginLink"
-                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Already have an account? Login here"
-                    android:textSize="13sp"
-                    android:textColor="#9333EA"
-                    android:gravity="center"
-                    android:padding="8dp"/>
-
+                    android:layout_marginTop="16dp"
+                    android:text="Create account" />
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <!-- Footer -->
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvLoginLink"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="© 2026 LabaLink. All rights reserved."
-            android:textSize="11sp"
-            android:textColor="#9CA3AF"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="24dp"/>
+            android:layout_marginTop="12dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:padding="14dp"
+            android:text="Already have an account? Sign in"
+            android:textAppearance="@style/TextAppearance.LabaLink.Label"
+            android:textColor="@color/brand" />
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:gravity="center"
+            android:text="© 2026 LabaLink, an IT342 student project"
+            android:textAppearance="@style/TextAppearance.LabaLink.Caption" />
     </LinearLayout>
 </ScrollView>

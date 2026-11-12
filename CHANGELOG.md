@@ -19,9 +19,49 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - Web: Terms and Privacy links in the login footer. URLs are configurable
   with `VITE_TERMS_URL` / `VITE_PRIVACY_URL` (web) and
   `labalink.termsUrl` / `labalink.privacyUrl` (Android).
+- Demo data: `DEMO_DATA=true` fills an empty database with sample
+  machines, customers, bookings and top-ups for demos and screenshots.
+  Wallet balances are derived from the seeded history.
+- [Demo Guide](docs/Demo-Guide.md): run everything on one computer with
+  the Android emulator, including QR scanning without a phone.
+- [Third-party notices](THIRD_PARTY_NOTICES.md) for the bundled font and
+  icons.
+
+### Changed
+
+- New visual design for both apps (see
+  [UI/UX Design](docs/UI-UX-Design.md)): a "clean water" palette of deep
+  blue, ocean blue and aqua; Plus Jakarta Sans throughout; Lucide icons in
+  place of every emoji; a new logo, launcher icon and favicon.
+- Android: a Material 3 design layer (colour, type and component styles)
+  replaces per-screen hard-coded colours. Home, Bookings and Wallet share
+  one bottom bar; Wallet is now a tab, and the balance pill on Home opens
+  it. Status labels and colours come from one mapping (`ui/Status.kt`).
+- Android motion: screen and tab transitions, cards that rise in on first
+  load, press feedback, a live indicator, balances that count up, a
+  scanning line in the QR scanner and an animated success check. All of it
+  follows the system "Remove animations" setting.
+- Android: the machine screen explains the three steps and shows the real
+  session price, replacing placeholder "Last used" and "Total sessions"
+  values.
+- Web: palette and font are Tailwind theme tokens; shared page header,
+  stat card, status badge, filter chips, empty state and live indicator
+  (`components/ui.tsx`); a deep-blue sidebar; a two-column sign-in page.
+  Dialogs pop in, table rows rise in, and bookings that change over the
+  live feed flash. Animations stop under `prefers-reduced-motion`.
+- Web: the font is self-hosted, so the dashboard no longer loads anything
+  from Google Fonts.
 
 ### Fixed
 
+- Web: the live feed never connected in browsers ("Connecting…" forever).
+  SockJS sends `/ws/info` with credentials, and the CORS rule for `/ws/**`
+  refused them. `/ws/**` now allows credentials for the configured origins
+  only; `/api/**` is unchanged.
+- Android 15+: the status bar no longer covers the top of every screen.
+  Screens draw edge to edge and pad their bars and forms for the system
+  bars, display cutout and keyboard (`ui/EdgeToEdge.kt`). The navigation
+  bar is no longer hidden, which removes the "Viewing full screen" prompt.
 - Tests no longer load the developer's `backend/.env`. A blank
   `GOOGLE_CLIENT_ID=` there made every Spring test fail to start.
 - `.env.example` keeps optional settings commented out. Blank `KEY=`

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ic_circle_alert at 20dp, for compound drawables (which can't be sized in XML). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:width="20dp" android:height="20dp" android:drawable="@drawable/ic_circle_alert" />
+</layer-list>

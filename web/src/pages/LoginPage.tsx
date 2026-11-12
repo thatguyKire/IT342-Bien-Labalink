@@ -1,5 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  CircleAlert, Eye, EyeOff, LoaderCircle, Lock, Mail, QrCode, ReceiptText,
+  WashingMachine,
+} from 'lucide-react';
+import LogoMark from '../components/LogoMark';
 import { googleLoginUrl, login } from '../services/authService';
 import { errorMessage } from '../lib/api';
 import { PRIVACY_URL, TERMS_URL } from '../lib/config';
@@ -59,26 +64,42 @@ export default function LoginPage() {
   return (
     <div className={s.page}>
 
-      {/* Logo */}
-      <div className={s.logoWrapper}>
-        <div className={s.logoBox}>
-          <span className={s.logoIcon}>🫧</span>
+      {/* Brand panel */}
+      <section className={s.brandPanel}>
+        <div className={s.brandTop}>
+          <LogoMark size={44} />
+          <span className={s.brandName}>LabaLink</span>
         </div>
-        <h1 className={s.logoTitle}>LabaLink</h1>
-        <p className={s.logoSubtitle}>
-          Smart Laundry Management System
-        </p>
-      </div>
+        <div className="animate-rise">
+          <h1 className={s.brandHeadline}>Run the laundry floor from one screen.</h1>
+          <ul className={s.brandList}>
+            <li className={s.brandItem}>
+              <WashingMachine size={18} aria-hidden="true" className={s.brandIcon} />
+              Every washer and dryer, updated live
+            </li>
+            <li className={s.brandItem}>
+              <ReceiptText size={18} aria-hidden="true" className={s.brandIcon} />
+              Start, finish or refund sessions
+            </li>
+            <li className={s.brandItem}>
+              <QrCode size={18} aria-hidden="true" className={s.brandIcon} />
+              Print and rotate machine QR stickers
+            </li>
+          </ul>
+        </div>
+        <p className={s.brandFootnote}>IT342 student project. Payments run in Stripe test mode.</p>
+      </section>
 
-      {/* Card */}
+      <div className={s.formColumn}>
       <form className={s.card} onSubmit={handleLogin} noValidate>
-        <h2 className={s.cardTitle}>Attendant Sign In</h2>
+        <h2 className={s.cardTitle}>Sign in</h2>
         <p className={s.cardSubtitle}>
-          Manage machines, bookings and transactions
+          For shop attendants. Customers use the LabaLink app.
         </p>
 
         {error && (
           <div className={s.errorBox} role="alert">
+            <CircleAlert size={18} aria-hidden="true" className="shrink-0 mt-px" />
             {error}
           </div>
         )}
@@ -89,7 +110,7 @@ export default function LoginPage() {
             Email
           </label>
           <div className={s.inputWrapper}>
-            <span className={s.inputIcon} aria-hidden="true">✉️</span>
+            <Mail size={18} className={s.inputIcon} aria-hidden="true" />
             <input
               id="email"
               type="email"
@@ -109,7 +130,7 @@ export default function LoginPage() {
             Password
           </label>
           <div className={s.inputWrapper}>
-            <span className={s.inputIcon} aria-hidden="true">🔒</span>
+            <Lock size={18} className={s.inputIcon} aria-hidden="true" />
             <input
               id="password"
               type={showPassword ? 'text' : 'password'}
@@ -126,19 +147,21 @@ export default function LoginPage() {
               aria-label={showPassword ? 'Hide password' : 'Show password'}
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? '🙈' : '👁️'}
+              {showPassword
+                ? <EyeOff size={18} aria-hidden="true" />
+                : <Eye size={18} aria-hidden="true" />}
             </button>
           </div>
         </div>
 
         <button type="submit" disabled={loading} className={s.loginButton}>
-          {loading ? 'Signing in...' : 'Sign In →'}
+          {loading && <LoaderCircle size={18} className="animate-spin" aria-hidden="true" />}
+          {loading ? 'Signing in…' : 'Sign in'}
         </button>
 
-        {/* Divider */}
         <div className={s.dividerWrapper}>
           <div className={s.dividerLine} />
-          <span className={s.dividerText}>OR CONTINUE WITH</span>
+          <span className={s.dividerText}>or</span>
           <div className={s.dividerLine} />
         </div>
 
@@ -158,15 +181,16 @@ export default function LoginPage() {
       </form>
 
       <p className={s.footer}>
-        © 2026 LabaLink ·{' '}
+        © 2026 LabaLink.{' '}
         <a href={TERMS_URL} target="_blank" rel="noopener noreferrer" className={s.footerLink}>
           Terms of Service
         </a>{' '}
-        ·{' '}
+        and{' '}
         <a href={PRIVACY_URL} target="_blank" rel="noopener noreferrer" className={s.footerLink}>
           Privacy Policy
         </a>
       </p>
+      </div>
     </div>
   );
 }

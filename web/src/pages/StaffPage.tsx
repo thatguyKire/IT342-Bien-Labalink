@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
+import { CircleAlert, CircleCheck, UserPlus } from 'lucide-react';
 import SidebarLayout from '../components/SidebarLayout';
+import { PageHeader, TableHead, alertClass } from '../components/ui';
 import { errorMessage } from '../lib/api';
 import { formatDateTime } from '../lib/format';
 import { createAttendant, getAttendants } from '../services/userService';
@@ -65,42 +67,32 @@ export default function StaffPage() {
   };
 
   const input = 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm '
-    + 'text-gray-700 outline-none focus:border-[#9333EA] bg-gray-50';
+    + 'text-gray-900 outline-none bg-white transition-colors '
+    + 'focus:border-brand-500 focus:ring-4 focus:ring-brand-50';
 
   return (
     <SidebarLayout>
-      <div className="bg-white border-b border-gray-100 px-8 py-5 shadow-sm">
-        <h1 className="text-2xl font-bold text-gray-800">Staff</h1>
-        <p className="text-sm text-gray-400 mt-1">
-          Shop attendants who can use this dashboard.
-        </p>
-      </div>
+      <PageHeader
+        title="Staff"
+        description="Shop attendants who can sign in to this dashboard."
+      />
 
       <div className="px-8 py-6 grid grid-cols-3 gap-6 items-start">
-        <div className="col-span-2 bg-white rounded-2xl shadow-sm border
+        <div className="col-span-2 bg-white rounded-2xl border
                         border-gray-100 overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr>
-                {['Name', 'Email', 'Sign-in', 'Since'].map((h) => (
-                  <th key={h} className="px-6 py-4 text-left text-xs
-                                         font-semibold text-gray-500
-                                         uppercase tracking-wide">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+            <TableHead columns={['Name', 'Email', 'Sign-in', 'Since']} />
             <tbody>
               {loading ? (
                 <tr>
                   <td colSpan={4} className="text-center py-12 text-gray-400">
-                    Loading staff...
+                    Loading staff…
                   </td>
                 </tr>
-              ) : staff.map((u) => (
-                <tr key={u.id} className="border-b border-gray-50">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-800">
+              ) : staff.map((u, i) => (
+                <tr key={u.id} style={{ '--i': i } as React.CSSProperties}
+                    className="stagger border-b border-gray-50">
+                  <td className="px-6 py-4 text-sm font-semibold text-gray-900">
                     {u.username}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
@@ -119,26 +111,27 @@ export default function StaffPage() {
         </div>
 
         <form onSubmit={handleSubmit} noValidate
-              className="bg-white rounded-2xl shadow-sm border
+              className="bg-white rounded-2xl border
                          border-gray-100 p-6">
-          <h2 className="text-lg font-bold text-gray-800 mb-1">
-            Add Attendant
+          <h2 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
+            <UserPlus size={20} className="text-brand-600" aria-hidden="true" />
+            Add an attendant
           </h2>
-          <p className="text-sm text-gray-400 mb-5">
+          <p className="text-sm text-gray-500 mb-5">
             Share the password with them privately.
           </p>
 
           {error && (
-            <div role="alert" className="bg-red-50 border border-red-200
-                                         text-red-600 text-sm rounded-xl
-                                         px-4 py-3 mb-4">
+            <div role="alert" className={`${alertClass} mb-4`}>
+              <CircleAlert size={18} className="shrink-0 mt-px" aria-hidden="true" />
               {error}
             </div>
           )}
           {success && (
-            <div role="status" className="bg-green-50 border
+            <div role="status" className="flex items-start gap-2 bg-green-50 border
                                           border-green-200 text-green-700
-                                          text-sm rounded-xl px-4 py-3 mb-4">
+                                          text-sm rounded-xl px-4 py-3 mb-4 animate-rise">
+              <CircleCheck size={18} className="shrink-0 mt-px" aria-hidden="true" />
               {success}
             </div>
           )}
@@ -173,10 +166,11 @@ export default function StaffPage() {
           </p>
 
           <button type="submit" disabled={saving}
-                  className="w-full bg-[#9333EA] text-white py-3 rounded-xl
-                             font-semibold text-sm hover:bg-purple-700
+                  className="w-full bg-brand-600 text-white py-3 rounded-xl
+                             font-bold text-sm hover:bg-brand-700
+                             active:scale-[0.98] transition-[background-color,transform]
                              disabled:opacity-60">
-            {saving ? 'Creating...' : 'Create Attendant'}
+            {saving ? 'Creating…' : 'Create attendant'}
           </button>
         </form>
       </div>

@@ -1,155 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1E1B4B">
+    android:background="@color/brand_deep">
 
-    <!-- Full screen camera preview -->
+    <!-- Full-bleed camera. The framing rect matches scanArea below. -->
     <com.journeyapps.barcodescanner.DecoratedBarcodeView
         android:id="@+id/barcodeScanner"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:zxing_framing_rect_height="260dp"
+        app:zxing_framing_rect_width="260dp" />
 
-    <!-- Top Bar -->
+    <FrameLayout
+        android:id="@+id/scanArea"
+        android:layout_width="260dp"
+        android:layout_height="260dp"
+        android:layout_gravity="center">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:src="@drawable/scan_frame" />
+
+        <View
+            android:id="@+id/scanLine"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/bg_scan_line" />
+    </FrameLayout>
+
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:orientation="horizontal"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
         android:gravity="center_vertical"
-        android:paddingStart="8dp"
-        android:paddingEnd="16dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:minHeight="64dp"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
 
         <ImageButton
             android:id="@+id/btnCancel"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@android:drawable/ic_media_previous"
-            android:background="@android:color/transparent"
-            android:contentDescription="Cancel"
-            app:tint="#FFFFFF"/>
+            style="@style/Widget.LabaLink.IconButton"
+            android:background="@drawable/bg_pill"
+            android:backgroundTint="@color/white_16"
+            android:contentDescription="Close scanner"
+            android:src="@drawable/ic_x"
+            app:tint="@color/white" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Scan QR Code"
-            android:textSize="17sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:gravity="center"/>
-
-        <View
-            android:layout_width="40dp"
-            android:layout_height="40dp"/>
-
-    </LinearLayout>
-
-    <!-- Instruction Text -->
-    <LinearLayout
-        android:id="@+id/instructionArea"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="24dp"
-        app:layout_constraintBottom_toTopOf="@id/bottomControls"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Point your camera at the"
-            android:textSize="15sp"
-            android:textColor="#E5E7EB"
-            android:gravity="center"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="MACHINE QR CODE TO ACTIVATE"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
             android:gravity="center"
-            android:layout_marginTop="4dp"/>
+            android:text="Scan to start"
+            android:textAppearance="@style/TextAppearance.LabaLink.Title"
+            android:textColor="@color/white" />
 
+        <Space
+            android:layout_width="44dp"
+            android:layout_height="44dp" />
     </LinearLayout>
 
-    <!-- Result Text -->
-    <TextView
-        android:id="@+id/tvResult"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="14sp"
-        android:textColor="#FFFFFF"
-        android:gravity="center"
-        android:padding="16dp"
-        android:background="#CC9333EA"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/instructionArea"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Bottom Controls -->
     <LinearLayout
         android:id="@+id/bottomControls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_scanner_panel"
         android:orientation="vertical"
-        android:padding="24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:paddingStart="24dp"
+        android:paddingTop="24dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="20dp">
 
-        <!-- Warning -->
+        <!-- Result of a scan; slides in above the instructions -->
         <LinearLayout
+            android:id="@+id/resultCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_rounded_12"
+            android:backgroundTint="@color/white_16"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:gravity="center"
-            android:background="#33FFFFFF"
             android:padding="12dp"
-            android:layout_marginBottom="16dp">
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/ivResultIcon"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_hourglass"
+                app:tint="@color/white" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/tvResult"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="ℹ️ "
-                android:textSize="14sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Make sure machine is Available before scanning"
-                android:textSize="13sp"
-                android:textColor="#E5E7EB"/>
-
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:accessibilityLiveRegion="polite"
+                android:textAppearance="@style/TextAppearance.LabaLink.Label"
+                android:textColor="@color/white" />
         </LinearLayout>
 
-        <!-- Cancel Button -->
-        <Button
-            android:id="@+id/btnCancelBottom"
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:text="Cancel"
-            android:textColor="#9333EA"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:background="@drawable/input_background"
-            android:stateListAnimator="@null"/>
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Point your camera at the QR sticker on the machine"
+            android:textAppearance="@style/TextAppearance.LabaLink.Title"
+            android:textColor="@color/white" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:gravity="center"
+            android:text="The machine must show Available before you scan."
+            android:textAppearance="@style/TextAppearance.LabaLink.BodySmall"
+            android:textColor="@color/white_70" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelBottom"
+            style="@style/Widget.LabaLink.Button.OnDark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Cancel" />
     </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

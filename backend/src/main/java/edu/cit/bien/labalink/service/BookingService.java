@@ -86,9 +86,7 @@ public class BookingService {
         }
 
         int duration = resolveDuration(request.getDurationMinutes());
-        BigDecimal price = machine.getHourlyRate()
-            .multiply(BigDecimal.valueOf(duration))
-            .divide(MINUTES_PER_HOUR, 2, RoundingMode.HALF_UP);
+        BigDecimal price = priceFor(machine.getHourlyRate(), duration);
 
         User user = userRepository.findByIdForUpdate(caller.id())
             .orElseThrow(() -> ApiException.unauthorized("User not found"));
@@ -148,6 +146,15 @@ public class BookingService {
                 + "Please ask the attendant.");
         }
         return transition(booking, Booking.BookingStatus.CANCELLED);
+    }
+
+    /** Session price: the hourly rate pro-rated by the minute. */
+    public static BigDecimal priceFor(
+            BigDecimal hourlyRate,
+            int durationMinutes) {
+        return hourlyRate
+            .multiply(BigDecimal.valueOf(durationMinutes))
+            .divide(MINUTES_PER_HOUR, 2, RoundingMode.HALF_UP);
     }
 
     @Transactional(readOnly = true)

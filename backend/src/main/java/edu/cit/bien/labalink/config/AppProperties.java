@@ -16,7 +16,8 @@ public record AppProperties(
         RateLimit rateLimit,
         Login login,
         Email email,
-        Bootstrap bootstrap) {
+        Bootstrap bootstrap,
+        Demo demo) {
 
     public record Cors(List<String> allowedOrigins) {}
 
@@ -72,4 +73,20 @@ public record AppProperties(
             String attendantEmail,
             String attendantPassword,
             String attendantUsername) {}
+
+    /** Sample data for demos and screenshots. See {@link DemoDataSeeder}. */
+    public record Demo(boolean enabled, String password) {
+
+        public static final int MIN_PASSWORD_LENGTH = 8;
+
+        public Demo {
+            if (enabled && (password == null
+                    || password.length() < MIN_PASSWORD_LENGTH)) {
+                throw new IllegalArgumentException(
+                    "DEMO_DATA=true needs DEMO_PASSWORD (at least "
+                    + MIN_PASSWORD_LENGTH + " characters) for the demo "
+                    + "customer accounts.");
+            }
+        }
+    }
 }

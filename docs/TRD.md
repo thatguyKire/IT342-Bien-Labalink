@@ -61,6 +61,7 @@ values from environment variables (or `backend/.env`). The full list is in
 | `app.stripe.success-url/cancel-url` | `STRIPE_SUCCESS_URL/CANCEL_URL` | `${FRONTEND_URL}/payment/...` | no |
 | `spring.mail.*` | `MAIL_HOST/PORT/USERNAME/PASSWORD` | Gmail SMTP | for email |
 | `app.bootstrap.*` | `BOOTSTRAP_ATTENDANT_EMAIL/PASSWORD/USERNAME` | empty | first run |
+| `app.demo.enabled` / `app.demo.password` | `DEMO_DATA` / `DEMO_PASSWORD` | `false` / empty | demos only (empty DB) |
 | `server.forward-headers-strategy` | `FORWARD_HEADERS_STRATEGY` | `none` | behind a proxy |
 | `server.servlet.session.cookie.secure` | `SESSION_COOKIE_SECURE` | `false` | prod: `true` |
 

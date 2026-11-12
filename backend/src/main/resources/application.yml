@@ -126,6 +126,12 @@ app:
     attendant-email: ${BOOTSTRAP_ATTENDANT_EMAIL:}
     attendant-password: ${BOOTSTRAP_ATTENDANT_PASSWORD:}
     attendant-username: ${BOOTSTRAP_ATTENDANT_USERNAME:Admin}
+  demo:
+    # Fills an EMPTY database with sample customers, machines, bookings and
+    # top-ups for demos and screenshots. Skipped if any machine exists.
+    enabled: ${DEMO_DATA:false}
+    # Password for the demo customer accounts (required when enabled).
+    password: ${DEMO_PASSWORD:}
 
 logging:
   level:

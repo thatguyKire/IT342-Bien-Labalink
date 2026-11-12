@@ -11,7 +11,7 @@
 ## 1. Design principles
 
 1. **One obvious next step.** Every screen has a single primary action
-   (ocean-blue, full-width on mobile): *Scan and pay*, *Pay securely with
+   (pandan green, full-width on mobile): *Scan and pay*, *Pay securely with
    Stripe*, *Add machine*.
 2. **Status at a glance.** Machine, booking and payment states use the
    same label and colour in both apps (one mapping each:
@@ -28,34 +28,38 @@
 
 ## 2. Brand and design tokens
 
-The look is "clean water": deep and ocean blues with an aqua accent on
-cool, near-white surfaces. Android defines the tokens in
-`res/values/colors.xml`, `type.xml`, `styles.xml` and `themes.xml`; the web
-defines the same values as Tailwind theme tokens in `src/index.css`.
+The palette is "Pandan & Mango", taken from the Philippines where *laba*
+happens: pandan green as the brand colour, mango yellow as a sparing accent,
+on near-white surfaces with a slight green tint. Android defines the tokens
+in `res/values/colors.xml`, `type.xml`, `styles.xml` and `themes.xml`; the
+web defines the same values as Tailwind theme tokens in `src/index.css`.
 
 ### 2.1 Colour
 
 | Token (Android / web) | Hex | Use |
 |---|---|---|
-| `brand_deep` / `brand-900` | `#0B3B5C` | Web sidebar, start of the brand gradient |
-| `brand` / `brand-600` | `#0E6BA8` | Primary buttons, links, active nav |
-| `brand_pressed` / `brand-700` | `#0B5689` | Hover / pressed |
-| `brand_tint` / `brand-50` | `#E3F1FA` | Icon tiles, nav indicator, wallet pill |
-| `brand_aqua` / `aqua-400` | `#22C3C9` | Accent: live dot, scan frame, gradient end |
-| `brand_aqua_deep` / `aqua-700` | `#0B7C82` | Aqua text on light surfaces |
-| `ink` / `gray-900` | `#0F2233` | Headings, primary text |
-| `ink_secondary` / `gray-600` | `#4E6275` | Body and secondary text |
-| `ink_tertiary` / `gray-400` | `#8597A8` | Captions, placeholders |
-| `background` / `gray-50` | `#F3F7FA` | App and page background |
+| `brand_deep` / `brand-900` | `#12372A` | Web sidebar, start of the brand gradient |
+| `brand` / `brand-600` | `#1E7A55` | Primary buttons, links, active nav |
+| `brand_pressed` / `brand-700` | `#17603F` | Hover / pressed |
+| `brand_light` / `brand-400` | `#3FA37C` | End of the brand gradient |
+| `brand_tint` / `brand-50` | `#E2F2E9` | Icon tiles, nav indicator, wallet pill |
+| `accent` / `accent-400` | `#FFB627` | Mango accent: live dot, scan frame, active sidebar bar, avatar |
+| `accent_deep` / `accent-700` | `#8A5A00` | Mango text on light surfaces ("Live", dryer icons) |
+| `accent_tint` / `accent-50` | `#FFF1D1` | Dryer icon tiles, live-update row flash |
+| `ink` / `gray-900` | `#14241C` | Headings, primary text |
+| `ink_secondary` / `gray-600` | `#4B5E54` | Body and secondary text |
+| `ink_tertiary` / `gray-400` | `#82938A` | Captions, placeholders |
+| `background` / `gray-50` | `#F4F8F4` | App and page background |
 | `surface` | `#FFFFFF` | Cards, tables, dialogs |
-| `outline` / `gray-200`, `divider` / `gray-100` | `#D6E2EB`, `#E8EFF4` | Inputs, hairline card borders, dividers |
+| `outline` / `gray-200`, `divider` / `gray-100` | `#D3E0D7`, `#E6EEE8` | Inputs, hairline card borders, dividers |
 
-On the web, Tailwind's `gray` scale is redefined to these cool neutrals, so
-existing `gray-*` classes follow the palette.
+On the web, Tailwind's `gray` scale is redefined to these green-tinted
+neutrals, so existing `gray-*` classes follow the palette.
 
-The brand gradient (`brand_deep` → `brand` → `aqua`, 135°) is used only for
-hero surfaces: the Android home and wallet cards, the auth headers, the
-machine illustration and the web sign-in panel.
+The brand gradient (`brand_deep` → `brand` → `brand_light`, 135°) is used
+only for hero surfaces: the Android home and wallet cards, the auth headers,
+the machine illustration and the web sign-in panel. Mango stays small and
+rare so it keeps its meaning as the "look here" colour.
 
 ### 2.2 Status colours (shared by both apps)
 
@@ -110,7 +114,7 @@ every Android version.
 grid, 2 px round strokes. The web uses `lucide-react`; Android uses vector
 drawables generated from the same SVGs by
 `mobiledev/scripts/lucide-to-vector.mjs`. Washers use `washing-machine`
-(brand blue tile), dryers use `wind` (aqua tile). The LabaLink mark is the
+(pandan tile), dryers use `wind` (mango tile). The LabaLink mark is the
 `droplets` icon on the brand gradient (`logo_mark.xml`, `LogoMark.tsx`, the
 launcher icon and the favicon). Decorative icons are hidden from screen
 readers.
@@ -127,10 +131,10 @@ opacity and transforms are animated.
 | Screen change | Slide + fade (300 ms); tabs cross-fade (200 ms) | — |
 | First load of a list | Cards rise in, 35 ms apart | Table rows rise in, 35 ms apart |
 | Press | Cards, chips and buttons shrink 3% | Buttons shrink 2% |
-| Live feed | "Live" dot with an expanding halo | Same; a booking whose status just changed flashes aqua |
+| Live feed | "Live" dot with an expanding halo | Same; a booking whose status just changed flashes mango |
 | Money | Wallet balances count up to the new value | — |
 | Dialogs and messages | Banners rise in | Dialogs pop in over a fading scrim; banners rise in |
-| QR scanner | Aqua line sweeps the scan frame; success draws a check mark | — |
+| QR scanner | Mango line sweeps the scan frame; success draws a check mark | — |
 
 Everything respects the system setting: Android checks the animator
 duration scale ("Remove animations"); the web disables animations under
@@ -151,9 +155,9 @@ duration scale ("Remove animations"); the web disables animations under
 | **Filter chips** | Single choice; selected chip is brand-filled |
 | **Dialog** | Title, explanation, two buttons (keep left, action right); `role="dialog"`, `aria-modal` |
 | **Banner** | Red (error, `role="alert"`) or green (success, `role="status"`) with a leading icon |
-| **Live indicator** | Aqua dot with halo, "Live" / gray "Connecting…" |
+| **Live indicator** | Mango dot with halo, "Live" / gray "Connecting…" |
 | **Bottom nav** (Android) | Material 3: Home, Bookings, Wallet; pill indicator in `brand_tint` |
-| **Sidebar** (web) | 256 px, deep-blue `brand-900`, logo, nav with aqua active bar, profile card with log out |
+| **Sidebar** (web) | 256 px, deep pandan `brand-900`, logo, nav with mango active bar, profile card with log out |
 
 ## 4. Screens
 
@@ -165,7 +169,7 @@ duration scale ("Remove animations"); the web disables animations under
 | **Register** | Create account | Same shell; name, email, password with helper text, age/terms checkbox, *Create account* |
 | **Home** | Find a machine | Top bar with logo and wallet pill (opens Wallet), gradient greeting card with live available/running counts, "Machines" header with live dot, 2-column machine cards, bottom nav |
 | **Machine detail** | Decide and start | Gradient illustration, name, rate, type and status badges, "How it works" (scan, pay from wallet with the real price, attendant starts it), **Scan and pay ₱ 60.00** (disabled and relabelled when the machine is busy) |
-| **QR scanner** | Prove presence | Full-bleed camera, aqua scan frame with sweeping line, result card (working / success check / error), bottom panel with instructions and *Cancel* |
+| **QR scanner** | Prove presence | Full-bleed camera, mango scan frame with sweeping line, result card (working / success check / error), bottom panel with instructions and *Cancel* |
 | **Bookings** | History | Filter chips (All, Pending, Active, Completed), booking cards (machine tile, type and duration, start/end, total, status); pending cards show "Tap to cancel and get a refund" |
 | **Wallet** | Balance and top-up | Gradient balance card (counts up), amount chips ₱50/100/200/500 or a custom amount, Stripe explainer, **Pay securely with Stripe**, "Stripe test mode" note, recent activity, **Log out** |
 
@@ -219,7 +223,7 @@ duration scale ("Remove animations"); the web disables animations under
 │          │ │Ana Cruz│Washer 4│…   │…  │60 │₱80 │Pending│[Activate][Cancel]│
 │ [M] Admin│ └────────────────────────────────────────────────┘ │
 └──────────┴────────────────────────────────────────────────────┘
-  deep-blue sidebar
+  deep pandan sidebar
 ```
 
 ## 5. Interaction details
@@ -228,7 +232,7 @@ duration scale ("Remove animations"); the web disables animations under
 |---|---|
 | Loading | Tables show "Loading…" rows; buttons switch to a progress label and disable to prevent double submits |
 | Empty | Icon tile, a plain statement and the next step ("Use Add machine to create one") |
-| Live update | Dashboard tables refetch silently on WebSocket events; changed booking rows flash aqua instead of a spinner |
+| Live update | Dashboard tables refetch silently on WebSocket events; changed booking rows flash mango instead of a spinner |
 | Session expiry | Any 401 → back to sign-in with "Your session expired" |
 | Wrong role | Customer on web → "This dashboard is for shop attendants…"; attendant on Android → "Attendants use the LabaLink web dashboard" |
 | Payment return | Wallet screen shows "Confirming your payment…" → success or failure; a still-pending payment shows "Waiting for Stripe…" |

@@ -1,5 +1,5 @@
 /** Display tone for a status; the colours live in components/ui.tsx. */
-export type Tone = 'brand' | 'aqua' | 'success' | 'info' | 'warning' | 'danger' | 'neutral';
+export type Tone = 'brand' | 'accent' | 'success' | 'info' | 'warning' | 'danger' | 'neutral';
 
 /** Every machine, booking and payment status the API returns. */
 const STATUSES: Record<string, { label: string; tone: Tone }> = {

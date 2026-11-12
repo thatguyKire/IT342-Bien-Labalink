@@ -66,7 +66,7 @@ export default function SidebarLayout({
                 {active && (
                   <span
                     aria-hidden="true"
-                    className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-aqua-400 animate-fade"
+                    className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-accent-400 animate-fade"
                   />
                 )}
                 <Icon size={18} strokeWidth={2} aria-hidden="true" />
@@ -77,7 +77,7 @@ export default function SidebarLayout({
         </nav>
 
         <div className="mx-3 mb-4 p-3 rounded-2xl bg-white/5 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-aqua-400 text-brand-900
+          <div className="w-9 h-9 rounded-full bg-accent-400 text-brand-900
                           flex items-center justify-center
                           font-bold text-sm shrink-0">
             {username.charAt(0).toUpperCase()}

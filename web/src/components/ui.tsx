@@ -10,7 +10,7 @@ import type { Tone } from '../lib/status';
 
 const TONE_TEXT: Record<Tone, string> = {
   brand: 'text-brand-600',
-  aqua: 'text-aqua-700',
+  accent: 'text-accent-700',
   success: 'text-green-700',
   info: 'text-blue-700',
   warning: 'text-amber-700',
@@ -20,7 +20,7 @@ const TONE_TEXT: Record<Tone, string> = {
 
 const TONE_SOFT: Record<Tone, string> = {
   brand: 'bg-brand-50 text-brand-600',
-  aqua: 'bg-aqua-50 text-aqua-700',
+  accent: 'bg-accent-50 text-accent-700',
   success: 'bg-green-50 text-green-700',
   info: 'bg-blue-50 text-blue-700',
   warning: 'bg-amber-50 text-amber-700',
@@ -94,12 +94,12 @@ export function LiveIndicator({ live }: { live: boolean }) {
           aria-live="polite">
       <span className="relative flex w-2.5 h-2.5" aria-hidden="true">
         {live && (
-          <span className="absolute inset-0 rounded-full bg-aqua-400 animate-halo" />
+          <span className="absolute inset-0 rounded-full bg-accent-400 animate-halo" />
         )}
         <span className={`relative w-2.5 h-2.5 rounded-full
-                          ${live ? 'bg-aqua-400' : 'bg-gray-300'}`} />
+                          ${live ? 'bg-accent-400' : 'bg-gray-300'}`} />
       </span>
-      <span className={live ? 'text-aqua-700' : 'text-gray-400'}>
+      <span className={live ? 'text-accent-700' : 'text-gray-400'}>
         {live ? 'Live' : 'Connecting…'}
       </span>
     </span>

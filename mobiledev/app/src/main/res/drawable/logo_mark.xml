@@ -9,7 +9,7 @@
             <gradient android:type="linear" android:startX="0" android:startY="0" android:endX="48" android:endY="48">
                 <item android:offset="0" android:color="@color/brand_deep" />
                 <item android:offset="0.55" android:color="@color/brand" />
-                <item android:offset="1" android:color="@color/brand_aqua" />
+                <item android:offset="1" android:color="@color/brand_light" />
             </gradient>
         </aapt:attr>
     </path>

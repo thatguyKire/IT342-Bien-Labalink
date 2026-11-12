@@ -75,7 +75,7 @@ export default function TransactionsPage() {
           <StatCard label="Top-ups" value={payments.length}
                     icon={CreditCard} tone="brand" />
           <StatCard label="Collected" value={peso(collected)}
-                    icon={CircleDollarSign} tone="aqua" />
+                    icon={CircleDollarSign} tone="accent" />
           <StatCard label="Waiting for Stripe" value={pending}
                     icon={Hourglass} tone="warning" />
         </div>

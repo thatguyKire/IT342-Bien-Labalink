@@ -201,7 +201,7 @@
                     android:layout_marginEnd="10dp"
                     android:text="Live"
                     android:textAppearance="@style/TextAppearance.LabaLink.Label"
-                    android:textColor="@color/brand_aqua_deep" />
+                    android:textColor="@color/accent_deep" />
 
                 <TextView
                     android:id="@+id/tvMachineCount"

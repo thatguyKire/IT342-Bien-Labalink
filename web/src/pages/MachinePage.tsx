@@ -271,7 +271,7 @@ export default function MachinePage() {
                       <div className="flex items-center gap-2 text-sm
                                       text-gray-700">
                         <span aria-hidden="true">
-                          {machine.machineType === 'WASHER' ? <WashingMachine size={16} className="text-brand-600 shrink-0" /> : <Wind size={16} className="text-aqua-700 shrink-0" />}
+                          {machine.machineType === 'WASHER' ? <WashingMachine size={16} className="text-brand-600 shrink-0" /> : <Wind size={16} className="text-accent-700 shrink-0" />}
                         </span>
                         {machine.machineName}
                       </div>

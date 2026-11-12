@@ -4,6 +4,6 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="260dp" android:height="260dp"
     android:viewportWidth="260" android:viewportHeight="260">
-    <path android:strokeColor="@color/brand_aqua" android:strokeWidth="5" android:strokeLineCap="round"
+    <path android:strokeColor="@color/accent" android:strokeWidth="5" android:strokeLineCap="round"
         android:pathData="M3,46V27A24,24 0 0 1 27,3H46 M214,3H233A24,24 0 0 1 257,27V46 M257,214V233A24,24 0 0 1 233,257H214 M46,257H27A24,24 0 0 1 3,233V214" />
 </vector>

@@ -3,39 +3,39 @@
 
 @import "tailwindcss";
 
-/* LabaLink "clean water" palette. Keep in sync with
+/* LabaLink "Pandan & Mango" palette. Keep in sync with
    mobiledev/app/src/main/res/values/colors.xml. */
 @theme {
   --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
 
-  /* Brand: ocean blue, from tint to deep */
-  --color-brand-50: #E3F1FA;
-  --color-brand-100: #CDE6F6;
-  --color-brand-200: #A3D0EE;
-  --color-brand-300: #6FB3E1;
-  --color-brand-400: #3A92CD;
-  --color-brand-500: #1A7DBD;
-  --color-brand-600: #0E6BA8;
-  --color-brand-700: #0B5689;
-  --color-brand-800: #0B466E;
-  --color-brand-900: #0B3B5C;
+  /* Brand: pandan green, from tint to deep */
+  --color-brand-50: #E2F2E9;
+  --color-brand-100: #C7E6D4;
+  --color-brand-200: #9DD3B5;
+  --color-brand-300: #6BBA91;
+  --color-brand-400: #3FA37C;
+  --color-brand-500: #2A8C64;
+  --color-brand-600: #1E7A55;
+  --color-brand-700: #17603F;
+  --color-brand-800: #144A33;
+  --color-brand-900: #12372A;
 
-  /* Accent: aqua */
-  --color-aqua-50: #DDF7F7;
-  --color-aqua-400: #22C3C9;
-  --color-aqua-700: #0B7C82;
+  /* Accent: mango */
+  --color-accent-50: #FFF1D1;
+  --color-accent-400: #FFB627;
+  --color-accent-700: #8A5A00;
 
-  /* Neutrals: Tailwind's gray scale, cooled to match the brand */
-  --color-gray-50: #F3F7FA;
-  --color-gray-100: #E8EFF4;
-  --color-gray-200: #D6E2EB;
-  --color-gray-300: #B8C7D4;
-  --color-gray-400: #8597A8;
-  --color-gray-500: #6A7D8F;
-  --color-gray-600: #4E6275;
-  --color-gray-700: #36495A;
-  --color-gray-800: #1F3244;
-  --color-gray-900: #0F2233;
+  /* Neutrals: Tailwind gray scale, tinted toward the brand green */
+  --color-gray-50: #F4F8F4;
+  --color-gray-100: #E6EEE8;
+  --color-gray-200: #D3E0D7;
+  --color-gray-300: #B4C4B9;
+  --color-gray-400: #82938A;
+  --color-gray-500: #67786E;
+  --color-gray-600: #4B5E54;
+  --color-gray-700: #34463C;
+  --color-gray-800: #1F3028;
+  --color-gray-900: #14241C;
 
   /* Motion */
   --ease-out-soft: cubic-bezier(0.2, 0, 0, 1);
@@ -59,7 +59,7 @@
   }
   /* A row that just changed over the live feed */
   @keyframes flash {
-    from { background-color: var(--color-aqua-50); }
+    from { background-color: var(--color-accent-50); }
     to { background-color: transparent; }
   }
   /* Ring that keeps expanding behind the "Live" dot */

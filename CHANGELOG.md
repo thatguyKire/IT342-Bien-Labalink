@@ -30,8 +30,8 @@ and the project uses [Semantic Versioning](https://semver.org/).
 ### Changed
 
 - New visual design for both apps (see
-  [UI/UX Design](docs/UI-UX-Design.md)): a "clean water" palette of deep
-  blue, ocean blue and aqua; Plus Jakarta Sans throughout; Lucide icons in
+  [UI/UX Design](docs/UI-UX-Design.md)): a "Pandan & Mango" palette of
+  pandan green with a mango-yellow accent; Plus Jakarta Sans throughout; Lucide icons in
   place of every emoji; a new logo, launcher icon and favicon.
 - Android: a Material 3 design layer (colour, type and component styles)
   replaces per-screen hard-coded colours. Home, Bookings and Wallet share
@@ -46,9 +46,9 @@ and the project uses [Semantic Versioning](https://semver.org/).
   values.
 - Web: palette and font are Tailwind theme tokens; shared page header,
   stat card, status badge, filter chips, empty state and live indicator
-  (`components/ui.tsx`); a deep-blue sidebar; a two-column sign-in page.
+  (`components/ui.tsx`); a deep pandan-green sidebar; a two-column sign-in page.
   Dialogs pop in, table rows rise in, and bookings that change over the
-  live feed flash. Animations stop under `prefers-reduced-motion`.
+  live feed flash mango. Animations stop under `prefers-reduced-motion`.
 - Web: the font is self-hosted, so the dashboard no longer loads anything
   from Google Fonts.
 

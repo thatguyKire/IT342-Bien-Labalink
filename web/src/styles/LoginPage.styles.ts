@@ -6,10 +6,10 @@ export const loginStyles = {
     grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]
   `,
 
-  // Brand panel (same deep water as the dashboard sidebar)
+  // Brand panel (same deep pandan as the dashboard sidebar)
   brandPanel: `
     relative overflow-hidden
-    bg-gradient-to-br from-brand-900 via-brand-700 to-aqua-700
+    bg-gradient-to-br from-brand-900 via-brand-700 to-brand-500
     text-white px-8 py-10 lg:px-14 lg:py-14
     flex flex-col justify-between gap-10
   `,
@@ -30,7 +30,7 @@ export const loginStyles = {
     flex items-center gap-3 text-brand-100
   `,
   brandIcon: `
-    text-aqua-400 shrink-0
+    text-accent-400 shrink-0
   `,
   brandFootnote: `
     text-sm text-brand-200 hidden lg:block

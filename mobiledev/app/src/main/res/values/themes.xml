@@ -7,9 +7,9 @@
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorPrimaryContainer">@color/brand_tint</item>
         <item name="colorOnPrimaryContainer">@color/brand_deep</item>
-        <item name="colorSecondary">@color/brand_aqua_deep</item>
+        <item name="colorSecondary">@color/accent_deep</item>
         <item name="colorOnSecondary">@color/white</item>
-        <item name="colorSecondaryContainer">@color/aqua_tint</item>
+        <item name="colorSecondaryContainer">@color/accent_tint</item>
         <item name="colorOnSecondaryContainer">@color/brand_deep</item>
         <item name="colorSurface">@color/surface</item>
         <item name="colorOnSurface">@color/ink</item>

@@ -12,7 +12,7 @@ import edu.cit.bien.labalink.R
 /** Colour pairs (text on tint) used for badges and icon tiles. */
 enum class Tone(@ColorRes val content: Int, @ColorRes val container: Int) {
     BRAND(R.color.brand, R.color.brand_tint),
-    AQUA(R.color.brand_aqua_deep, R.color.aqua_tint),
+    ACCENT(R.color.accent_deep, R.color.accent_tint),
     NEUTRAL(R.color.neutral, R.color.neutral_tint),
     INFO(R.color.info, R.color.info_tint),
     SUCCESS(R.color.success, R.color.success_tint),

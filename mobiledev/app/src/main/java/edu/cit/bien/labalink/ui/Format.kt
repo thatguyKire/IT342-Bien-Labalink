@@ -11,9 +11,9 @@ fun peso(amount: Double): String = "₱ %,.2f".format(amount)
 fun machineIcon(machineType: String): Int =
     if (machineType == "WASHER") R.drawable.ic_washing_machine else R.drawable.ic_wind
 
-/** Washers in brand blue, dryers in aqua. */
+/** Washers in pandan green, dryers in mango. */
 fun machineTone(machineType: String): Tone =
-    if (machineType == "WASHER") Tone.BRAND else Tone.AQUA
+    if (machineType == "WASHER") Tone.BRAND else Tone.ACCENT
 
 fun machineLabel(machineType: String): String =
     if (machineType == "WASHER") "Washer" else "Dryer"

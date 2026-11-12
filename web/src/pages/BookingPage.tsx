@@ -119,7 +119,7 @@ export default function BookingPage() {
           <StatCard label="Running now" value={stats.activeBookings}
                     icon={Timer} tone="info" />
           <StatCard label="Revenue from completed" value={peso(stats.totalRevenue)}
-                    icon={CircleDollarSign} tone="aqua" />
+                    icon={CircleDollarSign} tone="accent" />
         </div>
 
         {error && (
@@ -178,7 +178,7 @@ export default function BookingPage() {
                     <div className="flex items-center gap-2 font-semibold text-gray-900">
                       {booking.machineType === 'WASHER'
                         ? <WashingMachine size={16} className="text-brand-600 shrink-0" aria-hidden="true" />
-                        : <Wind size={16} className="text-aqua-700 shrink-0" aria-hidden="true" />}
+                        : <Wind size={16} className="text-accent-700 shrink-0" aria-hidden="true" />}
                       {booking.machineName}
                     </div>
                     <div className="text-xs text-gray-500 tabular">

@@ -182,7 +182,25 @@ class SecurityIntegrationTest extends IntegrationTestBase {
                 .header("Access-Control-Request-Method", "PATCH"))
             .andExpect(status().isOk())
             .andExpect(header().string(
-                "Access-Control-Allow-Origin", "http://localhost:5173"));
+                "Access-Control-Allow-Origin", "http://localhost:5173"))
+            .andExpect(header().doesNotExist(
+                "Access-Control-Allow-Credentials"));
+    }
+
+    /** Browsers send SockJS /info with credentials and need this to connect. */
+    @Test
+    void sockJsInfoAllowsCredentialsForConfiguredOriginsOnly() throws Exception {
+        mvc.perform(get("/ws/info")
+                .header("Origin", "http://localhost:5173"))
+            .andExpect(status().isOk())
+            .andExpect(header().string(
+                "Access-Control-Allow-Origin", "http://localhost:5173"))
+            .andExpect(header().string(
+                "Access-Control-Allow-Credentials", "true"));
+
+        mvc.perform(get("/ws/info")
+                .header("Origin", "https://evil.example"))
+            .andExpect(status().isForbidden());
     }
 
     @Test

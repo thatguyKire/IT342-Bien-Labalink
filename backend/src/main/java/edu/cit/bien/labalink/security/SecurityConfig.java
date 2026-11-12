@@ -127,10 +127,17 @@ public class SecurityConfig {
         config.setAllowCredentials(false);
         config.setMaxAge(3600L);
 
+        // The browser SockJS client always sends its /ws/info request with
+        // credentials, so the browser rejects the response unless it allows
+        // them. Safe here: origins are still an explicit allow-list, and the
+        // socket is authenticated by the JWT in STOMP CONNECT, not cookies.
+        CorsConfiguration sockJs = new CorsConfiguration(config);
+        sockJs.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source =
             new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", config);
-        source.registerCorsConfiguration("/ws/**", config);
+        source.registerCorsConfiguration("/ws/**", sockJs);
         return source;
     }
 

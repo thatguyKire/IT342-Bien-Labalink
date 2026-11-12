@@ -1,3 +1,9 @@
+# Code and architecture rules
+
+- Always build code cleanly and modularly, with proper architecture and separation of concerns.
+- Never just bolt on a feature because I asked for it. Fit it into the existing structure the way the codebase would naturally do it.
+- If there is no clean, natural way to build it, and a refactor would be the right way to do it properly, stop before writing the code and tell me. Explain the refactor you recommend and why, then wait for my decision.
+
 # Git commit and PR rules
 
 ## Attribution
